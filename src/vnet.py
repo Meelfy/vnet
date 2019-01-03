@@ -269,7 +269,11 @@ class VNet(Model):
                          span_start_probs.unsqueeze(2)).squeeze(-1).unsqueeze(1)
         # shape(num_passages*batch_size, 1, ptr_dim)
         # print(c)
-        end_h_embedding = self._span_end_lstm(c, torch.ones(c.size()[:2]))
+        try:
+            end_h_embedding = self._span_end_lstm(c, torch.ones(c.size()[:2]).to(c.device))
+        except Exception as e:
+            print(c.device)
+            raise e
         # print(end_h_embedding)
         # print(match_passages_vector.size())
         # print(end_h_embedding.repeat(1, passage_length, 2).size())

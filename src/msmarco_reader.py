@@ -72,10 +72,12 @@ class MsmarcoMultiPassageReader(DatasetReader):
             answer_texts = []
             for passage_text in passage_texts:
                 # answer_texts = self.get_answers_with_RougeL(passage_text, answers)
-                # 先精确匹配，Royge-L优化后再加上
+                # ÏÈ¾«È·Æ¥Åä£¬Royge-LÓÅ»¯ºóÔÙ¼ÓÉÏ
                 answers_in_passage = []
                 span_in_passage = []
                 for ans in answers:
+                    if ans == 'No Answer Present.':
+                        continue
                     begin_idx = passage_text.find(ans)
                     if len(ans) != 0 and begin_idx != -1:
                         span_in_passage.append((begin_idx, begin_idx + len(ans)))
@@ -165,7 +167,7 @@ class MsmarcoMultiPassageReader(DatasetReader):
                 if drop_invalid:
                     return None
                 else:
-                    passage_token_spans.append((0, 0))
+                    passage_token_spans.append((-1, -1))
             token_spans.append(passage_token_spans)
         return self.make_MSMARCO_MultiPassage_instance(question_tokens,
                                                        passages_tokens,
@@ -208,12 +210,9 @@ class MsmarcoMultiPassageReader(DatasetReader):
                                           for span_start, span_end in spans_in_passage]))
             spans_end.append(ListField([IndexField(span_end, passage_field)
                                         for span_start, span_end in spans_in_passage]))
-            if -1 in [span_start for span_start, span_end in spans_in_passage]:
-                print(spans_in_passage)
-                raise 'span_start -1 erroe'
-            if -1 in [span_end for span_start, span_end in spans_in_passage]:
-                print(spans_in_passage)
-                raise 'span_end -1 erroe'
+            # if spans_start[0][0].sequence_index == 0:
+            #     print(token_spans)
+            #     raise '2'
         fields['spans_start'] = ListField(spans_start)
         fields['spans_end'] = ListField(spans_end)
 

@@ -317,15 +317,12 @@ class VNet(Model):
             spans_start = spans_start.squeeze(-1).view(batch_size * num_passages, -1)
             spans_end = spans_end.squeeze(-1).view(batch_size * num_passages, -1)
 
-            spans_start.clamp_(0, passage_length - 1)
-            spans_end.clamp_(0, passage_length - 1)
+            spans_start.clamp_(-1, passage_length - 1)
+            spans_end.clamp_(-1, passage_length - 1)
 
-            loss_Boundary = nll_loss(span_start_probs, spans_start.squeeze(-1), ignore_index=0)
-            print(span_start_probs)
-            print(spans_start.squeeze(-1))
-            print(loss_Boundary)
-            loss_Boundary += nll_loss(span_end_probs, spans_end.squeeze(-1), ignore_index=0)
-            loss_Boundary = -loss_Boundary
+            loss_Boundary = nll_loss(span_start_probs, spans_start.squeeze(-1), ignore_index=-1)
+            loss_Boundary += nll_loss(span_end_probs, spans_end.squeeze(-1), ignore_index=-1)
+            loss_Boundary = -loss_Boundary / 2
 
             # shape(num_passages*batch_size, passage_length)
             ground_truth_p = self.map_span_to_01(spans_end.cpu(), p.size()) -\

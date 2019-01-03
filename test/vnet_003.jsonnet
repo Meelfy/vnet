@@ -95,11 +95,12 @@
     },
     "iterator":{
         "type":"bucket",
-        "sorting_keys":[ ["question", "num_tokens"]],
+        "sorting_keys":[["question", "num_tokens"]],
+        // "sorting_keys":[["question", "num_token_characters"]],
         "batch_size":2
     },
     "trainer":{
-        "num_epochs":10,
+        "num_epochs":100,
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
@@ -115,7 +116,8 @@
             "betas":[
                 0.9,
                 0.9
-            ]
+            ],
+            "lr": 0.1
         }
     }
 }

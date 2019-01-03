@@ -96,7 +96,7 @@
     "iterator":{
         "type":"bucket",
         "sorting_keys":[ ["question", "num_tokens"]],
-        "batch_size":1
+        "batch_size":10
     },
     "trainer":{
         "num_epochs":10,

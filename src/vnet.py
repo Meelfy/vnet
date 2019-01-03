@@ -111,7 +111,7 @@ class VNet(Model):
 
         self._passage_predictor = TimeDistributed(torch.nn.Linear(num_passages, 1))
 
-        self._start_h_embedding = torch.nn.Parameter(data=torch.zeros(1, 1, 1).float(),
+        self._start_h_embedding = torch.nn.Parameter(data=torch.ones(1, 1, 1).float(),
                                                      requires_grad=False)
 
         # self._span_start_accuracy = CategoricalAccuracy()
@@ -263,14 +263,11 @@ class VNet(Model):
                                                         dim=-1)))).squeeze(-1)
         # shape(num_passages*batch_size, passage_length)
         span_start_probs = util.masked_softmax(span_start_logits, passages_mask)
-
         # shape(num_passages*batch_size, 1, ptr_dim)
         c = torch.matmul(passages_questions_vectors.transpose(1, 2),
                          span_start_probs.unsqueeze(2)).squeeze(-1).unsqueeze(1)
         # shape(num_passages*batch_size, 1, ptr_dim)
-        # print(c)
         end_h_embedding = self._span_end_lstm(c, torch.ones(c.size()[:2]).to(c.device))
-        # print(end_h_embedding)
         # print(match_passages_vector.size())
         # print(end_h_embedding.repeat(1, passage_length, 2).size())
         span_end_logits = self._ptr_layer_2(torch.tanh(self._ptr_layer_1(
@@ -324,7 +321,11 @@ class VNet(Model):
             spans_end.clamp_(0, passage_length - 1)
 
             loss_Boundary = nll_loss(span_start_probs, spans_start.squeeze(-1), ignore_index=0)
+            print(span_start_probs)
+            print(spans_start.squeeze(-1))
+            print(loss_Boundary)
             loss_Boundary += nll_loss(span_end_probs, spans_end.squeeze(-1), ignore_index=0)
+            loss_Boundary = -loss_Boundary
 
             # shape(num_passages*batch_size, passage_length)
             ground_truth_p = self.map_span_to_01(spans_end.cpu(), p.size()) -\
@@ -336,6 +337,7 @@ class VNet(Model):
             loss_Verification = torch.softmax(passages_verify, dim=-1) * ground_truth_passages_verify
             loss_Verification = torch.sum(loss_Verification)
             loss = loss_Boundary + 0.5 * loss_Content + 0.5 * loss_Verification
+            loss = loss_Boundary
             output_dict['loss'] = loss
 
         if metadata is not None:
@@ -348,7 +350,7 @@ class VNet(Model):
                 passage_str = metadata[i]['original_passages']
                 offsets = metadata[i]['passages_offsets']
                 passage_id, start_idx, end_idx = tuple(best_span[i].detach().cpu().numpy())
-                passage_id = max(0, min(passage_id, len(offsets) - 1))
+                # passage_id = max(0, min(passage_id, len(offsets) - 1))
                 # clamp start_idx and end_idx to range(0, passage_length - 1)
                 start_idx = max(0, min(start_idx, len(offsets[passage_id]) - 1))
                 end_idx = max(0, min(end_idx, len(offsets[passage_id]) - 1))
@@ -360,8 +362,6 @@ class VNet(Model):
                 answer_texts = metadata[i].get('answer_texts', [])
                 answer_text = answer_texts[np.array([len(text) for text in answer_texts]).argmax()]
                 if answer_texts:
-                    if len(best_span_string.split(' ')) > 1:
-                        print(best_span_string)
                     self._rouge_metrics(best_span_string, answer_text)
                     # self._bleu_metrics(best_span_string, answer_text)
             output_dict['question_tokens'] = question_tokens

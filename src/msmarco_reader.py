@@ -84,7 +84,7 @@ class MsmarcoMultiPassageReader(DatasetReader):
                         break
                 answer_texts.append(answers_in_passage)
                 spans.append(span_in_passage)
-            if sum([len(ans) for ans in answer_texts]) == 0:
+            if sum([len(ans) for ans in answers_in_passage]) == 0:
                 # logger.info("ignore one 0 answer instance")
                 continue
             if len(passage_texts) != 10:
@@ -214,7 +214,6 @@ class MsmarcoMultiPassageReader(DatasetReader):
             if -1 in [span_end for span_start, span_end in spans_in_passage]:
                 print(spans_in_passage)
                 raise 'span_end -1 erroe'
-        fields['spans_start'] = ListField(spans_start)
         fields['spans_start'] = ListField(spans_start)
         fields['spans_end'] = ListField(spans_end)
 

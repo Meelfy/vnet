@@ -262,7 +262,7 @@ class VNet(Model):
                                                                                         self.ptr_dim)),
                                                         dim=-1)))).squeeze(-1)
         # shape(num_passages*batch_size, passage_length)
-        span_start_probs = util.masked_softmax(span_start_logits, passages_mask)
+        span_start_probs = util.masked_log_softmax(span_start_logits, passages_mask)
         # shape(num_passages*batch_size, 1, ptr_dim)
         c = torch.matmul(passages_questions_vectors.transpose(1, 2),
                          span_start_probs.unsqueeze(2)).squeeze(-1).unsqueeze(1)
@@ -275,7 +275,7 @@ class VNet(Model):
                                                        end_h_embedding.repeat(1, passage_length, 2)),
                                                       dim=-1)))).squeeze(-1)
         # shape(num_passages*batch_size, passage_length)
-        span_end_probs = util.masked_softmax(span_end_logits, passages_mask)
+        span_end_probs = util.masked_log_softmax(span_end_logits, passages_mask)
 
         # Part Three: Answer Content Modeling
         relu = torch.nn.ReLU()
@@ -322,7 +322,7 @@ class VNet(Model):
 
             loss_Boundary = nll_loss(span_start_probs, spans_start.squeeze(-1), ignore_index=-1)
             loss_Boundary += nll_loss(span_end_probs, spans_end.squeeze(-1), ignore_index=-1)
-            loss_Boundary = -loss_Boundary / 2
+            loss_Boundary = loss_Boundary / 2
 
             # shape(num_passages*batch_size, passage_length)
             ground_truth_p = self.map_span_to_01(spans_end.cpu(), p.size()) -\
@@ -334,7 +334,7 @@ class VNet(Model):
             loss_Verification = torch.softmax(passages_verify, dim=-1) * ground_truth_passages_verify
             loss_Verification = torch.sum(loss_Verification)
             loss = loss_Boundary + 0.5 * loss_Content + 0.5 * loss_Verification
-            loss = loss_Boundary
+            # loss = loss_Boundary
             output_dict['loss'] = loss
 
         if metadata is not None:

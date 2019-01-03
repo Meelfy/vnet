@@ -17,7 +17,7 @@ from allennlp.data.fields import Field, TextField, IndexField, \
 from .scripts.dataset import load_data
 from .scripts.rouge import Rouge
 
-logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
+logger = logging.getLogger(__name__)
 
 
 @DatasetReader.register("msmarco_multi_passage_limited")
@@ -72,7 +72,6 @@ class MsmarcoMultiPassageReader(DatasetReader):
             answer_texts = []
             for passage_text in passage_texts:
                 # answer_texts = self.get_answers_with_RougeL(passage_text, answers)
-                # ÏÈ¾«È·Æ¥Åä£¬Royge-LÓÅ»¯ºóÔÙ¼ÓÉÏ
                 answers_in_passage = []
                 span_in_passage = []
                 for ans in answers:
@@ -210,9 +209,6 @@ class MsmarcoMultiPassageReader(DatasetReader):
                                           for span_start, span_end in spans_in_passage]))
             spans_end.append(ListField([IndexField(span_end, passage_field)
                                         for span_start, span_end in spans_in_passage]))
-            # if spans_start[0][0].sequence_index == 0:
-            #     print(token_spans)
-            #     raise '2'
         fields['spans_start'] = ListField(spans_start)
         fields['spans_end'] = ListField(spans_end)
 

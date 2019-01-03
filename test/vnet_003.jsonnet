@@ -39,7 +39,7 @@
                             5
                         ]
                     },
-                    "dropout":0.2
+                    "dropout":0.0
                 }
             }
         },
@@ -50,7 +50,7 @@
             "input_size":150,
             "hidden_size":100,
             "num_layers":2,
-            "dropout":0.2
+            "dropout":0.0
         },
         "match_layer":{
             "type":"lstm",
@@ -58,7 +58,7 @@
             "input_size":200,
             "hidden_size":100,
             "num_layers":2,
-            "dropout":0.2
+            "dropout":0.0
         },
         "modeling_layer":{
             "type":"lstm",
@@ -66,7 +66,7 @@
             "input_size":800,
             "hidden_size":100,
             "num_layers":2,
-            "dropout":0.2
+            "dropout":0.0
         },
         "matrix_attention_layer": {
             "type": "linear",
@@ -80,7 +80,7 @@
             "input_size":200,
             "hidden_size":100,
             "num_layers":2,
-            "dropout":0.2
+            "dropout":0.0
         },
         "span_end_encoder":{
             "type":"lstm",
@@ -88,10 +88,10 @@
             "input_size":1400,
             "hidden_size":100,
             "num_layers":2,
-            "dropout":0.2
+            "dropout":0.0
         },
         "ptr_dim":200,
-        "dropout":0.2
+        "dropout":0.0
     },
     "iterator":{
         "type":"bucket",
@@ -117,7 +117,7 @@
                 0.9,
                 0.9
             ],
-            "lr": 0.1
+            "lr": 0.01
         }
     }
 }

@@ -24,6 +24,7 @@ from allennlp.modules import Seq2SeqEncoder, TimeDistributed, TextFieldEmbedder
 from allennlp.modules.matrix_attention.dot_product_matrix_attention import DotProductMatrixAttention
 from allennlp.modules.matrix_attention.matrix_attention import MatrixAttention
 from allennlp.nn import util, InitializerApplicator, RegularizerApplicator
+from allennlp.training.metrics import BooleanAccuracy, CategoricalAccuracy
 from allennlp.training.metrics.bleu import BLEU
 
 from .MsmarcoRouge import MsmarcoRouge
@@ -111,12 +112,12 @@ class VNet(Model):
 
         self._passage_predictor = TimeDistributed(torch.nn.Linear(num_passages, 1))
 
-        self._start_h_embedding = torch.nn.Parameter(data=torch.ones(1, 1, 1).float(),
+        self._start_h_embedding = torch.nn.Parameter(data=torch.zeros(1, 1, 1).float(),
                                                      requires_grad=False)
 
-        # self._span_start_accuracy = CategoricalAccuracy()
-        # self._span_end_accuracy = CategoricalAccuracy()
-        # self._span_accuracy = BooleanAccuracy()
+        self._span_start_accuracy = CategoricalAccuracy()
+        self._span_end_accuracy = CategoricalAccuracy()
+        self._span_accuracy = BooleanAccuracy()
         self._rouge_metrics = MsmarcoRouge()
         self._bleu_metrics = BLEU()
         if dropout > 0:
@@ -186,6 +187,7 @@ class VNet(Model):
             question.
         """
         # Part One: Question and Passage Modeling
+        # ---------------------------------------
         # passages['token_characters']
         #   torch.Size([batch_size, num_passage, passage_length, num_characters])
         # passages['tokens']
@@ -243,6 +245,7 @@ class VNet(Model):
         passages_questions_vectors = util.weighted_sum(encoded_questions, passages_questions_attention)
 
         # Part Two: Answer Boundary Prediction
+        # ------------------------------------
         # Shape: (num_passages*batch_size, passage_length, phrase_layer_encoding_dim)
         match_passages_vector = self._dropout(self._match_layer(passages_questions_vectors,
                                                                 passages_lstm_mask))
@@ -262,22 +265,20 @@ class VNet(Model):
                                                                                         self.ptr_dim)),
                                                         dim=-1)))).squeeze(-1)
         # shape(num_passages*batch_size, passage_length)
-        span_start_probs = util.masked_log_softmax(span_start_logits, passages_mask)
+        span_start_probs = util.masked_softmax(span_start_logits, passages_mask)
         # shape(num_passages*batch_size, 1, ptr_dim)
         c = torch.matmul(passages_questions_vectors.transpose(1, 2),
                          span_start_probs.unsqueeze(2)).squeeze(-1).unsqueeze(1)
         # shape(num_passages*batch_size, 1, ptr_dim)
         end_h_embedding = self._span_end_lstm(c, torch.ones(c.size()[:2]).to(c.device))
-        # print(match_passages_vector.size())
-        # print(end_h_embedding.repeat(1, passage_length, 2).size())
         span_end_logits = self._ptr_layer_2(torch.tanh(self._ptr_layer_1(
                                             torch.cat((match_passages_vector,
                                                        end_h_embedding.repeat(1, passage_length, 2)),
                                                       dim=-1)))).squeeze(-1)
         # shape(num_passages*batch_size, passage_length)
-        span_end_probs = util.masked_log_softmax(span_end_logits, passages_mask)
-
+        span_end_probs = util.masked_softmax(span_end_logits, passages_mask)
         # Part Three: Answer Content Modeling
+        # -----------------------------------
         relu = torch.nn.ReLU()
         # shape(num_passages*batch_size, passage_length)
         p = torch.sigmoid(self._content_layer_2(relu(self._content_layer_1(encoded_passages)))).squeeze(-1)
@@ -285,6 +286,7 @@ class VNet(Model):
         r = torch.matmul(p.unsqueeze(1), embedded_passages).squeeze(1) / passage_length
 
         # Part Four:  Cross-Passage Answer Verification
+        # ---------------------------------------------
         # shape(batch_size, num_passages, embedding_dim)
         batch_r = r.view(-1, num_passages, embedding_dim)
         set_diagonal_zero = (1 - torch.eye(num_passages)).unsqueeze(0).repeat(batch_size, 1, 1)
@@ -299,11 +301,8 @@ class VNet(Model):
         g = self._passages_matrix_attention(batch_r, passages_self_attention)
         # shape(batch_size, num_passages)
         passages_verify = self._passage_predictor(g).squeeze(-1)
-        # print(batch_r.size())
-        # print(passages_self_attention.size())
-        # print(passages_verify.size())
-        best_span = self.get_best_span(span_start_logits.view(batch_size, num_passages, -1),
-                                       span_end_logits.view(batch_size, num_passages, -1))
+        best_span = self.get_best_span(span_start_probs.view(batch_size, num_passages, -1),
+                                       span_end_probs.view(batch_size, num_passages, -1))
         output_dict = {'best_span': best_span,
                        'span_start_logits': span_start_logits.view(batch_size, num_passages, -1),
                        'span_start_probs': span_start_probs.view(batch_size, num_passages, -1),
@@ -319,9 +318,10 @@ class VNet(Model):
 
             spans_start.clamp_(-1, passage_length - 1)
             spans_end.clamp_(-1, passage_length - 1)
-
-            loss_Boundary = nll_loss(span_start_probs, spans_start.squeeze(-1), ignore_index=-1)
-            loss_Boundary += nll_loss(span_end_probs, spans_end.squeeze(-1), ignore_index=-1)
+            loss_Boundary = nll_loss(util.masked_log_softmax(span_start_logits, passages_mask),
+                                     spans_start.squeeze(-1), ignore_index=-1)
+            loss_Boundary += nll_loss(util.masked_log_softmax(span_end_logits, passages_mask),
+                                      spans_end.squeeze(-1), ignore_index=-1)
             loss_Boundary = loss_Boundary / 2
 
             # shape(num_passages*batch_size, passage_length)
@@ -346,7 +346,7 @@ class VNet(Model):
                 passage_tokens.append(metadata[i]['passage_tokens'])
                 passage_str = metadata[i]['original_passages']
                 offsets = metadata[i]['passages_offsets']
-                passage_id, start_idx, end_idx = tuple(best_span[i].detach().cpu().numpy())
+                passage_id, start_idx, end_idx = tuple(best_span[i, :].detach().cpu().numpy())
                 # passage_id = max(0, min(passage_id, len(offsets) - 1))
                 # clamp start_idx and end_idx to range(0, passage_length - 1)
                 start_idx = max(0, min(start_idx, len(offsets[passage_id]) - 1))
@@ -360,6 +360,10 @@ class VNet(Model):
                 answer_text = answer_texts[np.array([len(text) for text in answer_texts]).argmax()]
                 if answer_texts:
                     self._rouge_metrics(best_span_string, answer_text)
+                    self._span_start_accuracy(span_start_probs.view(batch_size, num_passages, -1),
+                                              spans_start.view(batch_size, num_passages))
+                    self._span_end_accuracy(span_end_probs.view(batch_size, num_passages, -1),
+                                            spans_end.view(batch_size, num_passages))
                     # self._bleu_metrics(best_span_string, answer_text)
             output_dict['question_tokens'] = question_tokens
             output_dict['passage_tokens'] = passage_tokens
@@ -422,8 +426,8 @@ class VNet(Model):
     def get_metrics(self, reset: bool = False) -> Dict[str, float]:
         rouge_l = self._rouge_metrics.get_metric(reset)
         # bleu_1 = self._bleu_metrics.get_metric(reset)
-        return {  # 'start_acc': self._span_start_accuracy.get_metric(reset),
-                  # 'end_acc': self._span_end_accuracy.get_metric(reset),
-                  # 'span_acc': self._span_accuracy.get_metric(reset),
-                  'rouge_L': rouge_l}
+        return {'start_acc': self._span_start_accuracy.get_metric(reset),
+                'end_acc': self._span_end_accuracy.get_metric(reset),
+                # 'span_acc': self._span_accuracy.get_metric(reset),
+                'rouge_L': rouge_l}
         # 'bleu_1': bleu_1}

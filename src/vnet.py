@@ -358,14 +358,14 @@ class VNet(Model):
             # shape(num_passages*batch_size, passage_length)
             ground_truth_p = self.map_span_to_01(spans_end, p.size()) -\
                 self.map_span_to_01(spans_start, p.size())
-            print(ground_truth_p)
+            # print(ground_truth_p)
             loss_Content = torch.sum(p * ground_truth_p)
             ground_truth_passages_verify = (1 - (spans_end == spans_start)).float().view(batch_size,
                                                                                          num_passages)
             loss_Verification = torch.softmax(passages_verify, dim=-1) * ground_truth_passages_verify
             loss_Verification = torch.sum(loss_Verification)
             loss = loss_Boundary + 0.5 * loss_Content + 0.5 * loss_Verification
-            loss = loss_Content
+            loss = loss_Boundary
             output_dict['loss'] = loss
 
         if metadata is not None:
@@ -397,10 +397,10 @@ class VNet(Model):
                     self._span_end_accuracy(span_end_probs.view(batch_size, num_passages, -1),
                                             spans_end.view(batch_size, num_passages))
                     # self._bleu_metrics(best_span_string, answer_text)
-            if answer_text != ['']:
-                print()
-                print(output_dict['best_span_str'][-1])
-                print(answer_text[0])
+            # if answer_text != ['']:
+            #     print()
+            #     print(output_dict['best_span_str'][-1])
+            #     print(answer_text[0])
             # if answer_text != ['']:
             #     print()
             #     print(output_dict['best_span_str'][-1].split(' ')[::-1])

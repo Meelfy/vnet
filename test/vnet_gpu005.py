@@ -13,15 +13,15 @@
         "passage_length_limit":400,
         "question_length_limit":50
     },
-    "train_data_path":"/home/meelfy/working/msmarco/fixtures/2samples.json",
-    "validation_data_path":"/home/meelfy/working/msmarco/fixtures/2samples.json",
+    "train_data_path":"/home/meefly/working/vnet/fixtures/2samples.json",
+    "validation_data_path":"/home/meefly/working/vnet/fixtures/2samples.json",
     "model":{
         "type":"vnet",
         "text_field_embedder":{
             "token_embedders":{
                 "tokens":{
                     "type":"embedding",
-                    "pretrained_file":"/home/meelfy/data/WordEmb/glove.6B.50d.txt",
+                    "pretrained_file":"/data/nfsdata/meijie/data/WordEmb/glove.6B.50d.txt",
                     "embedding_dim":50,
                     "trainable":true
                 },
@@ -103,7 +103,7 @@
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":-1,
+        "cuda_device":[2,3],
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

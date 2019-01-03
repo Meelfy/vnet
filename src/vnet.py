@@ -346,15 +346,10 @@ class VNet(Model):
                 passage_str = metadata[i]['original_passages']
                 offsets = metadata[i]['passages_offsets']
                 passage_id, start_idx, end_idx = tuple(best_span[i].detach().cpu().numpy())
-
+                passage_id = max(0, min(passage_id, len(offsets) - 1))
                 # clamp start_idx and end_idx to range(0, passage_length - 1)
-                try:
-                    start_idx = max(0, min(start_idx, len(offsets[passage_id]) - 1))
-                    end_idx = max(0, min(end_idx, len(offsets[passage_id]) - 1))
-                except Exception as e:
-                    print(len(offsets))
-                    print(passage_id)
-                    raise e
+                start_idx = max(0, min(start_idx, len(offsets[passage_id]) - 1))
+                end_idx = max(0, min(end_idx, len(offsets[passage_id]) - 1))
 
                 start_offset = offsets[passage_id][start_idx][0]
                 end_offset = offsets[passage_id][end_idx][1]

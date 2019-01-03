@@ -13,8 +13,8 @@
         "passage_length_limit":400,
         "question_length_limit":50
     },
-    "train_data_path":"/home/meefly/working/vnet/fixtures/2samples.json",
-    "validation_data_path":"/home/meefly/working/vnet/fixtures/2samples.json",
+    "train_data_path":"/home/meefly/working/vnet/fixtures/small_samples.json",
+    "validation_data_path":"/home/meefly/working/vnet/fixtures/small_samples.json",
     "model":{
         "type":"vnet",
         "text_field_embedder":{
@@ -36,7 +36,7 @@
                         "embedding_dim":16,
                         "num_filters":100,
                         "ngram_filter_sizes":[
-                            5
+                            3
                         ]
                     },
                     "dropout":0.2
@@ -96,14 +96,14 @@
     "iterator":{
         "type":"bucket",
         "sorting_keys":[ ["question", "num_tokens"]],
-        "batch_size":40
+        "batch_size":1
     },
     "trainer":{
         "num_epochs":10,
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":[2,3],
+        "cuda_device":-1,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

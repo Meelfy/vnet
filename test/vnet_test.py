@@ -9,7 +9,7 @@ class VnetTest(ModelTestCase):
     def setUp(self):
         super(VnetTest, self).setUp()
         self.set_up_model('./vnet.jsonnet',
-                          '../fixtures/2samples.json')
+                          '../fixtures/small_samples.json')
 
     def test_model_can_train_save_and_load(self):
         self.ensure_model_can_train_save_and_load(self.param_file)

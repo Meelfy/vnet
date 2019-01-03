@@ -13,8 +13,8 @@
         "passage_length_limit":400,
         "question_length_limit":50
     },
-    "train_data_path":"/home/meelfy/working/msmarco/fixtures/2samples.json",
-    "validation_data_path":"/home/meelfy/working/msmarco/fixtures/2samples.json",
+    "train_data_path":"/home/meelfy/working/msmarco/fixtures/small_samples.json",
+    "validation_data_path":"/home/meelfy/working/msmarco/fixtures/small_samples.json",
     "model":{
         "type":"vnet",
         "text_field_embedder":{

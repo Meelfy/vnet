@@ -8,7 +8,7 @@ from src.msmarco_reader import MsmarcoMultiPassageReader
 class TestQAReader(AllenNlpTestCase):
     def test_read_from_file(self):
         reader = MsmarcoMultiPassageReader(lazy=True)
-        instances = ensure_list(reader.read('../fixtures/2samples.json'))
+        instances = ensure_list(reader.read('../fixtures/small_samples.json'))
 
         assert len(instances) == 2
         fields = instances[0].fields

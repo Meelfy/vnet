@@ -87,6 +87,12 @@ class MsmarcoMultiPassageReader(DatasetReader):
             if sum([len(ans) for ans in answer_texts]) == 0:
                 # logger.info("ignore one 0 answer instance")
                 continue
+            if len(passage_texts) != 10:
+                # logger.info("the num of passage must be the same")
+                continue
+            if len(question_text.split(' ')) <= 3:
+                # logger.info("the length of question must be bigger than cnn kernel size")
+                continue
             assert len(spans) == len(passage_texts) == len(answer_texts), 'each passage must have a spans \
                                                                            and a answer_texts'
             if is_train:

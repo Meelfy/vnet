@@ -327,8 +327,9 @@ class VNet(Model):
             loss_Boundary += nll_loss(span_end_probs, spans_end.squeeze(-1), ignore_index=0)
 
             # shape(num_passages*batch_size, passage_length)
-            ground_truth_p = self.map_span_to_01(spans_end,
-                                                 p.size()) - self.map_span_to_01(spans_start, p.size())
+            ground_truth_p = self.map_span_to_01(spans_end.cpu(), p.size()) -\
+                self.map_span_to_01(spans_start.cpu(), p.size())
+            ground_truth_p = ground_truth_p.to(c.device)
             loss_Content = torch.sum(p * ground_truth_p)
             ground_truth_passages_verify = (1 - (spans_end == spans_start)).float().view(batch_size,
                                                                                          num_passages)
@@ -359,6 +360,8 @@ class VNet(Model):
                 answer_texts = metadata[i].get('answer_texts', [])
                 answer_text = answer_texts[np.array([len(text) for text in answer_texts]).argmax()]
                 if answer_texts:
+                    if len(best_span_string.split(' ')) > 1:
+                        print(best_span_string)
                     self._rouge_metrics(best_span_string, answer_text)
                     # self._bleu_metrics(best_span_string, answer_text)
             output_dict['question_tokens'] = question_tokens

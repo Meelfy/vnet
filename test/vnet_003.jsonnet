@@ -77,8 +77,8 @@
         "span_end_lstm":{
             "type":"lstm",
             "bidirectional":false,
-            "input_size":200,
-            "hidden_size":100,
+            "input_size":1000,
+            "hidden_size":200,
             "num_layers":2,
             "dropout":0.0
         },

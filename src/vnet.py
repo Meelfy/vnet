@@ -57,9 +57,6 @@ class VNet(Model):
     modeling_layer : ``Seq2SeqEncoder``
         The encoder (with its own internal stacking) that we will use in between the bidirectional
         attention and predicting span start and end.
-    span_end_encoder : ``Seq2SeqEncoder``
-        The encoder that we will use to incorporate span start predictions into the passage state
-        before predicting span end.
     dropout : ``float``, optional (default=0.2)
         If greater than 0, we will apply dropout with this probability after all encoders (pytorch
         LSTMs do not apply dropout to their last layer).
@@ -83,7 +80,6 @@ class VNet(Model):
                  matrix_attention_layer: MatrixAttention,
                  modeling_layer: Seq2SeqEncoder,
                  span_end_lstm: Seq2SeqEncoder,
-                 span_end_encoder: Seq2SeqEncoder,
                  ptr_dim: int = 200,
                  dropout: float = 0.2,
                  num_passages: int = 10,
@@ -107,7 +103,8 @@ class VNet(Model):
                                                             ptr_dim, ptr_dim))
         self._ptr_layer_2 = TimeDistributed(torch.nn.Linear(ptr_dim, 1))
 
-        self._content_layer_1 = TimeDistributed(torch.nn.Linear(match_layer.get_output_dim(), ptr_dim))
+        self._content_layer_1 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
+                                                                modeling_dim, ptr_dim))
         self._content_layer_2 = TimeDistributed(torch.nn.Linear(ptr_dim, 1))
 
         self._passages_matrix_attention = matrix_attention_layer
@@ -312,7 +309,8 @@ class VNet(Model):
         # -----------------------------------
         relu = torch.nn.ReLU()
         # shape(num_passages*batch_size, passage_length)
-        p = torch.sigmoid(self._content_layer_2(relu(self._content_layer_1(encoded_passages)))).squeeze(-1)
+        p = torch.sigmoid(self._content_layer_2(relu(self._content_layer_1(
+            match_passages_vector)))).squeeze(-1)
         # shape(num_passages*batch_size, embedding_dim)
         r = torch.matmul(p.unsqueeze(1), embedded_passages).squeeze(1) / passage_length
 
@@ -357,15 +355,19 @@ class VNet(Model):
 
             # shape(num_passages*batch_size, passage_length)
             ground_truth_p = self.map_span_to_01(spans_end, p.size()) -\
-                self.map_span_to_01(spans_start, p.size())
+                self.map_span_to_01(spans_start - 1, p.size())
             # print(ground_truth_p)
             loss_Content = torch.sum(p * ground_truth_p)
-            ground_truth_passages_verify = (1 - (spans_end == spans_start)).float().view(batch_size,
-                                                                                         num_passages)
-            loss_Verification = torch.softmax(passages_verify, dim=-1) * ground_truth_passages_verify
-            loss_Verification = torch.sum(loss_Verification)
+            # shape(batch_size, num_passages)
+            ground_truth_passages_verify = (spans_end != -1).float().view(batch_size,
+                                                                          num_passages)
+            loss_Verification = torch.log_softmax(passages_verify, dim=-1) * ground_truth_passages_verify
+            loss_Verification = -torch.mean(loss_Verification)
             loss = loss_Boundary + 0.5 * loss_Content + 0.5 * loss_Verification
-            loss = loss_Boundary
+            print('\nloss_Boundary\t\t', loss_Boundary)
+            print('loss_Content\t\t', loss_Content)
+            print('loss_Verification\t', loss_Verification)
+            # loss = loss_Boundary
             output_dict['loss'] = loss
 
         if metadata is not None:
@@ -397,10 +399,10 @@ class VNet(Model):
                     self._span_end_accuracy(span_end_probs.view(batch_size, num_passages, -1),
                                             spans_end.view(batch_size, num_passages))
                     # self._bleu_metrics(best_span_string, answer_text)
-            # if answer_text != ['']:
-            #     print()
-            #     print(output_dict['best_span_str'][-1])
-            #     print(answer_text[0])
+                # if answer_text != ['']:
+                print()
+                print(output_dict['best_span_str'][-1])
+                print(answer_text[0])
             # if answer_text != ['']:
             #     print()
             #     print(output_dict['best_span_str'][-1].split(' ')[::-1])

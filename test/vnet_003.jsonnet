@@ -82,14 +82,6 @@
             "num_layers":2,
             "dropout":0.0
         },
-        "span_end_encoder":{
-            "type":"lstm",
-            "bidirectional":true,
-            "input_size":1400,
-            "hidden_size":100,
-            "num_layers":2,
-            "dropout":0.0
-        },
         "ptr_dim":200,
         "dropout":0.0
     },

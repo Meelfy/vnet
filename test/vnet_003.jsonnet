@@ -89,7 +89,7 @@
         "type":"bucket",
         "sorting_keys":[["question", "num_tokens"]],
         // "sorting_keys":[["question", "num_token_characters"]],
-        "batch_size":2
+        "batch_size":5
     },
     "trainer":{
         "num_epochs":100,

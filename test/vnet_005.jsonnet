@@ -21,7 +21,7 @@
             "token_embedders":{
                 "tokens":{
                     "type":"embedding",
-                    "pretrained_file":"/data/nfsdata/meijie/data/WordEmb/glove.6B.50d.txt",
+                    "pretrained_file":"/home/meelfy/data/WordEmb/glove.6B.50d.txt",
                     "embedding_dim":50,
                     "trainable":true
                 },
@@ -36,10 +36,10 @@
                         "embedding_dim":16,
                         "num_filters":100,
                         "ngram_filter_sizes":[
-                            3
+                            5
                         ]
                     },
-                    "dropout":0.2
+                    "dropout":0.0
                 }
             }
         },
@@ -50,7 +50,7 @@
             "input_size":150,
             "hidden_size":100,
             "num_layers":2,
-            "dropout":0.2
+            "dropout":0.0
         },
         "match_layer":{
             "type":"lstm",
@@ -58,7 +58,7 @@
             "input_size":200,
             "hidden_size":100,
             "num_layers":2,
-            "dropout":0.2
+            "dropout":0.0
         },
         "modeling_layer":{
             "type":"lstm",
@@ -66,7 +66,7 @@
             "input_size":800,
             "hidden_size":100,
             "num_layers":2,
-            "dropout":0.2
+            "dropout":0.0
         },
         "matrix_attention_layer": {
             "type": "linear",
@@ -77,33 +77,26 @@
         "span_end_lstm":{
             "type":"lstm",
             "bidirectional":false,
-            "input_size":200,
-            "hidden_size":100,
+            "input_size":1000,
+            "hidden_size":200,
             "num_layers":2,
-            "dropout":0.2
-        },
-        "span_end_encoder":{
-            "type":"lstm",
-            "bidirectional":true,
-            "input_size":1400,
-            "hidden_size":100,
-            "num_layers":2,
-            "dropout":0.2
+            "dropout":0.0
         },
         "ptr_dim":200,
-        "dropout":0.2
+        "dropout":0.0
     },
     "iterator":{
         "type":"bucket",
-        "sorting_keys":[ ["question", "num_tokens"]],
-        "batch_size":10
+        "sorting_keys":[["question", "num_tokens"]],
+        // "sorting_keys":[["question", "num_token_characters"]],
+        "batch_size":5
     },
     "trainer":{
-        "num_epochs":10,
+        "num_epochs":100,
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":-1,
+        "cuda_device":[2,3],
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,
@@ -115,7 +108,8 @@
             "betas":[
                 0.9,
                 0.9
-            ]
+            ],
+            "lr": 0.01
         }
     }
 }

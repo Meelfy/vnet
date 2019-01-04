@@ -70,7 +70,12 @@ class MsmarcoMultiPassageReader(DatasetReader):
             passage_texts = [passage['passage_text'] for passage in passages]
             spans = []
             answer_texts = []
+            flag_has_ans = False
             for passage_text in passage_texts:
+                if flag_has_ans:
+                    answer_texts.append([])
+                    spans.append([])
+                    continue
                 # answer_texts = self.get_answers_with_RougeL(passage_text, answers)
                 answers_in_passage = []
                 span_in_passage = []
@@ -81,11 +86,12 @@ class MsmarcoMultiPassageReader(DatasetReader):
                     if len(ans) != 0 and begin_idx != -1:
                         span_in_passage.append((begin_idx, begin_idx + len(ans)))
                         answers_in_passage.append(ans)
+                        flag_has_ans = True
                         # only select one ans
                         break
                 answer_texts.append(answers_in_passage)
                 spans.append(span_in_passage)
-            if sum([len(ans) for ans in answers_in_passage]) == 0:
+            if not flag_has_ans:
                 # logger.info("ignore one 0 answer instance")
                 continue
             if len(passage_texts) != 10:

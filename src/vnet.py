@@ -358,16 +358,18 @@ class VNet(Model):
                 self.map_span_to_01(spans_start - 1, p.size())
             # print(ground_truth_p)
             loss_Content = torch.sum(p * ground_truth_p)
+
             # shape(batch_size, num_passages)
-            ground_truth_passages_verify = (spans_end == -1).float().view(batch_size,
-                                                                          num_passages)
+            ground_truth_passages_verify = (spans_end != -1).float().to(c.device).view(batch_size,
+                                                                                       num_passages)
             loss_Verification = torch.log_softmax(passages_verify, dim=-1) * ground_truth_passages_verify
             loss_Verification = -torch.mean(loss_Verification)
             loss = loss_Boundary + 0.5 * loss_Content + 0.5 * loss_Verification
             loss = loss_Boundary + 0.5 * loss_Verification
-            print('\nloss_Boundary\t\t', loss_Boundary)
-            print('loss_Content\t\t', loss_Content)
-            print('loss_Verification\t', loss_Verification)
+            loss = loss_Boundary
+            # print('\nloss_Boundary\t\t', loss_Boundary)
+            # print('loss_Content\t\t', loss_Content)
+            # print('loss_Verification\t', loss_Verification)
             output_dict['loss'] = loss
 
         if metadata is not None:
@@ -399,10 +401,10 @@ class VNet(Model):
                     self._span_end_accuracy(span_end_probs.view(batch_size, num_passages, -1),
                                             spans_end.view(batch_size, num_passages))
                     # self._bleu_metrics(best_span_string, answer_text)
-                # if answer_text != ['']:
-                print()
-                print(output_dict['best_span_str'][-1])
-                print(answer_text[0])
+                if loss < 1:
+                    print()
+                    print(output_dict['best_span_str'][-1])
+                    print(answer_text[0])
             # if answer_text != ['']:
             #     print()
             #     print(output_dict['best_span_str'][-1].split(' ')[::-1])

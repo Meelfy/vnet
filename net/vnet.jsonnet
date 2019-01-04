@@ -1,22 +1,36 @@
 {
     "dataset_reader":{
-        "type":"multiprocess",
-        "base_reader":{
-            "type":"msmarco_multi_passage_limited",
-            "token_indexers":{
-                "tokens":{
-                    "type":"single_id",
-                    "lowercase_tokens":true
-                },
-                "token_characters":{
-                    "type":"characters"
-                }
+        "type":"msmarco_multi_passage_limited",
+        "token_indexers":{
+            "tokens":{
+                "type":"single_id",
+                "lowercase_tokens":true
             },
-            "passage_length_limit":400,
-            "question_length_limit":50
+            "token_characters":{
+                "type":"characters"
+            }
         },
-        "num_workers": 8
+        "passage_length_limit":400,
+        "question_length_limit":50
     },
+    // "dataset_reader":{
+    //     "type":"multiprocess",
+    //     "base_reader":{
+    //         "type":"msmarco_multi_passage_limited",
+    //         "token_indexers":{
+    //             "tokens":{
+    //                 "type":"single_id",
+    //                 "lowercase_tokens":true
+    //             },
+    //             "token_characters":{
+    //                 "type":"characters"
+    //             }
+    //         },
+    //         "passage_length_limit":400,
+    //         "question_length_limit":50
+    //     },
+    //     "num_workers": 8
+    // },
     // "train_data_path":"/home/meefly/working/vnet/fixtures/small_samples.json",
     "train_data_path":"/home/meefly/misc/10W_train.json",
     "validation_data_path":"/home/meefly/misc/10W_train.json",
@@ -92,15 +106,21 @@
         "dropout":0.2
     },
     "iterator":{
-        "type": "multiprocess",
-        "iterator":{
-            "type":"bucket",
-            "sorting_keys":[["question", "num_tokens"]],
-            // "sorting_keys":[["question", "num_token_characters"]],
-            "batch_size":5
-        },
-        "num_workers": 8
+        "type":"bucket",
+        "sorting_keys":[["question", "num_tokens"]],
+        // "sorting_keys":[["question", "num_token_characters"]],
+        "batch_size":5
     },
+    // "iterator":{
+    //     "type": "multiprocess",
+    //     "iterator":{
+    //         "type":"bucket",
+    //         "sorting_keys":[["question", "num_tokens"]],
+    //         // "sorting_keys":[["question", "num_token_characters"]],
+    //         "batch_size":5
+    //     },
+    //     "num_workers": 8
+    // },
     "trainer":{
         "num_epochs":100,
         "grad_norm":5,

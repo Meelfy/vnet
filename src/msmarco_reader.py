@@ -16,6 +16,7 @@ from allennlp.data.fields import Field, TextField, IndexField, \
 
 from .scripts.dataset import load_data
 from .scripts.rouge import Rouge
+from .utils import MaxF1Mesure
 
 logger = logging.getLogger(__name__)
 
@@ -68,45 +69,60 @@ class MsmarcoMultiPassageReader(DatasetReader):
         for qid in source['query_id']:
             passages = source['passages'][qid]
             query = source['query'][qid]
-            answers = source['answers'].get(qid)
+            answers = source['answers'][qid]
             question_text = query
             passage_texts = [passage['passage_text'] for passage in passages]
             spans = []
             answer_texts = []
             flag_has_ans = False
-            for passage_text in passage_texts:
-                # if flag_has_ans:
-                #     answer_texts.append([])
-                #     spans.append([])
-                #     continue
-                # answer_texts = self.get_answers_with_RougeL(passage_text, answers)
-                answers_in_passage = []
-                span_in_passage = []
-                for ans in answers:
-                    if ans == 'No Answer Present.':
-                        continue
-                    begin_idx = passage_text.find(ans)
-                    if len(ans) != 0 and begin_idx != -1:
-                        span_in_passage.append((begin_idx, begin_idx + len(ans)))
-                        answers_in_passage.append(ans)
-                        flag_has_ans = True
-                        # only select one ans
-                        break
-                answer_texts.append(answers_in_passage)
-                spans.append(span_in_passage)
-            # if spans[-1] == []:
-            #     continue
-            if not flag_has_ans:
-                # logger.info("ignore one 0 answer instance")
-                continue
+
             if len(passage_texts) != 10:
                 # logger.info("the num of passage must be the same")
                 continue
             if len(question_text.split(' ')) <= 3:
                 # logger.info("the length of question must be bigger than cnn kernel size")
                 continue
+            if 'No Answer Present.' in answers:
+                # logger.info("No Answer Present.")
+                # logger.info(answers)
+                continue
+
+            for passage_text in passage_texts:
+                # if flag_has_ans:
+                #     answer_texts.append([])
+                #     spans.append([])
+                #     continue
+                answers_in_passage = []
+                span_in_passage = []
+
+                def get_em_ans(answers, passage_text, span_in_passage, answers_in_passage, flag_has_ans):
+                    for ans in answers:
+                        if ans == 'No Answer Present.':
+                            continue
+                        begin_idx = passage_text.find(ans)
+                        if len(ans) != 0 and begin_idx != -1:
+                            span_in_passage.append((begin_idx, begin_idx + len(ans)))
+                            answers_in_passage.append(ans)
+                            flag_has_ans = True
+                            # only select one ans
+                            break
+                    return flag_has_ans
+                flag_has_ans = get_em_ans(answers, passage_text, span_in_passage, answers_in_passage,
+                                          flag_has_ans)
+                if not flag_has_ans:
+                    ans_f1 = self.get_ans_by_f1(passage_text, answers)
+                    # print(ans_f1)
+                    flag_has_ans = get_em_ans(ans_f1, passage_text, span_in_passage, answers_in_passage,
+                                              flag_has_ans)
+                answer_texts.append(answers_in_passage)
+                spans.append(span_in_passage)
+            if not flag_has_ans:
+                # logger.info("ignore one 0 answer instance")
+                # logger.info(answers)
+                continue
             assert len(spans) == len(passage_texts) == len(answer_texts), 'each passage must have a spans \
                                                                            and a answer_texts'
+            logger.info("+1")
             if is_train:
                 instance = self.text_to_instance(question_text,
                                                  passage_texts,
@@ -147,7 +163,7 @@ class MsmarcoMultiPassageReader(DatasetReader):
         if max_passage_len is not None:
             passages_tokens = [passage_tokens[:max_passage_len] for passage_tokens in passages_tokens]
         if max_question_len is not None:
-            question_tokens = question_tokens[: max_question_len]
+            question_tokens = question_tokens[:max_question_len]
         char_spans = char_spans or []
         # We need to convert character indices in `passage_text` to token indices in
         # `passage_tokens`, as the latter is what we'll actually use for supervision.
@@ -238,6 +254,38 @@ class MsmarcoMultiPassageReader(DatasetReader):
                 if len(candidate) == 0:
                     continue
                 score = rouge.calc_score([candidate], answers)
+                if score > threshold:
+                    if len(candidates) > 0:
+                        if lo == candidates[-1]['lo']:
+                            if score < candidates[-1]['score']:
+                                break
+                            elif score > candidates[-1]['score']:
+                                candidates = candidates[:-1]
+                        elif hi == candidates[-1]['hi'] and score < candidates[-1]['score']:
+                            break
+                        while len(candidates) > 1 and hi == candidates[-1]['hi'] and \
+                                score > candidates[-1]['score']:
+                            candidates = candidates[:-1]
+                            if len(candidates) == 0:
+                                break
+                    candidates.append({'candidate': candidate,
+                                       'lo': lo,
+                                       'hi': hi,
+                                       'score': score})
+        return [item['candidate'] for item in candidates]
+
+    @staticmethod
+    def get_ans_by_f1(passage, answers, threshold=0.7):
+        candidates = []
+        measure = MaxF1Mesure()
+        indices = [0] + [m.start() for m in re.finditer(' ', passage)]
+        for i, lo in enumerate(indices):
+            lo = lo + 1
+            for hi in indices[i:] + list(set([indices[-1], len(passage)])):
+                candidate = passage[lo:hi]
+                if len(candidate) == 0:
+                    continue
+                score = measure.calc_score([candidate], answers)
                 if score > threshold:
                     if len(candidates) > 0:
                         if lo == candidates[-1]['lo']:

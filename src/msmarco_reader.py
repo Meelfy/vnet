@@ -59,23 +59,26 @@ class MsmarcoMultiPassageReader(DatasetReader):
         is_train = 'train' in str(file_path)
         with open(file_path) as f:
             source = json.load(f)
-        query_ids = source['query_id']
-        queries = source['query']
-        data_passages = source['passages']
-        data_answers = source.get('answers', {})
-        dataset = ((qid, data_passages[qid], queries[qid], data_answers.get(qid)) for qid in query_ids)
-        # dataset   = [(qid, passages[qid], queries[qid], answers.get(qid)) for qid in query_ids]
-        for qid, passages, query, answers in dataset:
+        # query_ids = source['query_id']
+        # queries = source['query']
+        # data_passages = source['passages']
+        # data_answers = source.get('answers', {})
+        # dataset = ((qid, data_passages[qid], queries[qid], data_answers.get(qid)) for qid in query_ids)
+        # for qid, passages, query, answers in dataset:
+        for qid in source['query_id']:
+            passages = source['passages'][qid]
+            query = source['query'][qid]
+            answers = source['answers'].get(qid)
             question_text = query
             passage_texts = [passage['passage_text'] for passage in passages]
             spans = []
             answer_texts = []
             flag_has_ans = False
             for passage_text in passage_texts:
-                if flag_has_ans:
-                    answer_texts.append([])
-                    spans.append([])
-                    continue
+                # if flag_has_ans:
+                #     answer_texts.append([])
+                #     spans.append([])
+                #     continue
                 # answer_texts = self.get_answers_with_RougeL(passage_text, answers)
                 answers_in_passage = []
                 span_in_passage = []
@@ -91,6 +94,8 @@ class MsmarcoMultiPassageReader(DatasetReader):
                         break
                 answer_texts.append(answers_in_passage)
                 spans.append(span_in_passage)
+            # if spans[-1] == []:
+            #     continue
             if not flag_has_ans:
                 # logger.info("ignore one 0 answer instance")
                 continue

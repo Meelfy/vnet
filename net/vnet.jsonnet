@@ -1,20 +1,26 @@
 {
     "dataset_reader":{
-        "type":"msmarco_multi_passage_limited",
-        "token_indexers":{
-            "tokens":{
-                "type":"single_id",
-                "lowercase_tokens":true
+        "type":"multiprocess",
+        "base_reader":{
+            "type":"msmarco_multi_passage_limited",
+            "token_indexers":{
+                "tokens":{
+                    "type":"single_id",
+                    "lowercase_tokens":true
+                },
+                "token_characters":{
+                    "type":"characters"
+                }
             },
-            "token_characters":{
-                "type":"characters"
-            }
+            "passage_length_limit":400,
+            "question_length_limit":50
         },
-        "passage_length_limit":400,
-        "question_length_limit":50
+        "num_workers": 8
     },
-    "train_data_path":"/home/meefly/working/vnet/fixtures/small_samples.json",
-    "validation_data_path":"/home/meefly/working/vnet/fixtures/small_samples.json",
+    // "train_data_path":"/home/meefly/working/vnet/fixtures/small_samples.json",
+    "train_data_path":"/home/meefly/misc/10W_train.json",
+    "validation_data_path":"/home/meefly/misc/10W_train.json",
+    // "validation_data_path":"/data/nfsdata/meijie/data/msmarco/dev_v2.1.json",
     "model":{
         "type":"vnet",
         "text_field_embedder":{
@@ -39,7 +45,7 @@
                             5
                         ]
                     },
-                    "dropout":0.0
+                    "dropout":0.2
                 }
             }
         },
@@ -50,7 +56,7 @@
             "input_size":400,
             "hidden_size":100,
             "num_layers":2,
-            "dropout":0.0
+            "dropout":0.2
         },
         "match_layer":{
             "type":"lstm",
@@ -58,7 +64,7 @@
             "input_size":200,
             "hidden_size":100,
             "num_layers":2,
-            "dropout":0.0
+            "dropout":0.2
         },
         "modeling_layer":{
             "type":"lstm",
@@ -66,7 +72,7 @@
             "input_size":800,
             "hidden_size":100,
             "num_layers":2,
-            "dropout":0.0
+            "dropout":0.2
         },
         "matrix_attention_layer": {
             "type": "linear",
@@ -80,16 +86,20 @@
             "input_size":1000,
             "hidden_size":200,
             "num_layers":2,
-            "dropout":0.0
+            "dropout":0.2
         },
         "ptr_dim":200,
-        "dropout":0.0
+        "dropout":0.2
     },
     "iterator":{
-        "type":"bucket",
-        "sorting_keys":[["question", "num_tokens"]],
-        // "sorting_keys":[["question", "num_token_characters"]],
-        "batch_size":16
+        "type": "multiprocess",
+        "iterator":{
+            "type":"bucket",
+            "sorting_keys":[["question", "num_tokens"]],
+            // "sorting_keys":[["question", "num_token_characters"]],
+            "batch_size":5
+        },
+        "num_workers": 8
     },
     "trainer":{
         "num_epochs":100,
@@ -109,7 +119,7 @@
                 0.9,
                 0.9
             ],
-            "lr": 0.01
+            // "lr": 0.01
         }
     }
 }

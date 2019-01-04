@@ -188,6 +188,7 @@ class VNet(Model):
             string from the original passage that the model thinks is the best answer to the
             question.
         """
+        # ---------------------------------------
         # Part One: Question and Passage Modeling
         # ---------------------------------------
         # passages['token_characters']
@@ -203,6 +204,7 @@ class VNet(Model):
                                                                                num_characters)
         # shape(batch_size*num_passage, passage_length)
         batch_passages['tokens'] = passages['tokens'].view(-1, passage_length)
+        # shape(batch_size*num_passage, passage_length, embedding_dim)
         embedded_passages = self._highway_layer(self._text_field_embedder(batch_passages))
         embedding_dim = embedded_passages.size(-1)
 
@@ -273,6 +275,7 @@ class VNet(Model):
         modeled_passage = self._dropout(self._modeling_layer(final_merged_passage, passages_lstm_mask))
         # modeling_dim = modeled_passage.size(-1)
 
+        # ------------------------------------
         # Part Two: Answer Boundary Prediction
         # ------------------------------------
         # # Shape: (num_passages*batch_size, passage_length, phrase_layer_encoding_dim)
@@ -305,15 +308,26 @@ class VNet(Model):
                                                       dim=-1)))).squeeze(-1)
         # shape(num_passages*batch_size, passage_length)
         span_end_probs = util.masked_softmax(span_end_logits, passages_mask)
+
+        # -----------------------------------
         # Part Three: Answer Content Modeling
         # -----------------------------------
         relu = torch.nn.ReLU()
         # shape(num_passages*batch_size, passage_length)
         p = torch.sigmoid(self._content_layer_2(relu(self._content_layer_1(
             match_passages_vector)))).squeeze(-1)
-        # shape(num_passages*batch_size, embedding_dim)
-        r = torch.matmul(p.unsqueeze(1), embedded_passages).squeeze(1) / passage_length
 
+        # embedded_passages shape(batch_size*num_passages, passage_length, embedding_dim)
+        # get answers candidates
+        # shape(num_passages*batch_size, passage_length)
+        ground_truth_p = self.map_span_to_01(spans_end, p.size()) -\
+            self.map_span_to_01(spans_start - 1, p.size())
+        embedded_answers_candidates = embedded_passages *\
+            ground_truth_p.view(batch_size * num_passages, passage_length, -1).repeat(1, 1, embedding_dim)
+        # shape(num_passages*batch_size, embedding_dim)
+        r = util.weighted_sum(embedded_answers_candidates, p)
+
+        # ---------------------------------------------
         # Part Four:  Cross-Passage Answer Verification
         # ---------------------------------------------
         # shape(batch_size, num_passages, embedding_dim)
@@ -321,13 +335,14 @@ class VNet(Model):
         set_diagonal_zero = (1 - torch.eye(num_passages)).unsqueeze(0).repeat(batch_size, 1, 1)
         set_diagonal_zero = set_diagonal_zero.to(c.device)
         # shape(batch_size, num_passages, num_passages)
-        passages_self_similarity = torch.matmul(batch_r, batch_r.transpose(1, 2)) * set_diagonal_zero
-
+        passages_self_similarity = self._matrix_attention(batch_r, batch_r) * set_diagonal_zero
+        # shape(batch_size, num_passages, num_passages)
+        passages_self_attention = torch.softmax(passages_self_similarity, dim=-1)
         # shape(batch_size, num_passages, embedding_dim)
-        passages_self_attention = torch.matmul(passages_self_similarity, batch_r)
+        attention_batch_r = util.weighted_sum(batch_r, passages_self_attention)
 
         # shape(batch_size, num_passages, num_passages)
-        g = self._passages_matrix_attention(batch_r, passages_self_attention)
+        g = self._passages_matrix_attention(batch_r, attention_batch_r)
         # shape(batch_size, num_passages)
         passages_verify = self._passage_predictor(g).squeeze(-1)
         best_span = self.get_best_span(span_start_probs.view(batch_size, num_passages, -1),
@@ -353,11 +368,8 @@ class VNet(Model):
                                       spans_end.squeeze(-1), ignore_index=-1)
             loss_Boundary = loss_Boundary / 2
 
-            # shape(num_passages*batch_size, passage_length)
-            ground_truth_p = self.map_span_to_01(spans_end, p.size()) -\
-                self.map_span_to_01(spans_start - 1, p.size())
-            # print(ground_truth_p)
-            loss_Content = torch.sum(p * ground_truth_p)
+            loss_Content = -torch.mean(util.masked_log_softmax(p, passages_mask) *
+                                       ground_truth_p)
 
             # shape(batch_size, num_passages)
             ground_truth_passages_verify = (spans_end != -1).float().to(c.device).view(batch_size,
@@ -365,8 +377,8 @@ class VNet(Model):
             loss_Verification = torch.log_softmax(passages_verify, dim=-1) * ground_truth_passages_verify
             loss_Verification = -torch.mean(loss_Verification)
             loss = loss_Boundary + 0.5 * loss_Content + 0.5 * loss_Verification
-            loss = loss_Boundary + 0.5 * loss_Verification
-            loss = loss_Boundary
+            # loss = loss_Boundary + 0.5 * loss_Verification
+            # loss = loss_Boundary
             # print('\nloss_Boundary\t\t', loss_Boundary)
             # print('loss_Content\t\t', loss_Content)
             # print('loss_Verification\t', loss_Verification)
@@ -397,14 +409,16 @@ class VNet(Model):
                 if answer_texts:
                     self._rouge_metrics(best_span_string, answer_text)
                     self._span_start_accuracy(span_start_probs.view(batch_size, num_passages, -1),
-                                              spans_start.view(batch_size, num_passages))
+                                              spans_start.view(batch_size, num_passages),
+                                              (spans_start.view(batch_size, num_passages) != -1))
                     self._span_end_accuracy(span_end_probs.view(batch_size, num_passages, -1),
-                                            spans_end.view(batch_size, num_passages))
+                                            spans_end.view(batch_size, num_passages),
+                                            (spans_end.view(batch_size, num_passages) != -1))
                     # self._bleu_metrics(best_span_string, answer_text)
-                if loss < 1:
-                    print()
-                    print(output_dict['best_span_str'][-1])
-                    print(answer_text[0])
+                # if loss < 1:
+                #     print()
+                #     print(output_dict['best_span_str'][-1])
+                #     print(answer_text[0])
             # if answer_text != ['']:
             #     print()
             #     print(output_dict['best_span_str'][-1].split(' ')[::-1])
@@ -421,7 +435,7 @@ class VNet(Model):
         span_idx shape(batch_size * num_passages, 1)
         '''
         device = span_idx.device
-        x = (torch.arange(0, shape[-1]).view(1, -1).expand(shape[0], -1).float() -
+        x = (torch.arange(0, shape[-1]).view(1, -1).expand(shape[0], -1).float().to(device) -
              span_idx.float().view(-1, 1).expand(-1, shape[-1]))
         return torch.where(x > 0, torch.zeros(shape).to(device), torch.ones(shape).to(device))
 

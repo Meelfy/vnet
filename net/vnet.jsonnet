@@ -10,6 +10,13 @@
                 "type":"characters"
             }
         },
+        // "tokenizer": {
+        //     "type": "word",
+        //     "word_splitter": {
+        //         "type": "just_spaces"
+        //     }
+        // },
+        "lazy":false,
         "passage_length_limit":400,
         "question_length_limit":50
     },
@@ -32,8 +39,8 @@
     //     "num_workers": 8
     // },
     // "train_data_path":"/home/meefly/working/vnet/fixtures/small_samples.json",
-    "train_data_path":"/home/meefly/misc/10W_train.json",
-    "validation_data_path":"/home/meefly/misc/10W_train.json",
+    "train_data_path":"/home/meefly/misc/train.json",
+    "validation_data_path":"/home/meefly/misc/dev.json",
     // "validation_data_path":"/data/nfsdata/meijie/data/msmarco/dev_v2.1.json",
     "model":{
         "type":"vnet",
@@ -109,7 +116,7 @@
         "type":"bucket",
         "sorting_keys":[["question", "num_tokens"]],
         // "sorting_keys":[["question", "num_token_characters"]],
-        "batch_size":5
+        "batch_size":16
     },
     // "iterator":{
     //     "type": "multiprocess",
@@ -126,7 +133,7 @@
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":[3],
+        "cuda_device":0,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

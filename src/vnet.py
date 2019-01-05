@@ -9,7 +9,7 @@
 
 这一行开始写关于本文件的说明与解释
 """
-
+import pdb
 import logging
 import numpy as np
 from typing import Any, Dict, List, Optional, Tuple
@@ -205,7 +205,11 @@ class VNet(Model):
         # shape(batch_size*num_passage, passage_length)
         batch_passages['tokens'] = passages['tokens'].view(-1, passage_length)
         # shape(batch_size*num_passage, passage_length, embedding_dim)
-        embedded_passages = self._highway_layer(self._text_field_embedder(batch_passages))
+        try:
+            embedded_passages = self._highway_layer(self._text_field_embedder(batch_passages))
+        except Exception as e:
+            pdb.set_trace()
+            raise e
         embedding_dim = embedded_passages.size(-1)
 
         # shape(batch_size, question_length, num_characters)
@@ -214,8 +218,8 @@ class VNet(Model):
         questions['token_characters'] = question['token_characters'].repeat(1, num_passages, 1)\
                                                                     .view(-1,
                                                                           question_length,
-                                                                          num_characters)
-        questions['tokens'] = question['tokens'].repeat(1, num_passages).view(-1, question_length)
+                                                                          num_characters).cuda()
+        questions['tokens'] = question['tokens'].repeat(1, num_passages).view(-1, question_length).cuda()
         embedded_question = self._highway_layer(self._text_field_embedder(question))
         embedding_size = embedded_question.size(-1)
         # shape(num_passages*batch_size, question_length, embedding_size)

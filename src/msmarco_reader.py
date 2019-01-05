@@ -17,6 +17,7 @@ from allennlp.data.fields import Field, TextField, IndexField, \
 from .scripts.dataset import load_data
 from .scripts.rouge import Rouge
 from .utils import MaxF1Mesure
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +59,7 @@ class MsmarcoMultiPassageReader(DatasetReader):
     @overrides
     def _read(self, file_path: str) -> Iterable[Instance]:
         is_train = 'train' in str(file_path)
+        logger.info("Reading file at %s", file_path)
         with open(file_path) as f:
             source = json.load(f)
         # query_ids = source['query_id']
@@ -66,6 +68,9 @@ class MsmarcoMultiPassageReader(DatasetReader):
         # data_answers = source.get('answers', {})
         # dataset = ((qid, data_passages[qid], queries[qid], data_answers.get(qid)) for qid in query_ids)
         # for qid, passages, query, answers in dataset:
+        logger.info("Reading the dataset")
+        start_time = time.time()
+        total_p = 0.0
         for qid in source['query_id']:
             passages = source['passages'][qid]
             query = source['query'][qid]
@@ -79,8 +84,9 @@ class MsmarcoMultiPassageReader(DatasetReader):
             if len(passage_texts) != 10:
                 # logger.info("the num of passage must be the same")
                 continue
-            if len(question_text.split(' ')) <= 3:
+            if len(question_text.split(' ')) <= 6:
                 # logger.info("the length of question must be bigger than cnn kernel size")
+                # logger.info(question_text)
                 continue
             if 'No Answer Present.' in answers:
                 # logger.info("No Answer Present.")
@@ -99,6 +105,8 @@ class MsmarcoMultiPassageReader(DatasetReader):
                     for ans in answers:
                         if ans == 'No Answer Present.':
                             continue
+                        ans = ans.replace(',', '').replace('.', '').replace(' ', '')
+                        passage_text = passage_text.replace(',', '').replace('.', '').replace(' ', '')
                         begin_idx = passage_text.find(ans)
                         if len(ans) != 0 and begin_idx != -1:
                             span_in_passage.append((begin_idx, begin_idx + len(ans)))
@@ -109,33 +117,48 @@ class MsmarcoMultiPassageReader(DatasetReader):
                     return flag_has_ans
                 flag_has_ans = get_em_ans(answers, passage_text, span_in_passage, answers_in_passage,
                                           flag_has_ans)
-                if not flag_has_ans:
-                    ans_f1 = self.get_ans_by_f1(passage_text, answers)
-                    # print(ans_f1)
-                    flag_has_ans = get_em_ans(ans_f1, passage_text, span_in_passage, answers_in_passage,
-                                              flag_has_ans)
+                # if not flag_has_ans:
+                #     ans_f1 = self.get_ans_by_f1(passage_text, answers)
+                #     # print(ans_f1)
+                #     flag_has_ans = get_em_ans(ans_f1, passage_text, span_in_passage, answers_in_passage,
+                #                               flag_has_ans)
                 answer_texts.append(answers_in_passage)
                 spans.append(span_in_passage)
             if not flag_has_ans:
-                # logger.info("ignore one 0 answer instance")
-                # logger.info(answers)
+                logger.info("ignore one 0 answer instance")
+                logger.info(answers)
                 continue
             assert len(spans) == len(passage_texts) == len(answer_texts), 'each passage must have a spans \
                                                                            and a answer_texts'
-            logger.info("+1")
+            # p_start_time = time.time()
+            passages_tokens = [self._tokenizer.tokenize(passage_text) for passage_text in passage_texts]
+            # passages_tokens = []
+            # for passage_text in passage_texts:
+            #     token_list = []
+            #     idx = 0
+            #     for word in passage_text.split(' '):
+            #         idx += passage_text[idx:].find(word)
+            #         token_list.append(Token(word, idx))
+            #     passages_tokens.append(token_list)
+            # p_end_time = time.time()
+            # total_p += p_end_time - p_start_time
+            # print(total_p, time.time() - start_time)
+            # logger.info("+1")
             if is_train:
                 instance = self.text_to_instance(question_text,
                                                  passage_texts,
                                                  qid,
+                                                 passages_tokens,
                                                  answer_texts,
                                                  spans,
                                                  max_passage_len=self.passage_length_limit,
                                                  max_question_len=self.question_length_limit,
-                                                 drop_invalid=True)
+                                                 drop_invalid=False)
             else:
                 instance = self.text_to_instance(question_text,
                                                  passage_texts,
                                                  qid,
+                                                 passages_tokens,
                                                  answer_texts,
                                                  spans,
                                                  max_passage_len=self.passage_length_limit,
@@ -143,12 +166,15 @@ class MsmarcoMultiPassageReader(DatasetReader):
                                                  drop_invalid=False)
             if instance is not None:
                 yield instance
+            else:
+                logger.info("wrong instance")
 
     @overrides
     def text_to_instance(self,  # type: ignore
                          question_text: str,
                          passages_texts: List[str],
                          qid: int,
+                         passages_tokens: List[List[Token]],
                          answer_texts: List[str] = None,
                          char_spans: List[List[Tuple[int, int]]] = None,
                          max_passage_len: int = None,
@@ -158,7 +184,6 @@ class MsmarcoMultiPassageReader(DatasetReader):
         We cut the passage and question according to `max_passage_len` and `max_question_len` here.
         We will drop the invalid examples if `drop_invalid` equals to true.
         """
-        passages_tokens = [self._tokenizer.tokenize(passage_text) for passage_text in passages_texts]
         question_tokens = self._tokenizer.tokenize(question_text)
         if max_passage_len is not None:
             passages_tokens = [passage_tokens[:max_passage_len] for passage_tokens in passages_tokens]

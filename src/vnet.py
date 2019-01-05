@@ -218,8 +218,8 @@ class VNet(Model):
         questions['token_characters'] = question['token_characters'].repeat(1, num_passages, 1)\
                                                                     .view(-1,
                                                                           question_length,
-                                                                          num_characters).cuda()
-        questions['tokens'] = question['tokens'].repeat(1, num_passages).view(-1, question_length).cuda()
+                                                                          num_characters)
+        questions['tokens'] = question['tokens'].repeat(1, num_passages).view(-1, question_length)
         embedded_question = self._highway_layer(self._text_field_embedder(question))
         embedding_size = embedded_question.size(-1)
         # shape(num_passages*batch_size, question_length, embedding_size)

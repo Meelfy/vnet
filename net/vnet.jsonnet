@@ -50,12 +50,12 @@
                     "type":"embedding",
                     "pretrained_file":"/data/nfsdata/meijie/data/WordEmb/glove.6B.300d.txt",
                     "embedding_dim":300,
-                    "trainable":true
+                    "trainable":false
                 },
                 "token_characters":{
                     "type":"character_encoding",
                     "embedding":{
-                        "num_embeddings":262,
+                        "num_embeddings":1000,
                         "embedding_dim":16
                     },
                     "encoder":{

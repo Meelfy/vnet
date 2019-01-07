@@ -14,23 +14,14 @@
                 "type":"characters"
             }
         },
-        // "tokenizer": {
-        //     "type": "word",
-        //     "word_splitter": {
-        //         "type": "just_spaces"
-        //     }
-        // },
         "lazy":true,
         "passage_length_limit":400,
         "question_length_limit":50
     },
-    "train_data_path":"/data/nfsdata/meijie/data/msmarco/train_v2.1.json",
-    // "train_data_path":"/home/meefly/misc/train.json",
-    // "validation_data_path":"/home/meefly/misc/train.json",
-    // "validation_data_path":"/home/meefly/misc/dev.json",
-    "validation_data_path":"/data/nfsdata/meijie/data/msmarco/dev_v2.1.json",
+    "train_data_path":"/home/meefly/misc/train.json",
+    "validation_data_path":"/home/meefly/misc/dev.json",
     "model":{
-        "type":"vnet",
+        "type":"vSnet",
         "text_field_embedder":{
             "token_embedders":{
                 "tokens":{
@@ -103,7 +94,6 @@
         "type":"bucket",
         "sorting_keys":[["question", "num_tokens"]],
         "biggest_batch_first":true,
-        // "sorting_keys":[["question", "num_token_characters"]],
         "batch_size":8
     },
     "trainer":{
@@ -111,7 +101,7 @@
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":3,
+        "cuda_device":-1,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

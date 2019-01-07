@@ -76,7 +76,7 @@ class MsmarcoMultiPassageReader(DatasetReader):
             query = source['query'][qid]
             answers = source['answers'][qid]
             question_text = query
-            passage_texts = [passage['passage_text'] for passage in passages]
+            passage_texts = [passage['passage_text'] for passage in passages][:10]
             spans = []
             answer_texts = []
             flag_has_ans = False
@@ -84,20 +84,16 @@ class MsmarcoMultiPassageReader(DatasetReader):
             if len(passage_texts) != 10:
                 # logger.info("the num of passage must be the same")
                 continue
-            if len(question_text.split(' ')) <= 6:
-                # logger.info("the length of question must be bigger than cnn kernel size")
-                # logger.info(question_text)
-                continue
+            # if len(question_text.split(' ')) <= 5:
+            #     # logger.info("the length of question must be bigger than cnn kernel size")
+            #     # logger.info(question_text)
+            #     continue
             if 'No Answer Present.' in answers:
                 # logger.info("No Answer Present.")
                 # logger.info(answers)
                 continue
 
             for passage_text in passage_texts:
-                # if flag_has_ans:
-                #     answer_texts.append([])
-                #     spans.append([])
-                #     continue
                 answers_in_passage = []
                 span_in_passage = []
 
@@ -105,9 +101,8 @@ class MsmarcoMultiPassageReader(DatasetReader):
                     for ans in answers:
                         if ans == 'No Answer Present.':
                             continue
-                        ans = ans.replace(',', '').replace('.', '').replace(' ', '')
-                        passage_text = passage_text.replace(',', '').replace('.', '').replace(' ', '')
-                        begin_idx = passage_text.find(ans)
+                        begin_idx = passage_text.replace(',', ' ').replace('.', ' ')\
+                            .find(ans.replace(',', ' ').replace('.', ' '))
                         if len(ans) != 0 and begin_idx != -1:
                             span_in_passage.append((begin_idx, begin_idx + len(ans)))
                             answers_in_passage.append(ans)
@@ -117,38 +112,24 @@ class MsmarcoMultiPassageReader(DatasetReader):
                     return flag_has_ans
                 flag_has_ans = get_em_ans(answers, passage_text, span_in_passage, answers_in_passage,
                                           flag_has_ans)
-                # if not flag_has_ans:
-                #     ans_f1 = self.get_ans_by_f1(passage_text, answers)
-                #     # print(ans_f1)
-                #     flag_has_ans = get_em_ans(ans_f1, passage_text, span_in_passage, answers_in_passage,
-                #                               flag_has_ans)
-                answer_texts.append(answers_in_passage)
+                if not flag_has_ans and len(answers) > 0:
+                    ans_rougeL = self.get_answers_with_RougeL(passage_text, answers)
+                    flag_has_ans = get_em_ans(ans_rougeL, passage_text, span_in_passage, answers_in_passage,
+                                              flag_has_ans)
+                answer_texts.append(answers)
+                # answer_texts.append(answers_in_passage)
                 spans.append(span_in_passage)
             if not flag_has_ans:
-                logger.info("ignore one 0 answer instance")
-                logger.info(answers)
+                # logger.info("ignore one 0 answer instance")
+                # logger.info(answers)
                 continue
-            assert len(spans) == len(passage_texts) == len(answer_texts), 'each passage must have a spans \
-                                                                           and a answer_texts'
-            # p_start_time = time.time()
-            passages_tokens = [self._tokenizer.tokenize(passage_text) for passage_text in passage_texts]
-            # passages_tokens = []
-            # for passage_text in passage_texts:
-            #     token_list = []
-            #     idx = 0
-            #     for word in passage_text.split(' '):
-            #         idx += passage_text[idx:].find(word)
-            #         token_list.append(Token(word, idx))
-            #     passages_tokens.append(token_list)
-            # p_end_time = time.time()
-            # total_p += p_end_time - p_start_time
-            # print(total_p, time.time() - start_time)
-            # logger.info("+1")
+            # assert len(spans) == len(passage_texts) == len(answer_texts), 'each passage must have a spans \
+            #                                                                and a answer_texts'
             if is_train:
                 instance = self.text_to_instance(question_text,
                                                  passage_texts,
                                                  qid,
-                                                 passages_tokens,
+                                                 # passages_tokens,
                                                  answer_texts,
                                                  spans,
                                                  max_passage_len=self.passage_length_limit,
@@ -158,7 +139,7 @@ class MsmarcoMultiPassageReader(DatasetReader):
                 instance = self.text_to_instance(question_text,
                                                  passage_texts,
                                                  qid,
-                                                 passages_tokens,
+                                                 # passages_tokens,
                                                  answer_texts,
                                                  spans,
                                                  max_passage_len=self.passage_length_limit,
@@ -174,7 +155,7 @@ class MsmarcoMultiPassageReader(DatasetReader):
                          question_text: str,
                          passages_texts: List[str],
                          qid: int,
-                         passages_tokens: List[List[Token]],
+                         # passages_tokens: List[List[Token]],
                          answer_texts: List[str] = None,
                          char_spans: List[List[Tuple[int, int]]] = None,
                          max_passage_len: int = None,
@@ -185,6 +166,18 @@ class MsmarcoMultiPassageReader(DatasetReader):
         We will drop the invalid examples if `drop_invalid` equals to true.
         """
         question_tokens = self._tokenizer.tokenize(question_text)
+        # p_start_time = time.time()
+        # passages_tokens = []
+        # for passage_text in passages_texts:
+        #     token_list = []
+        #     idx = 0
+        #     for word in passage_text.split(' '):
+        #         if word == ' ':
+        #             continue
+        #         idx += passage_text[idx:].find(word)
+        #         token_list.append(Token(word, idx))
+        #     passages_tokens.append(token_list)
+        passages_tokens = [self._tokenizer.tokenize(passage_text) for passage_text in passages_texts]
         if max_passage_len is not None:
             passages_tokens = [passage_tokens[:max_passage_len] for passage_tokens in passages_tokens]
         if max_question_len is not None:
@@ -269,16 +262,16 @@ class MsmarcoMultiPassageReader(DatasetReader):
         return Instance(fields)
 
     def get_answers_with_RougeL(self, passage, answers, threshold=0.7):
+        token_as = [ans.split(' ') for ans in answers]
+        token_p = passage.split(' ')
         candidates = []
-        rouge = Rouge()
-        indices = [0] + [m.start() for m in re.finditer(' ', passage)]
-        for i, lo in enumerate(indices):
-            lo = lo + 1
-            for hi in indices[i:] + list(set([indices[-1], len(passage)])):
-                candidate = passage[lo:hi]
-                if len(candidate) == 0:
+        lcs = self.get_lcs(token_as, token_p)
+        for lo in range(len(token_p)):
+            for hi in range(lo, len(token_p)):
+                candidate = ' '.join(token_p[lo:hi])
+                if all(ch == ' ' for ch in candidate):
                     continue
-                score = rouge.calc_score([candidate], answers)
+                score = self.get_rouge_l(lcs, token_as, lo + 1, hi + 1)
                 if score > threshold:
                     if len(candidates) > 0:
                         if lo == candidates[-1]['lo']:
@@ -297,36 +290,79 @@ class MsmarcoMultiPassageReader(DatasetReader):
                                        'lo': lo,
                                        'hi': hi,
                                        'score': score})
-        return [item['candidate'] for item in candidates]
+        max_score = 0
+        best_answer = ''
+        for candidate in candidates:
+            if candidate['score'] > max_score:
+                best_answer = candidate['candidate']
+                max_score = candidate['score']
+        if best_answer != '':
+            return [best_answer]
+        else:
+            return []
+        # return [item['candidate'] for item in candidates]
 
     @staticmethod
-    def get_ans_by_f1(passage, answers, threshold=0.7):
-        candidates = []
-        measure = MaxF1Mesure()
-        indices = [0] + [m.start() for m in re.finditer(' ', passage)]
-        for i, lo in enumerate(indices):
-            lo = lo + 1
-            for hi in indices[i:] + list(set([indices[-1], len(passage)])):
-                candidate = passage[lo:hi]
-                if len(candidate) == 0:
-                    continue
-                score = measure.calc_score([candidate], answers)
-                if score > threshold:
-                    if len(candidates) > 0:
-                        if lo == candidates[-1]['lo']:
-                            if score < candidates[-1]['score']:
-                                break
-                            elif score > candidates[-1]['score']:
-                                candidates = candidates[:-1]
-                        elif hi == candidates[-1]['hi'] and score < candidates[-1]['score']:
-                            break
-                        while len(candidates) > 1 and hi == candidates[-1]['hi'] and \
-                                score > candidates[-1]['score']:
-                            candidates = candidates[:-1]
-                            if len(candidates) == 0:
-                                break
-                    candidates.append({'candidate': candidate,
-                                       'lo': lo,
-                                       'hi': hi,
-                                       'score': score})
-        return [item['candidate'] for item in candidates]
+    def get_rouge_l(lcs, token_as, lo, hi):
+        beta = 1.2
+        prec = []
+        rec = []
+        for idx, token_a in enumerate(token_as):
+            lcs_score = lcs[idx][hi] - lcs[idx][lo - 1]
+            prec.append(lcs_score / float(len(token_a)))
+            rec.append(lcs_score / float(hi - lo + 1))
+        prec_max = max(prec)
+        rec_max = max(rec)
+
+        if(prec_max != 0 and rec_max != 0):
+            score = ((1 + beta ** 2) * prec_max * rec_max) / float(rec_max + beta ** 2 * prec_max)
+        else:
+            score = 0.0
+        return score
+
+    @staticmethod
+    def get_lcs(token_as: List[List[str]], token_p: List[str]):
+        lcs = []
+        for token_a in token_as:
+            lcs_map = [[0 for i in range(0, len(token_p) + 1)]
+                       for j in range(0, len(token_a) + 1)]
+            for j in range(1, len(token_p) + 1):
+                for i in range(1, len(token_a) + 1):
+                    if(token_a[i - 1] == token_p[j - 1]):
+                        lcs_map[i][j] = lcs_map[i - 1][j - 1] + 1
+                    else:
+                        lcs_map[i][j] = max(lcs_map[i - 1][j], lcs_map[i][j - 1])
+            lcs.append([lcs_map[-1][i] for i in range(len(token_p) + 1)])
+        return lcs
+
+    # @staticmethod
+    # def get_ans_by_f1(passage, answers, threshold=0.7):
+    #     candidates = []
+    #     measure = MaxF1Mesure()
+    #     indices = [0] + [m.start() for m in re.finditer(' ', passage)]
+    #     for i, lo in enumerate(indices):
+    #         lo = lo + 1
+    #         for hi in indices[i:] + list(set([indices[-1], len(passage)])):
+    #             candidate = passage[lo:hi]
+    #             if len(candidate) == 0:
+    #                 continue
+    #             score = measure.calc_score([candidate], answers)
+    #             if score > threshold:
+    #                 if len(candidates) > 0:
+    #                     if lo == candidates[-1]['lo']:
+    #                         if score < candidates[-1]['score']:
+    #                             break
+    #                         elif score > candidates[-1]['score']:
+    #                             candidates = candidates[:-1]
+    #                     elif hi == candidates[-1]['hi'] and score < candidates[-1]['score']:
+    #                         break
+    #                     while len(candidates) > 1 and hi == candidates[-1]['hi'] and \
+    #                             score > candidates[-1]['score']:
+    #                         candidates = candidates[:-1]
+    #                         if len(candidates) == 0:
+    #                             break
+    #                 candidates.append({'candidate': candidate,
+    #                                    'lo': lo,
+    #                                    'hi': hi,
+    #                                    'score': score})
+    #     return [item['candidate'] for item in candidates]

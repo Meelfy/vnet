@@ -16,32 +16,15 @@
         //         "type": "just_spaces"
         //     }
         // },
-        "lazy":false,
+        "lazy":true,
         "passage_length_limit":400,
         "question_length_limit":50
     },
-    // "dataset_reader":{
-    //     "type":"multiprocess",
-    //     "base_reader":{
-    //         "type":"msmarco_multi_passage_limited",
-    //         "token_indexers":{
-    //             "tokens":{
-    //                 "type":"single_id",
-    //                 "lowercase_tokens":true
-    //             },
-    //             "token_characters":{
-    //                 "type":"characters"
-    //             }
-    //         },
-    //         "passage_length_limit":400,
-    //         "question_length_limit":50
-    //     },
-    //     "num_workers": 8
-    // },
-    // "train_data_path":"/home/meefly/working/vnet/fixtures/small_samples.json",
-    "train_data_path":"/home/meefly/misc/train.json",
-    "validation_data_path":"/home/meefly/misc/dev.json",
-    // "validation_data_path":"/data/nfsdata/meijie/data/msmarco/dev_v2.1.json",
+    "train_data_path":"/data/nfsdata/meijie/data/msmarco/train_v2.1.json",
+    // "train_data_path":"/home/meefly/misc/train.json",
+    // "validation_data_path":"/home/meefly/misc/train.json",
+    // "validation_data_path":"/home/meefly/misc/dev.json",
+    "validation_data_path":"/data/nfsdata/meijie/data/msmarco/dev_v2.1.json",
     "model":{
         "type":"vnet",
         "text_field_embedder":{
@@ -55,12 +38,12 @@
                 "token_characters":{
                     "type":"character_encoding",
                     "embedding":{
-                        "num_embeddings":1000,
-                        "embedding_dim":16
+                        "num_embeddings":9000,
+                        "embedding_dim":30
                     },
                     "encoder":{
                         "type":"cnn",
-                        "embedding_dim":16,
+                        "embedding_dim":30,
                         "num_filters":100,
                         "ngram_filter_sizes":[
                             5
@@ -115,25 +98,16 @@
     "iterator":{
         "type":"bucket",
         "sorting_keys":[["question", "num_tokens"]],
+        "biggest_batch_first":true,
         // "sorting_keys":[["question", "num_token_characters"]],
-        "batch_size":16
+        "batch_size":8
     },
-    // "iterator":{
-    //     "type": "multiprocess",
-    //     "iterator":{
-    //         "type":"bucket",
-    //         "sorting_keys":[["question", "num_tokens"]],
-    //         // "sorting_keys":[["question", "num_token_characters"]],
-    //         "batch_size":5
-    //     },
-    //     "num_workers": 8
-    // },
     "trainer":{
         "num_epochs":100,
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":0,
+        "cuda_device":3,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,
@@ -146,7 +120,7 @@
                 0.9,
                 0.9
             ],
-            // "lr": 0.01
+            "lr": 0.0004
         }
     }
 }

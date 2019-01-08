@@ -63,7 +63,10 @@ class MsmarcoMultiPassageReader(DatasetReader):
     @overrides
     def _read(self, file_path: str) -> Iterable[Instance]:
         is_train = 'train' in str(file_path)
-        if os.path.isfile(file_path + '.pickle'):
+        if os.path.isfile(file_path + '.instances'):
+            logger.info("load from instances file")
+            yield from self._read_instances_file(file_path + '.instances')
+        elif os.path.isfile(file_path + '.pickle'):
             logger.info("pickle processed data")
             f_reload = open(file_path + '.pickle', 'rb')
             instances_reload = pickle.load(f_reload)
@@ -79,46 +82,6 @@ class MsmarcoMultiPassageReader(DatasetReader):
                                                  max_question_len=self.question_length_limit,
                                                  drop_invalid=False)
                 yield instance
-        # elif self.build_pickle:
-        #     logger.info("building pickle processed data")
-        #     samples = add_rouge_read(file_path)
-        #     instances = []
-        #     for sample in samples:
-        #         question_text, passage_texts, qid, answer_texts, spans = sample
-        #         if is_train:
-        #             instance = self.text_to_instance(question_text,
-        #                                              passage_texts,
-        #                                              qid,
-        #                                              answer_texts,
-        #                                              spans,
-        #                                              max_passage_len=self.passage_length_limit,
-        #                                              max_question_len=self.question_length_limit,
-        #                                              drop_invalid=False)
-        #         else:
-        #             instance = self.text_to_instance(question_text,
-        #                                              passage_texts,
-        #                                              qid,
-        #                                              answer_texts,
-        #                                              spans,
-        #                                              max_passage_len=self.passage_length_limit,
-        #                                              max_question_len=self.passage_length_limit,
-        #                                              drop_invalid=False)
-        #         instances.append(instance)
-        #     f_save = open(file_path + '.pickle', 'wb')
-        #     try:
-        #         pickle.dump(instances, f_save)
-        #     except Exception as e:
-        #         raise e
-        #     finally:
-        #         f_save.close()
-        #     f_reload = open(file_path + '.pickle', 'rb')
-        #     instances_reload = pickle.load(f_reload)
-        #     f_reload.close()
-
-        #     for sample1, sample2 in tqdm(zip(instances, instances_reload)):
-        #         assert sample1 == sample2
-        #     for instance in instances_reload:
-        #         yield instance
         else:
             logger.info("Reading file at %s", file_path)
             with open(file_path) as f:
@@ -143,8 +106,9 @@ class MsmarcoMultiPassageReader(DatasetReader):
                 flag_has_ans = False
 
                 if len(passage_texts) != 10:
+                    passage_texts = passage_texts + [passage_texts[-1]] * (10 - len(passage_texts))
                     # logger.info("the num of passage must be the same")
-                    continue
+                    # continue
                 # if len(question_text.split(' ')) <= 5:
                 #     # logger.info("the length of question must be bigger than cnn kernel size")
                 #     # logger.info(question_text)
@@ -209,6 +173,31 @@ class MsmarcoMultiPassageReader(DatasetReader):
                     yield instance
                 else:
                     logger.info("wrong instance")
+
+    def _read_instances_file(self, file_path: str):
+        f_preprocessed = open(file_path, 'rb')
+        instances_json_obj = pickle.load(f_preprocessed)
+        f_preprocessed.close()
+        for json_obj in instances_json_obj:
+            yield self._json_blob_to_instance(json_obj)
+
+    def _json_blob_to_instance(self, json_obj) -> Instance:
+        question_tokens = json_obj['question_tokens']
+        passages_tokens = json_obj['passages_tokens']
+        question_tokens = [Token(text=text, idx=idx) for text, idx in question_tokens]
+        passages_tokens = [[Token(text=text, idx=idx) for text, idx in passage_tokens]
+                           for passage_tokens in passages_tokens]
+        passages_texts = json_obj['passages_texts']
+        token_spans = json_obj['token_spans']
+        answer_texts = json_obj['answer_texts']
+        qid = json_obj['qid']
+        return self.make_MSMARCO_MultiPassage_instance(question_tokens,
+                                                       passages_tokens,
+                                                       self._token_indexers,
+                                                       passages_texts,
+                                                       qid,
+                                                       token_spans,
+                                                       answer_texts)
 
     @overrides
     def text_to_instance(self,  # type: ignore
@@ -307,15 +296,17 @@ class MsmarcoMultiPassageReader(DatasetReader):
                                        for passage_tokens in passages_tokens]}
         if answer_texts:
             metadata['answer_texts'] = answer_texts
-        spans_start = []
-        spans_end = []
-        for (idx, spans_in_passage), passage_field in zip(enumerate(token_spans), passages_field):
-            spans_start.append(ListField([IndexField(span_start, passage_field)
-                                          for span_start, span_end in spans_in_passage]))
-            spans_end.append(ListField([IndexField(span_end, passage_field)
-                                        for span_start, span_end in spans_in_passage]))
-        fields['spans_start'] = ListField(spans_start)
-        fields['spans_end'] = ListField(spans_end)
+
+        if token_spans:
+            spans_start = []
+            spans_end = []
+            for (idx, spans_in_passage), passage_field in zip(enumerate(token_spans), passages_field):
+                spans_start.append(ListField([IndexField(span_start, passage_field)
+                                              for span_start, span_end in spans_in_passage]))
+                spans_end.append(ListField([IndexField(span_end, passage_field)
+                                            for span_start, span_end in spans_in_passage]))
+            fields['spans_start'] = ListField(spans_start)
+            fields['spans_end'] = ListField(spans_end)
 
         metadata.update(additional_metadata)
         fields['metadata'] = MetadataField(metadata)

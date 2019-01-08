@@ -88,6 +88,7 @@ class VNet(Model):
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
         super().__init__(vocab, regularizer)
         self.ptr_dim = ptr_dim
+        self.num_passages = num_passages
         self._text_field_embedder = text_field_embedder
         self._highway_layer = TimeDistributed(Highway(text_field_embedder.get_output_dim(),
                                                       num_highway_layers))
@@ -221,7 +222,14 @@ class VNet(Model):
                                                                           question_length,
                                                                           num_characters)
         questions['tokens'] = question['tokens'].repeat(1, num_passages).view(-1, question_length)
-        embedded_question = self._highway_layer(self._text_field_embedder(question))
+        try:
+            embedded_question = self._highway_layer(self._text_field_embedder(question))
+        except Exception as e:
+            print([data['question_tokens'] for data in metadata])
+            print(question['token_characters'])
+            print(question['tokens'])
+            print(question['token_characters'].size())
+            raise e
         embedding_size = embedded_question.size(-1)
         # shape(num_passages*batch_size, question_length, embedding_size)
         embedded_questions = embedded_question.repeat(1, num_passages, 1)\
@@ -324,11 +332,11 @@ class VNet(Model):
 
         # embedded_passages shape(batch_size*num_passages, passage_length, embedding_dim)
         # get answers candidates
-        # shape(num_passages*batch_size, passage_length)
-        ground_truth_p = self.map_span_to_01(spans_end, p.size()) -\
-            self.map_span_to_01(spans_start - 1, p.size())
+        # spans_end shape(num_passages*batch_size, passage_length)
+        prob_p = self.map_span_to_01(span_end_probs.argmax(dim=-1, keepdim=True), p.size()) -\
+            self.map_span_to_01(span_start_probs.argmax(dim=-1, keepdim=True) - 1, p.size())
         embedded_answers_candidates = embedded_passages *\
-            ground_truth_p.view(batch_size * num_passages, passage_length, -1).repeat(1, 1, embedding_dim)
+            prob_p.view(batch_size * num_passages, passage_length, -1).repeat(1, 1, embedding_dim)
         # shape(num_passages*batch_size, embedding_dim)
         r = util.weighted_sum(embedded_answers_candidates, p)
 
@@ -348,7 +356,6 @@ class VNet(Model):
 
         # shape(batch_size, num_passages, num_passages)
         g = self._passages_matrix_attention(batch_r, attention_batch_r)
-        # shape(batch_size, num_passages)
         try:
             passages_verify = self._passage_predictor(g).squeeze(-1)
         except Exception as e:
@@ -382,6 +389,8 @@ class VNet(Model):
             # span_start_probs shape(num_passages*batch_size, passage_length)
             # spans_start shape(batch_size, num_passages, 1)
             # then shape(batch_size*num_passages, 1)
+            ground_truth_p = self.map_span_to_01(spans_end, p.size()) -\
+                self.map_span_to_01(spans_start - 1, p.size())
             spans_start = spans_start.squeeze(-1).view(batch_size * num_passages, -1)
             spans_end = spans_end.squeeze(-1).view(batch_size * num_passages, -1)
 
@@ -400,7 +409,6 @@ class VNet(Model):
             loss_Boundary += nll_loss(util.masked_log_softmax(span_end_logits, passages_mask),
                                       spans_end.squeeze(-1), ignore_index=-1)
             loss_Boundary = loss_Boundary / 2
-
             loss_Content = -torch.mean(util.masked_log_softmax(p, passages_mask) *
                                        ground_truth_p)
 
@@ -440,19 +448,20 @@ class VNet(Model):
                 # answer_texts = answer_texts[passage_id] or ['']
                 if answer_texts:
                     self._rouge_metrics(best_span_string, answer_texts)
-                    # self._span_start_accuracy(span_start_probs[reshape_best_passage_id].squeeze(),
-                    #                           spans_start[reshape_best_passage_id].squeeze(),
-                    #                           (spans_start[reshape_best_passage_id].squeeze() != -1))
-                    # self._span_end_accuracy(span_end_probs[reshape_best_passage_id].squeeze(),
-                    #                         spans_end[reshape_best_passage_id].squeeze(),
-                    #                         (spans_end[reshape_best_passage_id].squeeze() != -1))
-                    self._span_start_accuracy(span_start_probs.view(batch_size, num_passages, -1),
-                                              spans_start.view(batch_size, num_passages),
-                                              (spans_start.view(batch_size, num_passages) != -1))
-                    self._span_end_accuracy(span_end_probs.view(batch_size, num_passages, -1),
-                                            spans_end.view(batch_size, num_passages),
-                                            (spans_end.view(batch_size, num_passages) != -1))
                     # self._bleu_metrics(best_span_string, answer_text)
+                    if spans_start is not None:
+                        # self._span_start_accuracy(span_start_probs[reshape_best_passage_id].squeeze(),
+                        #                           spans_start[reshape_best_passage_id].squeeze(),
+                        #                           (spans_start[reshape_best_passage_id].squeeze() != -1))
+                        # self._span_end_accuracy(span_end_probs[reshape_best_passage_id].squeeze(),
+                        #                         spans_end[reshape_best_passage_id].squeeze(),
+                        #                         (spans_end[reshape_best_passage_id].squeeze() != -1))
+                        self._span_start_accuracy(span_start_probs.view(batch_size, num_passages, -1),
+                                                  spans_start.view(batch_size, num_passages),
+                                                  (spans_start.view(batch_size, num_passages) != -1))
+                        self._span_end_accuracy(span_end_probs.view(batch_size, num_passages, -1),
+                                                spans_end.view(batch_size, num_passages),
+                                                (spans_end.view(batch_size, num_passages) != -1))
                 # if loss < 9:
                 #     print()
                 #     print(output_dict['best_span_str'][i])

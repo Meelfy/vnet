@@ -29,8 +29,9 @@ def process_one_sample(data):
     flag_has_ans = False
 
     if len(passage_texts) != 10:
+        passage_texts = passage_texts + [passage_texts[-1]] * (10 - len(passage_texts))
         # logger.info("the num of passage must be the same")
-        return None
+        # return None
     if 'No Answer Present.' in answers:
         # logger.info("No Answer Present.")
         # logger.info(answers)
@@ -72,7 +73,7 @@ def add_rouge_read(file_path: str):
 
 
 def main():
-    file_path = '/data/nfsdata/meijie/data/msmarco/train_v2.1.json'
+    file_path = '/home/meefly/misc/train.json'
     instances = add_rouge_read(file_path)
     f_save = open(file_path + '.pickle', 'wb')
     pickle.dump(instances, f_save)

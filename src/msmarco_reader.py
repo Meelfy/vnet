@@ -1,8 +1,10 @@
 import json
 import logging
 import re
+import os.path
+import pickle
+import time
 from typing import Dict, List, Tuple, Optional, Iterable, Any
-
 from overrides import overrides
 
 from allennlp.common.file_utils import cached_path
@@ -16,8 +18,8 @@ from allennlp.data.fields import Field, TextField, IndexField, \
 
 from .scripts.dataset import load_data
 from .scripts.rouge import Rouge
-from .utils import MaxF1Mesure
-import time
+from .utils import get_answers_with_RougeL
+from .scripts.addRouge_L import add_rouge_read
 
 logger = logging.getLogger(__name__)
 
@@ -48,9 +50,11 @@ class MsmarcoMultiPassageReader(DatasetReader):
                  tokenizer: Tokenizer = None,
                  token_indexers: Dict[str, TokenIndexer] = None,
                  lazy: bool = False,
+                 build_pickle: bool = True,
                  passage_length_limit: int = None,
                  question_length_limit: int = None) -> None:
         super().__init__(lazy)
+        self.build_pickle = build_pickle
         self._tokenizer = tokenizer or WordTokenizer()
         self._token_indexers = token_indexers or {'tokens': SingleIdTokenIndexer()}
         self.passage_length_limit = passage_length_limit
@@ -59,96 +63,152 @@ class MsmarcoMultiPassageReader(DatasetReader):
     @overrides
     def _read(self, file_path: str) -> Iterable[Instance]:
         is_train = 'train' in str(file_path)
-        logger.info("Reading file at %s", file_path)
-        with open(file_path) as f:
-            source = json.load(f)
-        # query_ids = source['query_id']
-        # queries = source['query']
-        # data_passages = source['passages']
-        # data_answers = source.get('answers', {})
-        # dataset = ((qid, data_passages[qid], queries[qid], data_answers.get(qid)) for qid in query_ids)
-        # for qid, passages, query, answers in dataset:
-        logger.info("Reading the dataset")
-        start_time = time.time()
-        total_p = 0.0
-        for qid in source['query_id']:
-            passages = source['passages'][qid]
-            query = source['query'][qid]
-            answers = source['answers'][qid]
-            question_text = query
-            passage_texts = [passage['passage_text'] for passage in passages][:10]
-            spans = []
-            answer_texts = []
-            flag_has_ans = False
-
-            if len(passage_texts) != 10:
-                # logger.info("the num of passage must be the same")
-                continue
-            # if len(question_text.split(' ')) <= 5:
-            #     # logger.info("the length of question must be bigger than cnn kernel size")
-            #     # logger.info(question_text)
-            #     continue
-            if 'No Answer Present.' in answers:
-                # logger.info("No Answer Present.")
-                # logger.info(answers)
-                continue
-
-            for passage_text in passage_texts:
-                answers_in_passage = []
-                span_in_passage = []
-
-                def get_em_ans(answers, passage_text, span_in_passage, answers_in_passage, flag_has_ans):
-                    for ans in answers:
-                        if ans == 'No Answer Present.':
-                            continue
-                        begin_idx = passage_text.replace(',', ' ').replace('.', ' ')\
-                            .find(ans.replace(',', ' ').replace('.', ' '))
-                        if len(ans) != 0 and begin_idx != -1:
-                            span_in_passage.append((begin_idx, begin_idx + len(ans)))
-                            answers_in_passage.append(ans)
-                            flag_has_ans = True
-                            # only select one ans
-                            break
-                    return flag_has_ans
-                flag_has_ans = get_em_ans(answers, passage_text, span_in_passage, answers_in_passage,
-                                          flag_has_ans)
-                if not flag_has_ans and len(answers) > 0:
-                    ans_rougeL = self.get_answers_with_RougeL(passage_text, answers)
-                    flag_has_ans = get_em_ans(ans_rougeL, passage_text, span_in_passage, answers_in_passage,
-                                              flag_has_ans)
-                answer_texts.append(answers)
-                # answer_texts.append(answers_in_passage)
-                spans.append(span_in_passage)
-            if not flag_has_ans:
-                # logger.info("ignore one 0 answer instance")
-                # logger.info(answers)
-                continue
-            # assert len(spans) == len(passage_texts) == len(answer_texts), 'each passage must have a spans \
-            #                                                                and a answer_texts'
-            if is_train:
+        if os.path.isfile(file_path + '.pickle'):
+            logger.info("pickle processed data")
+            f_reload = open(file_path + '.pickle', 'rb')
+            instances_reload = pickle.load(f_reload)
+            f_reload.close()
+            for data in instances_reload:
+                question_text, passage_texts, qid, answer_texts, spans = data
                 instance = self.text_to_instance(question_text,
                                                  passage_texts,
                                                  qid,
-                                                 # passages_tokens,
                                                  answer_texts,
                                                  spans,
                                                  max_passage_len=self.passage_length_limit,
                                                  max_question_len=self.question_length_limit,
                                                  drop_invalid=False)
-            else:
-                instance = self.text_to_instance(question_text,
-                                                 passage_texts,
-                                                 qid,
-                                                 # passages_tokens,
-                                                 answer_texts,
-                                                 spans,
-                                                 max_passage_len=self.passage_length_limit,
-                                                 max_question_len=self.passage_length_limit,
-                                                 drop_invalid=False)
-            if instance is not None:
                 yield instance
-            else:
-                logger.info("wrong instance")
+        # elif self.build_pickle:
+        #     logger.info("building pickle processed data")
+        #     samples = add_rouge_read(file_path)
+        #     instances = []
+        #     for sample in samples:
+        #         question_text, passage_texts, qid, answer_texts, spans = sample
+        #         if is_train:
+        #             instance = self.text_to_instance(question_text,
+        #                                              passage_texts,
+        #                                              qid,
+        #                                              answer_texts,
+        #                                              spans,
+        #                                              max_passage_len=self.passage_length_limit,
+        #                                              max_question_len=self.question_length_limit,
+        #                                              drop_invalid=False)
+        #         else:
+        #             instance = self.text_to_instance(question_text,
+        #                                              passage_texts,
+        #                                              qid,
+        #                                              answer_texts,
+        #                                              spans,
+        #                                              max_passage_len=self.passage_length_limit,
+        #                                              max_question_len=self.passage_length_limit,
+        #                                              drop_invalid=False)
+        #         instances.append(instance)
+        #     f_save = open(file_path + '.pickle', 'wb')
+        #     try:
+        #         pickle.dump(instances, f_save)
+        #     except Exception as e:
+        #         raise e
+        #     finally:
+        #         f_save.close()
+        #     f_reload = open(file_path + '.pickle', 'rb')
+        #     instances_reload = pickle.load(f_reload)
+        #     f_reload.close()
+
+        #     for sample1, sample2 in tqdm(zip(instances, instances_reload)):
+        #         assert sample1 == sample2
+        #     for instance in instances_reload:
+        #         yield instance
+        else:
+            logger.info("Reading file at %s", file_path)
+            with open(file_path) as f:
+                source = json.load(f)
+            # query_ids = source['query_id']
+            # queries = source['query']
+            # data_passages = source['passages']
+            # data_answers = source.get('answers', {})
+            # dataset = ((qid, data_passages[qid], queries[qid], data_answers.get(qid)) for qid in query_ids)
+            # for qid, passages, query, answers in dataset:
+            logger.info("Reading the dataset")
+            start_time = time.time()
+            total_p = 0.0
+            for qid in source['query_id']:
+                passages = source['passages'][qid]
+                query = source['query'][qid]
+                answers = source['answers'][qid]
+                question_text = query
+                passage_texts = [passage['passage_text'] for passage in passages][:10]
+                spans = []
+                answer_texts = []
+                flag_has_ans = False
+
+                if len(passage_texts) != 10:
+                    # logger.info("the num of passage must be the same")
+                    continue
+                # if len(question_text.split(' ')) <= 5:
+                #     # logger.info("the length of question must be bigger than cnn kernel size")
+                #     # logger.info(question_text)
+                #     continue
+                if 'No Answer Present.' in answers:
+                    # logger.info("No Answer Present.")
+                    # logger.info(answers)
+                    continue
+
+                for passage_text in passage_texts:
+                    answers_in_passage = []
+                    span_in_passage = []
+
+                    def get_em_ans(answers, passage_text, span_in_passage, answers_in_passage, flag_has_ans):
+                        for ans in answers:
+                            if ans == 'No Answer Present.':
+                                continue
+                            begin_idx = passage_text.replace(',', ' ').replace('.', ' ')\
+                                .find(ans.replace(',', ' ').replace('.', ' '))
+                            if len(ans) != 0 and begin_idx != -1:
+                                span_in_passage.append((begin_idx, begin_idx + len(ans)))
+                                answers_in_passage.append(ans)
+                                flag_has_ans = True
+                                # only select one ans
+                                break
+                        return flag_has_ans
+                    flag_has_ans = get_em_ans(answers, passage_text, span_in_passage, answers_in_passage,
+                                              flag_has_ans)
+                    if not flag_has_ans and len(answers) > 0:
+                        ans_rougeL = get_answers_with_RougeL(passage_text, answers)
+                        flag_has_ans = get_em_ans(ans_rougeL, passage_text, span_in_passage,
+                                                  answers_in_passage,
+                                                  flag_has_ans)
+                    answer_texts.append(answers)
+                    # answer_texts.append(answers_in_passage)
+                    spans.append(span_in_passage)
+                if not flag_has_ans:
+                    # logger.info("ignore one 0 answer instance")
+                    # logger.info(answers)
+                    continue
+                # assert len(spans) == len(passage_texts) == len(answer_texts),\
+                # 'each passage must have a spans and a answer_texts'
+                if is_train:
+                    instance = self.text_to_instance(question_text,
+                                                     passage_texts,
+                                                     qid,
+                                                     answer_texts,
+                                                     spans,
+                                                     max_passage_len=self.passage_length_limit,
+                                                     max_question_len=self.question_length_limit,
+                                                     drop_invalid=False)
+                else:
+                    instance = self.text_to_instance(question_text,
+                                                     passage_texts,
+                                                     qid,
+                                                     answer_texts,
+                                                     spans,
+                                                     max_passage_len=self.passage_length_limit,
+                                                     max_question_len=self.passage_length_limit,
+                                                     drop_invalid=False)
+                if instance is not None:
+                    yield instance
+                else:
+                    logger.info("wrong instance")
 
     @overrides
     def text_to_instance(self,  # type: ignore
@@ -261,80 +321,6 @@ class MsmarcoMultiPassageReader(DatasetReader):
         fields['metadata'] = MetadataField(metadata)
         return Instance(fields)
 
-    def get_answers_with_RougeL(self, passage, answers, threshold=0.7):
-        token_as = [ans.split(' ') for ans in answers]
-        token_p = passage.split(' ')
-        candidates = []
-        lcs = self.get_lcs(token_as, token_p)
-        for lo in range(len(token_p)):
-            for hi in range(lo, len(token_p)):
-                candidate = ' '.join(token_p[lo:hi])
-                if all(ch == ' ' for ch in candidate):
-                    continue
-                score = self.get_rouge_l(lcs, token_as, lo + 1, hi + 1)
-                if score > threshold:
-                    if len(candidates) > 0:
-                        if lo == candidates[-1]['lo']:
-                            if score < candidates[-1]['score']:
-                                break
-                            elif score > candidates[-1]['score']:
-                                candidates = candidates[:-1]
-                        elif hi == candidates[-1]['hi'] and score < candidates[-1]['score']:
-                            break
-                        while len(candidates) > 1 and hi == candidates[-1]['hi'] and \
-                                score > candidates[-1]['score']:
-                            candidates = candidates[:-1]
-                            if len(candidates) == 0:
-                                break
-                    candidates.append({'candidate': candidate,
-                                       'lo': lo,
-                                       'hi': hi,
-                                       'score': score})
-        max_score = 0
-        best_answer = ''
-        for candidate in candidates:
-            if candidate['score'] > max_score:
-                best_answer = candidate['candidate']
-                max_score = candidate['score']
-        if best_answer != '':
-            return [best_answer]
-        else:
-            return []
-        # return [item['candidate'] for item in candidates]
-
-    @staticmethod
-    def get_rouge_l(lcs, token_as, lo, hi):
-        beta = 1.2
-        prec = []
-        rec = []
-        for idx, token_a in enumerate(token_as):
-            lcs_score = lcs[idx][hi] - lcs[idx][lo - 1]
-            prec.append(lcs_score / float(len(token_a)))
-            rec.append(lcs_score / float(hi - lo + 1))
-        prec_max = max(prec)
-        rec_max = max(rec)
-
-        if(prec_max != 0 and rec_max != 0):
-            score = ((1 + beta ** 2) * prec_max * rec_max) / float(rec_max + beta ** 2 * prec_max)
-        else:
-            score = 0.0
-        return score
-
-    @staticmethod
-    def get_lcs(token_as: List[List[str]], token_p: List[str]):
-        lcs = []
-        for token_a in token_as:
-            lcs_map = [[0 for i in range(0, len(token_p) + 1)]
-                       for j in range(0, len(token_a) + 1)]
-            for j in range(1, len(token_p) + 1):
-                for i in range(1, len(token_a) + 1):
-                    if(token_a[i - 1] == token_p[j - 1]):
-                        lcs_map[i][j] = lcs_map[i - 1][j - 1] + 1
-                    else:
-                        lcs_map[i][j] = max(lcs_map[i - 1][j], lcs_map[i][j - 1])
-            lcs.append([lcs_map[-1][i] for i in range(len(token_p) + 1)])
-        return lcs
-
     @staticmethod
     def char_span_to_token_span(token_offsets: List[Tuple[int, int]],
                                 character_span: Tuple[int, int]) -> Tuple[Tuple[int, int], bool]:
@@ -395,35 +381,3 @@ class MsmarcoMultiPassageReader(DatasetReader):
         if token_offsets[end_index][1] != character_span[1]:
             error = True
         return (start_index, end_index), error
-
-    # @staticmethod
-    # def get_ans_by_f1(passage, answers, threshold=0.7):
-    #     candidates = []
-    #     measure = MaxF1Mesure()
-    #     indices = [0] + [m.start() for m in re.finditer(' ', passage)]
-    #     for i, lo in enumerate(indices):
-    #         lo = lo + 1
-    #         for hi in indices[i:] + list(set([indices[-1], len(passage)])):
-    #             candidate = passage[lo:hi]
-    #             if len(candidate) == 0:
-    #                 continue
-    #             score = measure.calc_score([candidate], answers)
-    #             if score > threshold:
-    #                 if len(candidates) > 0:
-    #                     if lo == candidates[-1]['lo']:
-    #                         if score < candidates[-1]['score']:
-    #                             break
-    #                         elif score > candidates[-1]['score']:
-    #                             candidates = candidates[:-1]
-    #                     elif hi == candidates[-1]['hi'] and score < candidates[-1]['score']:
-    #                         break
-    #                     while len(candidates) > 1 and hi == candidates[-1]['hi'] and \
-    #                             score > candidates[-1]['score']:
-    #                         candidates = candidates[:-1]
-    #                         if len(candidates) == 0:
-    #                             break
-    #                 candidates.append({'candidate': candidate,
-    #                                    'lo': lo,
-    #                                    'hi': hi,
-    #                                    'score': score})
-    #     return [item['candidate'] for item in candidates]

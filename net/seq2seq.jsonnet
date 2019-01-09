@@ -5,7 +5,11 @@
             "token_characters": "/home/meefly/data/msmarco/vocabulary/token_characters.txt",
             "non_padded_namespaces": "/home/meefly/data/msmarco/vocabulary/non_padded_namespaces.txt"
         },
-        "only_include_pretrained_words":true
+        "only_include_pretrained_words":true,
+        "max_vocab_size": {
+          "source_tokens": 100000,
+          "target_tokens": 100000
+        }
     },
   "dataset_reader": {
     "type": "seq2seq",
@@ -41,21 +45,6 @@
           "vocab_namespace": "source_tokens",
           "embedding_dim": 25,
           "trainable": true
-        },
-        "pos_tags": {
-          "type": "embedding",
-          "vocab_namespace": "pos",
-          "embedding_dim": 0
-        },
-        "ner_tags": {
-          "type": "embedding",
-          "vocab_namespace": "ner",
-          "embedding_dim": 0
-        },
-        "dependency_label": {
-          "type": "embedding",
-          "vocab_namespace": "dependencies",
-          "embedding_dim": 0
         }
       }
     },
@@ -66,7 +55,7 @@
       "num_layers": 1
     },
     "max_decoding_steps": 40,
-    "target_embedding_dim": 30,
+    "target_embedding_dim": 25,
     "target_namespace": "target_tokens",
     "attention": {
       "type": "dot_product"
@@ -76,11 +65,11 @@
   "iterator": {
     "type": "bucket",
     "padding_noise": 0.0,
-    "batch_size" : 80,
+    "batch_size" : 10,
     "sorting_keys": [["source_tokens", "num_tokens"]]
   },
   "trainer": {
-    "num_epochs": 5,
+    "num_epochs": 12,
     "patience": 10,
     "cuda_device": 3,
     "optimizer": {

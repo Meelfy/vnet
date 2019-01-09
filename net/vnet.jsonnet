@@ -1,6 +1,10 @@
 {
     "vocabulary":{
-        "pretrained_files":{"tokens": "/data/nfsdata/meijie/data/WordEmb/glove.6B.300d.txt"},
+        "pretrained_files":{
+            "tokens": "/home/meefly/data/msmarco/vocabulary/tokens.txt",
+            "token_characters": "/home/meefly/data/msmarco/vocabulary/token_characters.txt",
+            "non_padded_namespaces": "/home/meefly/data/msmarco/vocabulary/non_padded_namespaces.txt"
+        },
         "only_include_pretrained_words":true
     },
     "dataset_reader":{
@@ -27,8 +31,8 @@
     "train_data_path":"/data/nfsdata/meijie/data/msmarco/train_v2.1.json",
     "validation_data_path":"/data/nfsdata/meijie/data/msmarco/dev_v2.1.json",
     // "train_data_path":"/home/meefly/misc/train.json",
-    // "train_data_path":"/home/meefly/misc/dev.json",
     // "validation_data_path":"/home/meefly/misc/dev.json",
+    // "train_data_path":"/home/meefly/misc/dev.json",
     "model":{
         "type":"vnet",
         "text_field_embedder":{
@@ -111,7 +115,7 @@
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":1,
+        "cuda_device":2,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

@@ -64,10 +64,10 @@ class MsmarcoMultiPassageReader(DatasetReader):
     def _read(self, file_path: str) -> Iterable[Instance]:
         is_train = 'train' in str(file_path)
         if os.path.isfile(file_path + '.instances'):
-            logger.info("load from instances file")
+            logger.info("load from instances file %s", file_path + '.instances')
             yield from self._read_instances_file(file_path + '.instances')
         elif os.path.isfile(file_path + '.pickle'):
-            logger.info("pickle processed data")
+            logger.info("pickle processed data %s", file_path + '.pickle')
             f_reload = open(file_path + '.pickle', 'rb')
             instances_reload = pickle.load(f_reload)
             f_reload.close()
@@ -175,11 +175,11 @@ class MsmarcoMultiPassageReader(DatasetReader):
                     logger.info("wrong instance")
 
     def _read_instances_file(self, file_path: str):
-        f_preprocessed = open(file_path, 'rb')
-        instances_json_obj = pickle.load(f_preprocessed)
-        f_preprocessed.close()
-        for json_obj in instances_json_obj:
+        f_preprocessed = open(file_path, 'r')
+        for line in f_preprocessed.readlines():
+            json_obj = json.loads(line.strip())
             yield self._json_blob_to_instance(json_obj)
+        f_preprocessed.close()
 
     def _json_blob_to_instance(self, json_obj) -> Instance:
         question_tokens = json_obj['question_tokens']

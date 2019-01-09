@@ -1,13 +1,18 @@
 {
+  "vocabulary":{
+        "pretrained_files":{
+            "tokens": "/home/meefly/data/msmarco/vocabulary/tokens.txt",
+            "token_characters": "/home/meefly/data/msmarco/vocabulary/token_characters.txt",
+            "non_padded_namespaces": "/home/meefly/data/msmarco/vocabulary/non_padded_namespaces.txt"
+        },
+        "only_include_pretrained_words":true
+    },
   "dataset_reader": {
     "type": "seq2seq",
     "source_tokenizer": {
       "type": "word",
       "word_splitter": {
-        "type": "spacy",
-        "pos_tags": true,
-        "parse": true,
-        "ner": true
+        "type": "spacy"
       }
     },
     "target_tokenizer": {
@@ -17,18 +22,6 @@
       "tokens": {
         "type": "single_id",
         "namespace": "source_tokens"
-      },
-      "pos_tags": {
-        "type": "pos_tag",
-        "namespace": "pos"
-      },
-      "dependency_label": {
-        "type": "dependency_label",
-        "namespace": "dependencies"
-      },
-      "ner_tags": {
-        "type": "ner_tag",
-        "namespace": "ner"
       }
     },
     "target_token_indexers": {
@@ -52,27 +45,27 @@
         "pos_tags": {
           "type": "embedding",
           "vocab_namespace": "pos",
-          "embedding_dim": 5
+          "embedding_dim": 0
         },
         "ner_tags": {
           "type": "embedding",
           "vocab_namespace": "ner",
-          "embedding_dim": 7
+          "embedding_dim": 0
         },
         "dependency_label": {
           "type": "embedding",
           "vocab_namespace": "dependencies",
-          "embedding_dim": 10
+          "embedding_dim": 0
         }
       }
     },
     "encoder": {
       "type": "lstm",
-      "input_size": 47,
+      "input_size": 25,
       "hidden_size": 10,
       "num_layers": 1
     },
-    "max_decoding_steps": 20,
+    "max_decoding_steps": 40,
     "target_embedding_dim": 30,
     "target_namespace": "target_tokens",
     "attention": {
@@ -87,9 +80,9 @@
     "sorting_keys": [["source_tokens", "num_tokens"]]
   },
   "trainer": {
-    "num_epochs": 2,
+    "num_epochs": 5,
     "patience": 10,
-    "cuda_device": 0,
+    "cuda_device": 3,
     "optimizer": {
       "type": "adam",
       "lr": 0.01

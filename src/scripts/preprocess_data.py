@@ -59,9 +59,10 @@ def main():
     for json_obj in tqdm(pool.imap_unordered(data_to_json_obj, instances_reload)):
         if json_obj is not None:
             instances_json_obj.append(json_obj)
-    f_save = open(file_path + '.instances', 'wb')
-    pickle.dump(instances_json_obj, f_save)
-    f_save.close()
+    del instances_reload
+    with open(file_path + '.instances', 'w') as f_save:
+        for json_obj in tqdm(instances_json_obj):
+            f_save.write(json.dumps(json_obj) + '\n')
     return
 
 

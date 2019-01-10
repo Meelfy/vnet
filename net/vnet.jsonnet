@@ -31,7 +31,7 @@
     // "train_data_path":"/data/nfsdata/meijie/data/msmarco/train_v2.1.json",
     // "validation_data_path":"/data/nfsdata/meijie/data/msmarco/dev_v2.1.json",
     "train_data_path":"/home/meefly/misc/train.json",
-    "validation_data_path":"/home/meefly/misc/dev.json",
+    "validation_data_path":"/home/meefly/misc/train.json",
     // "train_data_path":"/home/meefly/misc/dev.json",
     "model":{
         "type":"vnet",
@@ -95,7 +95,7 @@
         "span_end_lstm":{
             "type":"lstm",
             "bidirectional":false,
-            "input_size":1000,
+            "input_size":200,
             "hidden_size":200,
             "num_layers":2,
             "dropout":0.2
@@ -115,7 +115,7 @@
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":2,
+        "cuda_device":3,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

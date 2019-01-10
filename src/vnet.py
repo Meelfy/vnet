@@ -96,16 +96,13 @@ class VNet(Model):
         self._matrix_attention = DotProductMatrixAttention()
         self._modeling_layer = modeling_layer
         modeling_dim = modeling_layer.get_output_dim()
-        encoding_dim = phrase_layer.get_output_dim()
 
         self._match_layer = match_layer
-        self._ptr_layer_1 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
-                                                            modeling_dim +
+        self._ptr_layer_1 = TimeDistributed(torch.nn.Linear(modeling_dim +
                                                             ptr_dim, ptr_dim))
         self._ptr_layer_2 = TimeDistributed(torch.nn.Linear(ptr_dim, 1))
 
-        self._content_layer_1 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
-                                                                modeling_dim, ptr_dim))
+        self._content_layer_1 = TimeDistributed(torch.nn.Linear(modeling_dim, ptr_dim))
         self._content_layer_2 = TimeDistributed(torch.nn.Linear(ptr_dim, 1))
 
         self._passages_matrix_attention = matrix_attention_layer
@@ -277,13 +274,13 @@ class VNet(Model):
                                                                            passage_length,
                                                                            phrase_layer_encoding_dim)
 
-        # Shape: (batch_size, passage_length, phrase_layer_encoding_dim * 4)
+        # Shape: (batch_size * num_passages, passage_length, phrase_layer_encoding_dim * 4)
         final_merged_passage = torch.cat([encoded_passages,
                                           passages_questions_vectors,
                                           encoded_passages * passages_questions_vectors,
                                           encoded_passages * tiled_questions_passages_vector],
                                          dim=-1)
-
+        # shape:(batch_size*num_passages, passage_length, modeling_dim)
         modeled_passage = self._dropout(self._modeling_layer(final_merged_passage, passages_lstm_mask))
         # modeling_dim = modeled_passage.size(-1)
 
@@ -294,12 +291,12 @@ class VNet(Model):
         # match_passages_vector = self._dropout(self._match_layer(passages_questions_vectors,
         #                                                         passages_lstm_mask))
         # Shape: (batch_size * num_passages, passage_length, encoding_dim * 4 + modeling_dim))
-        match_passages_vector = self._dropout(torch.cat([final_merged_passage, modeled_passage], dim=-1))
+        # match_passages_vector = self._dropout(torch.cat([final_merged_passage, modeled_passage], dim=-1))
 
         # Shape: (num_passages*batch_size, passage_length, ptr_dim)
         # Shape: (num_passages*batch_size, passage_length)
         span_start_logits = self._ptr_layer_2(torch.tanh(self._ptr_layer_1(
-                                              torch.cat((match_passages_vector,
+                                              torch.cat((modeled_passage,
                                                          self._start_h_embedding.repeat(num_passages *
                                                                                         batch_size,
                                                                                         passage_length,
@@ -307,13 +304,13 @@ class VNet(Model):
                                                         dim=-1)))).squeeze(-1)
         # shape(num_passages*batch_size, passage_length)
         span_start_probs = util.masked_softmax(span_start_logits, passages_mask)
-        # shape(num_passages*batch_size, 1, encoding_dim * 4 + modeling_dim)
-        c = torch.matmul(match_passages_vector.transpose(1, 2),
+        # shape(num_passages*batch_size, 1, modeling_dim)
+        c = torch.matmul(modeled_passage.transpose(1, 2),
                          span_start_probs.unsqueeze(2)).squeeze(-1).unsqueeze(1)
         # shape(num_passages*batch_size, 1, ptr_dim)
         end_h_embedding = self._span_end_lstm(c, torch.ones(c.size()[:2]).to(c.device))
         span_end_logits = self._ptr_layer_2(torch.tanh(self._ptr_layer_1(
-                                            torch.cat((match_passages_vector,
+                                            torch.cat((modeled_passage,
                                                        end_h_embedding.repeat(1,
                                                                               passage_length,
                                                                               1)),
@@ -327,7 +324,7 @@ class VNet(Model):
         relu = torch.nn.ReLU()
         # shape(num_passages*batch_size, passage_length)
         p = torch.sigmoid(self._content_layer_2(relu(self._content_layer_1(
-            match_passages_vector)))).squeeze(-1)
+            modeled_passage)))).squeeze(-1)
 
         # embedded_passages shape(batch_size*num_passages, passage_length, embedding_dim)
         # get answers candidates
@@ -335,7 +332,8 @@ class VNet(Model):
         prob_p = self.map_span_to_01(span_end_probs.argmax(dim=-1, keepdim=True), p.size()) -\
             self.map_span_to_01(span_start_probs.argmax(dim=-1, keepdim=True) - 1, p.size())
         embedded_answers_candidates = embedded_passages *\
-            prob_p.view(batch_size * num_passages, passage_length, -1).repeat(1, 1, embedding_dim)
+            prob_p.unsqueeze(2).repeat(1, 1, embedding_dim)
+            # prob_p.view(batch_size * num_passages, passage_length, -1).repeat(1, 1, embedding_dim)
         # shape(num_passages*batch_size, embedding_dim)
         r = util.weighted_sum(embedded_answers_candidates, p)
 
@@ -461,10 +459,10 @@ class VNet(Model):
                         self._span_end_accuracy(span_end_probs.view(batch_size, num_passages, -1),
                                                 spans_end.view(batch_size, num_passages),
                                                 (spans_end.view(batch_size, num_passages) != -1))
-                # if loss < 9:
-                #     print()
-                #     print(output_dict['best_span_str'][i])
-                #     print(answer_texts)
+                if loss < 9:
+                    print()
+                    print(output_dict['best_span_str'][i])
+                    print(answer_texts)
             output_dict['question_tokens'] = question_tokens
             output_dict['passage_tokens'] = passage_tokens
         output_dict['qids'] = [data['qid'] for data in metadata]

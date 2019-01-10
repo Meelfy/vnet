@@ -43,19 +43,21 @@
         "tokens": {
           "type": "embedding",
           "vocab_namespace": "source_tokens",
-          "embedding_dim": 25,
+          "pretrained_file":"/data/nfsdata/meijie/data/WordEmb/glove.6B.300d.txt",
+          "embedding_dim": 300,
           "trainable": true
         }
       }
     },
     "encoder": {
       "type": "lstm",
-      "input_size": 25,
-      "hidden_size": 10,
-      "num_layers": 1
+      "input_size": 300,
+      "hidden_size": 150,
+      "num_layers": 2,
+      "dropout":0.2
     },
     "max_decoding_steps": 40,
-    "target_embedding_dim": 25,
+    "target_embedding_dim": 200,
     "target_namespace": "target_tokens",
     "attention": {
       "type": "dot_product"
@@ -65,7 +67,7 @@
   "iterator": {
     "type": "bucket",
     "padding_noise": 0.0,
-    "batch_size" : 10,
+    "batch_size" : 8,
     "sorting_keys": [["source_tokens", "num_tokens"]]
   },
   "trainer": {

@@ -230,10 +230,9 @@ class VNet(Model):
             print(question['tokens'])
             print(question['token_characters'].size())
             raise e
-        embedding_size = embedded_question.size(-1)
-        # shape(num_passages*batch_size, question_length, embedding_size)
+        # shape(num_passages*batch_size, question_length, embedding_dim)
         embedded_questions = embedded_question.repeat(1, num_passages, 1)\
-                                              .view(-1, question_length, embedding_size)
+                                              .view(-1, question_length, embedding_dim)
         assert embedded_questions.size(0) == embedded_passages.size(0)
         assert torch.eq(embedded_questions[0, :, :], embedded_questions[num_passages - 1, :, :]).all()
 
@@ -474,6 +473,12 @@ class VNet(Model):
     @staticmethod
     def map_span_to_01(span_idx: torch.Tensor, shape: Tuple) -> torch.Tensor:
         '''
+        This func is map span_idx=[[0], [1], [2]], shape = (3, 3) to
+        [[1, 0, 0],
+         [1, 1, 0],
+         [1, 1, 1]]
+        line i has (span_idx[i]+1)  zeors
+
         Parameters
         ----------
         span_idx shape(batch_size * num_passages, 1)

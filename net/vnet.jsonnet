@@ -28,10 +28,10 @@
         "passage_length_limit":400,
         "question_length_limit":50
     },
-    "train_data_path":"/data/nfsdata/meijie/data/msmarco/train_v2.1.json",
-    "validation_data_path":"/data/nfsdata/meijie/data/msmarco/dev_v2.1.json",
-    // "train_data_path":"/home/meefly/misc/train.json",
-    // "validation_data_path":"/home/meefly/misc/dev.json",
+    // "train_data_path":"/data/nfsdata/meijie/data/msmarco/train_v2.1.json",
+    // "validation_data_path":"/data/nfsdata/meijie/data/msmarco/dev_v2.1.json",
+    "train_data_path":"/home/meefly/misc/train.json",
+    "validation_data_path":"/home/meefly/misc/dev.json",
     // "train_data_path":"/home/meefly/misc/dev.json",
     "model":{
         "type":"vnet",

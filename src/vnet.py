@@ -88,7 +88,6 @@ class VNet(Model):
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
         super().__init__(vocab, regularizer)
         self.ptr_dim = ptr_dim
-        self.num_passages = num_passages
         self._text_field_embedder = text_field_embedder
         self._highway_layer = TimeDistributed(Highway(text_field_embedder.get_output_dim(),
                                                       num_highway_layers))
@@ -96,13 +95,16 @@ class VNet(Model):
         self._matrix_attention = DotProductMatrixAttention()
         self._modeling_layer = modeling_layer
         modeling_dim = modeling_layer.get_output_dim()
+        encoding_dim = phrase_layer.get_output_dim()
 
         self._match_layer = match_layer
-        self._ptr_layer_1 = TimeDistributed(torch.nn.Linear(modeling_dim +
+        self._ptr_layer_1 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
+                                                            modeling_dim +
                                                             ptr_dim, ptr_dim))
         self._ptr_layer_2 = TimeDistributed(torch.nn.Linear(ptr_dim, 1))
 
-        self._content_layer_1 = TimeDistributed(torch.nn.Linear(modeling_dim, ptr_dim))
+        self._content_layer_1 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
+                                                                modeling_dim, ptr_dim))
         self._content_layer_2 = TimeDistributed(torch.nn.Linear(ptr_dim, 1))
 
         self._passages_matrix_attention = matrix_attention_layer
@@ -203,7 +205,6 @@ class VNet(Model):
         # shape(batch_size*num_passage, passage_length)
         batch_passages['tokens'] = passages['tokens'].view(-1, passage_length)
         # shape(batch_size*num_passage, passage_length, embedding_dim)
-        # print(batch_passages)
         try:
             embedded_passages = self._highway_layer(self._text_field_embedder(batch_passages))
         except Exception as e:
@@ -219,17 +220,11 @@ class VNet(Model):
                                                                           question_length,
                                                                           num_characters)
         questions['tokens'] = question['tokens'].repeat(1, num_passages).view(-1, question_length)
-        try:
-            embedded_question = self._highway_layer(self._text_field_embedder(question))
-        except Exception as e:
-            print([data['question_tokens'] for data in metadata])
-            print(question['token_characters'])
-            print(question['tokens'])
-            print(question['token_characters'].size())
-            raise e
-        # shape(num_passages*batch_size, question_length, embedding_dim)
+        embedded_question = self._highway_layer(self._text_field_embedder(question))
+        embedding_size = embedded_question.size(-1)
+        # shape(num_passages*batch_size, question_length, embedding_size)
         embedded_questions = embedded_question.repeat(1, num_passages, 1)\
-                                              .view(-1, question_length, embedding_dim)
+                                              .view(-1, question_length, embedding_size)
         assert embedded_questions.size(0) == embedded_passages.size(0)
         assert torch.eq(embedded_questions[0, :, :], embedded_questions[num_passages - 1, :, :]).all()
 
@@ -274,13 +269,13 @@ class VNet(Model):
                                                                            passage_length,
                                                                            phrase_layer_encoding_dim)
 
-        # Shape: (batch_size * num_passages, passage_length, phrase_layer_encoding_dim * 4)
+        # Shape: (batch_size, passage_length, phrase_layer_encoding_dim * 4)
         final_merged_passage = torch.cat([encoded_passages,
                                           passages_questions_vectors,
                                           encoded_passages * passages_questions_vectors,
                                           encoded_passages * tiled_questions_passages_vector],
                                          dim=-1)
-        # shape:(batch_size*num_passages, passage_length, modeling_dim)
+
         modeled_passage = self._dropout(self._modeling_layer(final_merged_passage, passages_lstm_mask))
         # modeling_dim = modeled_passage.size(-1)
 
@@ -291,12 +286,15 @@ class VNet(Model):
         # match_passages_vector = self._dropout(self._match_layer(passages_questions_vectors,
         #                                                         passages_lstm_mask))
         # Shape: (batch_size * num_passages, passage_length, encoding_dim * 4 + modeling_dim))
-        # match_passages_vector = self._dropout(torch.cat([final_merged_passage, modeled_passage], dim=-1))
+        match_passages_vector = self._dropout(torch.cat([final_merged_passage, modeled_passage], dim=-1))
+        match_passages_vector = self._dropout(self._match_layer(
+            match_passages_vector, torch.ones(match_passages_vector.size()[:2])
+            .to(match_passages_vector.device)))
 
         # Shape: (num_passages*batch_size, passage_length, ptr_dim)
         # Shape: (num_passages*batch_size, passage_length)
         span_start_logits = self._ptr_layer_2(torch.tanh(self._ptr_layer_1(
-                                              torch.cat((modeled_passage,
+                                              torch.cat((match_passages_vector,
                                                          self._start_h_embedding.repeat(num_passages *
                                                                                         batch_size,
                                                                                         passage_length,
@@ -304,13 +302,13 @@ class VNet(Model):
                                                         dim=-1)))).squeeze(-1)
         # shape(num_passages*batch_size, passage_length)
         span_start_probs = util.masked_softmax(span_start_logits, passages_mask)
-        # shape(num_passages*batch_size, 1, modeling_dim)
-        c = torch.matmul(modeled_passage.transpose(1, 2),
+        # shape(num_passages*batch_size, 1, encoding_dim * 4 + modeling_dim)
+        c = torch.matmul(match_passages_vector.transpose(1, 2),
                          span_start_probs.unsqueeze(2)).squeeze(-1).unsqueeze(1)
         # shape(num_passages*batch_size, 1, ptr_dim)
         end_h_embedding = self._span_end_lstm(c, torch.ones(c.size()[:2]).to(c.device))
         span_end_logits = self._ptr_layer_2(torch.tanh(self._ptr_layer_1(
-                                            torch.cat((modeled_passage,
+                                            torch.cat((match_passages_vector,
                                                        end_h_embedding.repeat(1,
                                                                               passage_length,
                                                                               1)),
@@ -324,16 +322,18 @@ class VNet(Model):
         relu = torch.nn.ReLU()
         # shape(num_passages*batch_size, passage_length)
         p = torch.sigmoid(self._content_layer_2(relu(self._content_layer_1(
-            modeled_passage)))).squeeze(-1)
+            match_passages_vector)))).squeeze(-1)
 
         # embedded_passages shape(batch_size*num_passages, passage_length, embedding_dim)
         # get answers candidates
-        # spans_end shape(num_passages*batch_size, passage_length)
+        # shape(num_passages*batch_size, passage_length)
+        ground_truth_p = self.map_span_to_01(spans_end, p.size()) -\
+            self.map_span_to_01(spans_start - 1, p.size())
         prob_p = self.map_span_to_01(span_end_probs.argmax(dim=-1, keepdim=True), p.size()) -\
             self.map_span_to_01(span_start_probs.argmax(dim=-1, keepdim=True) - 1, p.size())
+        prob_p = prob_p.clamp(0, 1)
         embedded_answers_candidates = embedded_passages *\
-            prob_p.unsqueeze(2).repeat(1, 1, embedding_dim)
-            # prob_p.view(batch_size * num_passages, passage_length, -1).repeat(1, 1, embedding_dim)
+            prob_p.view(batch_size * num_passages, passage_length, -1).repeat(1, 1, embedding_dim)
         # shape(num_passages*batch_size, embedding_dim)
         r = util.weighted_sum(embedded_answers_candidates, p)
 
@@ -341,7 +341,7 @@ class VNet(Model):
         # Part Four:  Cross-Passage Answer Verification
         # ---------------------------------------------
         # shape(batch_size, num_passages, embedding_dim)
-        batch_r = r.view(batch_size, num_passages, -1)
+        batch_r = r.view(-1, num_passages, embedding_dim)
         set_diagonal_zero = (1 - torch.eye(num_passages)).unsqueeze(0).repeat(batch_size, 1, 1)
         set_diagonal_zero = set_diagonal_zero.to(c.device)
         # shape(batch_size, num_passages, num_passages)
@@ -353,71 +353,49 @@ class VNet(Model):
 
         # shape(batch_size, num_passages, num_passages)
         g = self._passages_matrix_attention(batch_r, attention_batch_r)
-        try:
-            passages_verify = self._passage_predictor(g).squeeze(-1)
-        except Exception as e:
-            for i in range(len(metadata)):
-                if len(metadata[i]['original_passages']) == 10:
-                    continue
-                print(len(metadata[i]['original_passages']))
-                print(metadata[i]['original_passages'])
-            print(batch_r.size())
-            print(attention_batch_r.size())
-            print(g.size())
-            raise e
+        # shape(batch_size, num_passages)
+        passages_verify = self._passage_predictor(g).squeeze(-1)
         best_span = self.get_best_span(span_start_probs.view(batch_size, num_passages, -1),
-                                       span_end_probs.view(batch_size, num_passages, -1),
-                                       util.masked_softmax(p, passages_mask).view(batch_size,
-                                                                                  num_passages,
-                                                                                  -1),
-                                       torch.softmax(passages_verify, dim=-1))
-        best_passage_id = best_span[:, 0]
-        # best_passage_id = spans_start[(spans_start != -1)]
-        # reshape_best_passage_id = (torch.arange(0, batch_size) * num_passages).unsqueeze(-1) +\
-        #     best_passage_id.unsqueeze(-1).cpu()
+                                       span_end_probs.view(batch_size, num_passages, -1))
         output_dict = {'best_span': best_span,
                        'span_start_logits': span_start_logits.view(batch_size, num_passages, -1),
                        'span_start_probs': span_start_probs.view(batch_size, num_passages, -1),
                        'span_end_logits': span_end_logits.view(batch_size, num_passages, -1),
-                       'span_end_probs': span_end_probs.view(batch_size, num_passages, -1),
-                       'best_passage_id': best_passage_id}
+                       'span_end_probs': span_end_probs.view(batch_size, num_passages, -1)}
 
         if spans_start is not None:
             # span_start_probs shape(num_passages*batch_size, passage_length)
             # spans_start shape(batch_size, num_passages, 1)
             # then shape(batch_size*num_passages, 1)
-            ground_truth_p = self.map_span_to_01(spans_end, p.size()) -\
-                self.map_span_to_01(spans_start - 1, p.size())
             spans_start = spans_start.squeeze(-1).view(batch_size * num_passages, -1)
             spans_end = spans_end.squeeze(-1).view(batch_size * num_passages, -1)
 
             spans_start.clamp_(-1, passage_length - 1)
             spans_end.clamp_(-1, passage_length - 1)
-            # loss_Boundary = nll_loss(util.masked_log_softmax(
-            #     span_start_logits[reshape_best_passage_id].squeeze(),
-            #     passages_mask[reshape_best_passage_id].squeeze()),
-            #     spans_start[reshape_best_passage_id].squeeze(), ignore_index=-1)
-            # loss_Boundary += nll_loss(util.masked_log_softmax(
-            #     span_end_logits[reshape_best_passage_id].squeeze(),
-            #     passages_mask[reshape_best_passage_id].squeeze()),
-            #     spans_end[reshape_best_passage_id].squeeze(), ignore_index=-1)
             loss_Boundary = nll_loss(util.masked_log_softmax(span_start_logits, passages_mask),
                                      spans_start.squeeze(-1), ignore_index=-1)
             loss_Boundary += nll_loss(util.masked_log_softmax(span_end_logits, passages_mask),
                                       spans_end.squeeze(-1), ignore_index=-1)
             loss_Boundary = loss_Boundary / 2
-            loss_Content = -torch.mean(util.masked_log_softmax(p, passages_mask) *
-                                       ground_truth_p)
+            eps = 1e-7
+            p = p.clamp(eps, 1. - eps)
+            loss_Content = torch.sum(torch.log(p) * ground_truth_p)
+            loss_Content += torch.sum(torch.log(1 - p) * (1 - ground_truth_p))
+            loss_Content = -loss_Content / passage_length / batch_size
+            # loss_Content = -torch.mean(util.masked_log_softmax(p, passages_mask) *
+            #                            ground_truth_p)
 
             # shape(batch_size, num_passages)
             ground_truth_passages_verify = (spans_end != -1).float().to(c.device).view(batch_size,
                                                                                        num_passages)
             loss_Verification = torch.log_softmax(passages_verify, dim=-1) * ground_truth_passages_verify
-            loss_Verification = -torch.mean(loss_Verification)
+            loss_Verification = -torch.sum(loss_Verification) / num_passages / batch_size
             loss = loss_Boundary + 0.5 * loss_Content + 0.5 * loss_Verification
-            # print('\nloss_Boundary\t\t', loss_Boundary)
-            # print('loss_Content\t\t', loss_Content)
-            # print('loss_Verification\t', loss_Verification)
+            # loss = loss_Boundary + 0.5 * loss_Verification
+            # loss = loss_Boundary
+            print('\nloss_Boundary\t\t', loss_Boundary)
+            print('loss_Content\t\t', loss_Content)
+            print('loss_Verification\t', loss_Verification)
             output_dict['loss'] = loss
 
         if metadata is not None:
@@ -440,43 +418,32 @@ class VNet(Model):
                 best_span_string = passage_str[passage_id][start_offset:end_offset]
                 output_dict['best_span_str'].append(best_span_string)
                 answer_texts = metadata[i].get('answer_texts', [])
-                answer_texts = list(set([item for sublist in answer_texts for item in sublist]))
-                # answer_texts = answer_texts[np.array([len(text) for text in answer_texts]).argmax()]
-                # answer_texts = answer_texts[passage_id] or ['']
+                answer_text = answer_texts[np.array([len(text) for text in answer_texts]).argmax()]
+                answer_text = answer_texts[passage_id] or ['']
                 if answer_texts:
-                    self._rouge_metrics(best_span_string, answer_texts)
+                    self._rouge_metrics(best_span_string, answer_text)
+                    self._span_start_accuracy(span_start_probs.view(batch_size, num_passages, -1),
+                                              spans_start.view(batch_size, num_passages),
+                                              (spans_start.view(batch_size, num_passages) != -1))
+                    self._span_end_accuracy(span_end_probs.view(batch_size, num_passages, -1),
+                                            spans_end.view(batch_size, num_passages),
+                                            (spans_end.view(batch_size, num_passages) != -1))
                     # self._bleu_metrics(best_span_string, answer_text)
-                    if spans_start is not None:
-                        # self._span_start_accuracy(span_start_probs[reshape_best_passage_id].squeeze(),
-                        #                           spans_start[reshape_best_passage_id].squeeze(),
-                        #                           (spans_start[reshape_best_passage_id].squeeze() != -1))
-                        # self._span_end_accuracy(span_end_probs[reshape_best_passage_id].squeeze(),
-                        #                         spans_end[reshape_best_passage_id].squeeze(),
-                        #                         (spans_end[reshape_best_passage_id].squeeze() != -1))
-                        self._span_start_accuracy(span_start_probs.view(batch_size, num_passages, -1),
-                                                  spans_start.view(batch_size, num_passages),
-                                                  (spans_start.view(batch_size, num_passages) != -1))
-                        self._span_end_accuracy(span_end_probs.view(batch_size, num_passages, -1),
-                                                spans_end.view(batch_size, num_passages),
-                                                (spans_end.view(batch_size, num_passages) != -1))
                 if loss < 9:
                     print()
-                    print(output_dict['best_span_str'][i])
-                    print(answer_texts)
+                    print(output_dict['best_span_str'][-1])
+                    print(answer_text[0])
+            # if answer_text != ['']:
+            #     print()
+            #     print(output_dict['best_span_str'][-1].split(' ')[::-1])
+            #     print(answer_text[0].split(' ')[::-1])
             output_dict['question_tokens'] = question_tokens
             output_dict['passage_tokens'] = passage_tokens
-        output_dict['qids'] = [data['qid'] for data in metadata]
         return output_dict
 
     @staticmethod
     def map_span_to_01(span_idx: torch.Tensor, shape: Tuple) -> torch.Tensor:
         '''
-        This func is map span_idx=[[0], [1], [2]], shape = (3, 3) to
-        [[1, 0, 0],
-         [1, 1, 0],
-         [1, 1, 1]]
-        line i has (span_idx[i]+1)  zeors
-
         Parameters
         ----------
         span_idx shape(batch_size * num_passages, 1)
@@ -487,58 +454,47 @@ class VNet(Model):
         return torch.where(x > 0, torch.zeros(shape).to(device), torch.ones(shape).to(device))
 
     @staticmethod
-    def get_best_span(span_start_probs: torch.Tensor,
-                      span_end_probs: torch.Tensor,
-                      content: torch.Tensor,
-                      passages_verify: torch.Tensor) -> torch.Tensor:
+    def get_best_span(span_start_logits: torch.Tensor, span_end_logits: torch.Tensor) -> torch.Tensor:
         '''
         Parameters
         ----------
-        span_start_probs: shape(batch_size, num_passages, passage_length)
-        span_end_probs: shape(batch_size, num_passages, passage_length)
-        content: shape(batch_size, num_passages, passage_length)
-        passages_verify: shape(batch_size, num_passages)
+        span_start_logits: shape(batch_size, num_passages, passage_length)
+        span_end_logits: shape(batch_size, num_passages, passage_length)
 
         Return
         ------
         best_word_span: shape(batch_size, 3)
             3 for [best_passage_id, start, end]
         '''
-        if span_start_probs.dim() != 3 or span_end_probs.dim() != 3:
+        if span_start_logits.dim() != 3 or span_end_logits.dim() != 3:
             raise ValueError("Input shapes must be (batch_size, num_passages, passage_length)")
-        batch_size, num_passages, passage_length = span_start_probs.size()
-        max_span_prob = np.ones((batch_size, num_passages)) * -1e20
+        batch_size, num_passages, passage_length = span_start_logits.size()
+        max_span_log_prob = np.ones((batch_size, num_passages)) * -1e20
         max_span_batch = np.ones((batch_size)) * -1e20
         span_start_argmax = torch.zeros(batch_size, num_passages).long()
-        best_word_span = span_start_probs.new_zeros((batch_size, 3), dtype=torch.long)
+        best_word_span = span_start_logits.new_zeros((batch_size, 3), dtype=torch.long)
 
-        span_start_probs_clone = span_start_probs.clone().detach().cpu().numpy()
-        span_end_probs_clone = span_end_probs.clone().detach().cpu().numpy()
-        content_clone = content.clone().detach().cpu().numpy()
-        passages_verify_clone = passages_verify.clone().detach().cpu().numpy()
+        span_start_logits = span_start_logits.detach().cpu().numpy()
+        span_end_logits = span_end_logits.detach().cpu().numpy()
+
         for b in range(batch_size):
             for p in range(num_passages):
                 for j in range(passage_length):
-                    val1 = span_start_probs_clone[b, p, span_start_argmax[b, p]]
-                    if val1 < span_start_probs_clone[b, p, j]:
+                    val1 = span_start_logits[b, p, span_start_argmax[b, p]]
+                    if val1 < span_start_logits[b, p, j]:
                         span_start_argmax[b, p] = j
-                        val1 = span_start_probs_clone[b, p, j]
+                        val1 = span_start_logits[b, p, j]
 
-                    val2 = span_end_probs_clone[b, p, j]
-                    # pdb.set_trace()
-                    value = (val1 * val2) *\
-                        np.mean(content_clone[b, p, span_start_argmax[b, p]:j + 1]) *\
-                        passages_verify_clone[b, p]
-                    # value = val1 + val2
+                    val2 = span_end_logits[b, p, j]
 
-                    if value > max_span_prob[b, p]:
-                        max_span_prob[b, p] = value
-                        # print(span_end_probs_clone[b, p, j:])
-                        if max_span_prob[b, p] > max_span_batch[b]:
+                    if val1 + val2 > max_span_log_prob[b, p]:
+                        max_span_log_prob[b, p] = val1 + val2
+                        # print(span_end_logits[b, p, j:])
+                        if max_span_log_prob[b, p] > max_span_batch[b]:
                             best_word_span[b, 0] = p
                             best_word_span[b, 1] = span_start_argmax[b, p]
                             best_word_span[b, 2] = j
-                            max_span_batch[b] = max_span_prob[b, p]
+                            max_span_batch[b] = max_span_log_prob[b, p]
         return best_word_span
 
     def get_metrics(self, reset: bool = False) -> Dict[str, float]:

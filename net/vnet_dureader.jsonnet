@@ -1,12 +1,12 @@
 {
-    "vocabulary":{
-        "pretrained_files":{
-            "tokens": "/home/meefly/data/msmarco/vocabulary/tokens.txt",
-            "token_characters": "/home/meefly/data/msmarco/vocabulary/token_characters.txt",
-            "non_padded_namespaces": "/home/meefly/data/msmarco/vocabulary/non_padded_namespaces.txt"
-        },
-        "only_include_pretrained_words":true
-    },
+    // "vocabulary":{
+    //     "pretrained_files":{
+    //         "tokens": "/home/meefly/data/msmarco/vocabulary/tokens.txt",
+    //         "token_characters": "/home/meefly/data/msmarco/vocabulary/token_characters.txt",
+    //         "non_padded_namespaces": "/home/meefly/data/msmarco/vocabulary/non_padded_namespaces.txt"
+    //     },
+    //     "only_include_pretrained_words":true
+    // },
     "dataset_reader":{
         "type":"msmarco_multi_passage_limited",
         "token_indexers":{
@@ -18,12 +18,6 @@
                 "type":"characters"
             }
         },
-        // "tokenizer": {
-        //     "type": "word",
-        //     "word_splitter": {
-        //         "type": "just_spaces"
-        //     }
-        // },
         "lazy":true,
         "passage_length_limit":400,
         "question_length_limit":50

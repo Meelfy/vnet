@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import torch
 from torch.nn.functional import nll_loss
+import torch.nn.functional as F
 
 from allennlp.data import Vocabulary
 from allennlp.models.model import Model
@@ -30,6 +31,7 @@ from allennlp.training.metrics.bleu import BLEU
 from .MsmarcoRouge import MsmarcoRouge
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 @Model.register('vnet')
@@ -82,11 +84,12 @@ class VNet(Model):
                  span_end_lstm: Seq2SeqEncoder,
                  ptr_dim: int = 200,
                  dropout: float = 0.2,
-                 num_passages: int = 10,
+                 max_num_passages: int = 5,
                  mask_lstms: bool = True,
                  initializer: InitializerApplicator = InitializerApplicator(),
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
         super().__init__(vocab, regularizer)
+        self.max_num_passages = max_num_passages
         self.ptr_dim = ptr_dim
         self._text_field_embedder = text_field_embedder
         self._highway_layer = TimeDistributed(Highway(text_field_embedder.get_output_dim(),
@@ -112,7 +115,7 @@ class VNet(Model):
         self._span_end_lstm._module.weight_hh_l0.requires_grad = False
         self._span_end_lstm._module.weight_hh_l1.requires_grad = False
 
-        self._passage_predictor = TimeDistributed(torch.nn.Linear(num_passages, 1))
+        self._passage_predictor = TimeDistributed(torch.nn.Linear(self.max_num_passages, 1))
 
         self._start_h_embedding = torch.nn.Parameter(data=torch.zeros(1, 1, 1).float(),
                                                      requires_grad=False)
@@ -220,7 +223,11 @@ class VNet(Model):
                                                                           question_length,
                                                                           num_characters)
         questions['tokens'] = question['tokens'].repeat(1, num_passages).view(-1, question_length)
-        embedded_question = self._highway_layer(self._text_field_embedder(question))
+        try:
+            embedded_question = self._highway_layer(self._text_field_embedder(question))
+        except Exception as e:
+            pdb.set_trace()
+            raise e
         embedding_size = embedded_question.size(-1)
         # shape(num_passages*batch_size, question_length, embedding_size)
         embedded_questions = embedded_question.repeat(1, num_passages, 1)\
@@ -287,10 +294,10 @@ class VNet(Model):
         #                                                         passages_lstm_mask))
         # Shape: (batch_size * num_passages, passage_length, encoding_dim * 4 + modeling_dim))
         match_passages_vector = self._dropout(torch.cat([final_merged_passage, modeled_passage], dim=-1))
+        # LSTM
         match_passages_vector = self._dropout(self._match_layer(
             match_passages_vector, torch.ones(match_passages_vector.size()[:2])
             .to(match_passages_vector.device)))
-
         # Shape: (num_passages*batch_size, passage_length, ptr_dim)
         # Shape: (num_passages*batch_size, passage_length)
         span_start_logits = self._ptr_layer_2(torch.tanh(self._ptr_layer_1(
@@ -303,8 +310,9 @@ class VNet(Model):
         # shape(num_passages*batch_size, passage_length)
         span_start_probs = util.masked_softmax(span_start_logits, passages_mask)
         # shape(num_passages*batch_size, 1, encoding_dim * 4 + modeling_dim)
-        c = torch.matmul(match_passages_vector.transpose(1, 2),
-                         span_start_probs.unsqueeze(2)).squeeze(-1).unsqueeze(1)
+        # c = torch.matmul(match_passages_vector.transpose(1, 2),
+        #                  span_start_probs.unsqueeze(2)).squeeze(-1).unsqueeze(1)
+        c = util.weighted_sum(match_passages_vector, span_start_probs).unsqueeze(1)
         # shape(num_passages*batch_size, 1, ptr_dim)
         end_h_embedding = self._span_end_lstm(c, torch.ones(c.size()[:2]).to(c.device))
         span_end_logits = self._ptr_layer_2(torch.tanh(self._ptr_layer_1(
@@ -353,6 +361,8 @@ class VNet(Model):
 
         # shape(batch_size, num_passages, num_passages)
         g = self._passages_matrix_attention(batch_r, attention_batch_r)
+        pad_size = self.max_num_passages - g.size(-1)
+        g = F.pad(g, (0, pad_size, 0, pad_size), 'constant', 0)
         # shape(batch_size, num_passages)
         passages_verify = self._passage_predictor(g).squeeze(-1)
         best_span = self.get_best_span(span_start_probs.view(batch_size, num_passages, -1),
@@ -393,9 +403,9 @@ class VNet(Model):
             loss = loss_Boundary + 0.5 * loss_Content + 0.5 * loss_Verification
             # loss = loss_Boundary + 0.5 * loss_Verification
             # loss = loss_Boundary
-            print('\nloss_Boundary\t\t', loss_Boundary)
-            print('loss_Content\t\t', loss_Content)
-            print('loss_Verification\t', loss_Verification)
+            logger.debug('loss_Boundary: %.5f' % loss_Boundary)
+            logger.debug('loss_Content: %.5f' % loss_Content)
+            logger.debug('loss_Verification: %.5f' % loss_Verification)
             output_dict['loss'] = loss
 
         if metadata is not None:
@@ -418,27 +428,33 @@ class VNet(Model):
                 best_span_string = passage_str[passage_id][start_offset:end_offset]
                 output_dict['best_span_str'].append(best_span_string)
                 answer_texts = metadata[i].get('answer_texts', [])
-                answer_text = answer_texts[np.array([len(text) for text in answer_texts]).argmax()]
-                answer_text = answer_texts[passage_id] or ['']
+                answer_texts = list(set([' '.join(item) for sublist in answer_texts for item in sublist]))
+                # answer_text = answer_texts[np.array([len(text) for text in answer_texts]).argmax()]
+                # answer_text = answer_texts[passage_id] or ['']
                 if answer_texts:
-                    self._rouge_metrics(best_span_string, answer_text)
-                    self._span_start_accuracy(span_start_probs.view(batch_size, num_passages, -1),
-                                              spans_start.view(batch_size, num_passages),
-                                              (spans_start.view(batch_size, num_passages) != -1))
-                    self._span_end_accuracy(span_end_probs.view(batch_size, num_passages, -1),
-                                            spans_end.view(batch_size, num_passages),
-                                            (spans_end.view(batch_size, num_passages) != -1))
-                    # self._bleu_metrics(best_span_string, answer_text)
+                    self._rouge_metrics(' '.join(best_span_string), answer_texts)
+                    # self._bleu_metrics(best_span_string, answer_texts)
                 if loss < 9:
-                    print()
-                    print(output_dict['best_span_str'][-1])
-                    print(answer_text[0])
-            # if answer_text != ['']:
-            #     print()
-            #     print(output_dict['best_span_str'][-1].split(' ')[::-1])
-            #     print(answer_text[0].split(' ')[::-1])
+                    logger.debug('start_offset:%d, end_offset:%d' % (start_offset, end_offset))
+                    logger.debug("span_start_probs.argmax: {}".format(
+                        ' '.join(map(str, span_start_probs.argmax(-1).cpu().numpy()))))
+                    logger.debug("span_end_probs.argmax: {}".format(
+                        ' '.join(map(str, span_end_probs.argmax(-1).cpu().numpy()))))
+                    logger.debug("spans_start: {}".format(
+                        ' '.join(map(str, spans_start.cpu().numpy()))))
+                    logger.debug("spans_end: {}".format(
+                        ' '.join(map(str, spans_end.cpu().numpy()))))
+                    logger.debug('Predict: %s' % output_dict['best_span_str'][-1])
+                    logger.debug('Truth: %s' % '\n'.join(answer_texts))
+            self._span_start_accuracy(span_start_probs.view(batch_size, num_passages, -1),
+                                      spans_start.view(batch_size, num_passages),
+                                      (spans_start.view(batch_size, num_passages) != -1))
+            self._span_end_accuracy(span_end_probs.view(batch_size, num_passages, -1),
+                                    spans_end.view(batch_size, num_passages),
+                                    (spans_end.view(batch_size, num_passages) != -1))
             output_dict['question_tokens'] = question_tokens
             output_dict['passage_tokens'] = passage_tokens
+        output_dict['qids'] = [data['qid'] for data in metadata]
         return output_dict
 
     @staticmethod

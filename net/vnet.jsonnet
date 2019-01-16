@@ -47,9 +47,9 @@
     //     "num_workers": 8
     // },
     // "train_data_path":"/home/meefly/working/vnet/fixtures/small_samples.json",
-    "train_data_path":"/data/nfsdata/meijie/data/msmarco/train_v2.1.json",
-    "validation_data_path":"/data/nfsdata/meijie/data/msmarco/dev_v2.1.json",
-    // "train_data_path":"/home/meefly/misc/train.json",
+    // "train_data_path":"/data/nfsdata/meijie/data/msmarco/train_v2.1.json",
+    // "validation_data_path":"/data/nfsdata/meijie/data/msmarco/dev_v2.1.json",
+    "train_data_path":"/home/meefly/misc/train.json",
     // "validation_data_path":"/home/meefly/misc/dev.json",
     "model":{
         "type":"vnet",
@@ -119,7 +119,8 @@
             "dropout":0.2
         },
         "ptr_dim":200,
-        "dropout":0.2
+        "dropout":0.2,
+        "max_num_passages": 10
     },
     "iterator":{
         "type":"bucket",

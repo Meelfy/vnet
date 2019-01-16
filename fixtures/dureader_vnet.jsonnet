@@ -1,12 +1,4 @@
 {
-    // "vocabulary":{
-    //     "pretrained_files":{
-    //         "tokens": "/home/meefly/data/msmarco/vocabulary/tokens.txt",
-    //         "token_characters": "/home/meefly/data/msmarco/vocabulary/token_characters.txt",
-    //         "non_padded_namespaces": "/home/meefly/data/msmarco/vocabulary/non_padded_namespaces.txt"
-    //     },
-    //     "only_include_pretrained_words":true
-    // },
     "dataset_reader":{
         "type":"msmarco_multi_passage_limited",
         "token_indexers":{
@@ -22,8 +14,6 @@
         "passage_length_limit":500,
         "question_length_limit":50
     },
-    // "train_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/zhidao.train.json",
-    // "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/devset/zhidao.dev.json",
     "train_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/test.txt",
     "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/test.txt",
     "model":{
@@ -32,10 +22,8 @@
             "token_embedders":{
                 "tokens":{
                     "type":"embedding",
-                    // "pretrained_file":"/data/nfsdata/nlp/embeddings/chinese/word_embedding300.data",
-                    // "embedding_dim":300,
-                    "pretrained_file":"/data/nfsdata/nlp/embeddings/chinese/Tencent_AILab_ChineseEmbedding.txt",
-                    "embedding_dim":200,
+                    "pretrained_file":"/data/nfsdata/nlp/embeddings/chinese/word_embedding300.data",
+                    "embedding_dim":300,
                     "trainable":false
                 },
                 "token_characters":{
@@ -52,7 +40,7 @@
                             1
                         ]
                     },
-                    "dropout":0.2
+                    "dropout":0.0
                 }
             }
         },
@@ -60,10 +48,10 @@
         "phrase_layer":{
             "type":"lstm",
             "bidirectional":true,
-            "input_size":300,
+            "input_size":400,
             "hidden_size":100,
             "num_layers":2,
-            "dropout":0.2
+            "dropout":0.0
         },
         "modeling_layer":{
             "type":"lstm",
@@ -71,7 +59,7 @@
             "input_size":800,
             "hidden_size":100,
             "num_layers":2,
-            "dropout":0.2
+            "dropout":0.0
         },
         "match_layer":{
             "type":"lstm",
@@ -79,12 +67,12 @@
             "input_size":1000,
             "hidden_size":500,
             "num_layers":2,
-            "dropout":0.2
+            "dropout":0.0
         },
         "matrix_attention_layer": {
             "type": "linear",
-            "tensor_1_dim": 300,
-            "tensor_2_dim": 300,
+            "tensor_1_dim": 400,
+            "tensor_2_dim": 400,
             "combination": "x,y,x*y"
         },
         "span_end_lstm":{
@@ -93,11 +81,11 @@
             "input_size":1000,
             "hidden_size":200,
             "num_layers":2,
-            "dropout":0.2
+            "dropout":0.0
         },
         "ptr_dim":200,
         "max_num_passages": 5,
-        "dropout":0.2
+        "dropout":0.0
     },
     "iterator":{
         "type":"bucket",

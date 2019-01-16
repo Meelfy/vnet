@@ -193,14 +193,47 @@ def load_data(file_path):
     return instances_json_obj
 
 
+def process(l):
+    j = json.loads(l)
+    j['query_type'] = j.pop('question_type')
+    if 'entity_answers' in j:
+        j.pop('entity_answers')
+    j.pop('fact_or_opinion')
+    j['query_id'] = j.pop('question_id')
+    j['query'] = j.pop('question')
+    j['question_tokens'] = segmented_text_to_tuples(j.pop('segmented_question'))
+    passages = []
+    for k in j['documents']:
+        data = {}
+        if k['is_selected']:
+            data['is_selected'] = 1
+        else:
+            data['is_selected'] = 0
+        data['passage_text'] = ' '.join(k['paragraphs'])
+        data['url'] = ''
+        passages.append(data)
+    j['passages_tokens'] = [segmented_text_to_tuples(sum(doc['segmented_paragraphs'], []))
+                            for doc in j['documents']]
+    j['passages'] = passages
+    j.pop('documents')
+    instance = process_one_sample(j)
+    if instance is None:
+        return None
+    json_obj = data_to_json_obj(instance)
+    return json_obj
+
+
 def main():
     data_path = "/data/nfsdata/meijie/data/dureader/preprocessed/"
-    file_path = os.path.join(data_path, 'trainset', 'zhidao.train.json')
-    instances_json_obj = load_data(file_path)
-    print('write to file')
-    with open(file_path + '.instances', 'w') as f_save:
-        for json_obj in tqdm(instances_json_obj):
+    file_path = os.path.join(data_path, 'devset', 'search.dev.json')
+    f_save = open(file_path + '.instances', 'w')
+    with open(file_path) as f:
+        dureader_preprocessed_data = f.readlines()
+    pool = Pool()
+    for json_obj in tqdm(pool.imap_unordered(process, dureader_preprocessed_data)):
+        if json_obj is not None:
             f_save.write(json.dumps(json_obj, ensure_ascii=False) + '\n')
+    f_save.close()
 
 
 if __name__ == '__main__':

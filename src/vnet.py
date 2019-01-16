@@ -118,7 +118,7 @@ class VNet(Model):
         self._passage_predictor = TimeDistributed(torch.nn.Linear(self.max_num_passages, 1))
 
         self._start_h_embedding = torch.nn.Parameter(data=torch.zeros(1, 1, 1).float(),
-                                                     requires_grad=False)
+                                                     requires_grad=True)
 
         self._span_start_accuracy = CategoricalAccuracy()
         self._span_end_accuracy = CategoricalAccuracy()
@@ -337,11 +337,12 @@ class VNet(Model):
         # shape(num_passages*batch_size, passage_length)
         ground_truth_p = self.map_span_to_01(spans_end, p.size()) -\
             self.map_span_to_01(spans_start - 1, p.size())
-        prob_p = self.map_span_to_01(span_end_probs.argmax(dim=-1, keepdim=True), p.size()) -\
-            self.map_span_to_01(span_start_probs.argmax(dim=-1, keepdim=True) - 1, p.size())
-        prob_p = prob_p.clamp(0, 1)
+        prob_p = self.get_prob_map(span_start_probs, span_end_probs)
+        prob_p = prob_p.to(c.device)
+        # pdb.set_trace()
+        # prob_p = prob_p.clamp(0, 1)
         embedded_answers_candidates = embedded_passages *\
-            prob_p.view(batch_size * num_passages, passage_length, -1).repeat(1, 1, embedding_dim)
+            prob_p.unsqueeze(-1).repeat(1, 1, embedding_dim)
         # shape(num_passages*batch_size, embedding_dim)
         r = util.weighted_sum(embedded_answers_candidates, p)
 
@@ -366,7 +367,11 @@ class VNet(Model):
         # shape(batch_size, num_passages)
         passages_verify = self._passage_predictor(g).squeeze(-1)
         best_span = self.get_best_span(span_start_probs.view(batch_size, num_passages, -1),
-                                       span_end_probs.view(batch_size, num_passages, -1))
+                                       span_end_probs.view(batch_size, num_passages, -1),
+                                       util.masked_softmax(p, passages_mask).view(batch_size,
+                                                                                  num_passages,
+                                                                                  -1),
+                                       torch.softmax(passages_verify, dim=-1))
         output_dict = {'best_span': best_span,
                        'span_start_logits': span_start_logits.view(batch_size, num_passages, -1),
                        'span_start_probs': span_start_probs.view(batch_size, num_passages, -1),
@@ -392,8 +397,6 @@ class VNet(Model):
             loss_Content = torch.sum(torch.log(p) * ground_truth_p)
             loss_Content += torch.sum(torch.log(1 - p) * (1 - ground_truth_p))
             loss_Content = -loss_Content / passage_length / batch_size
-            # loss_Content = -torch.mean(util.masked_log_softmax(p, passages_mask) *
-            #                            ground_truth_p)
 
             # shape(batch_size, num_passages)
             ground_truth_passages_verify = (spans_end != -1).float().to(c.device).view(batch_size,
@@ -460,58 +463,116 @@ class VNet(Model):
     @staticmethod
     def map_span_to_01(span_idx: torch.Tensor, shape: Tuple) -> torch.Tensor:
         '''
+        This func is map span_idx=[[0], [1], [2]], shape = (3, 3) to
+        [[1, 0, 0],
+         [1, 1, 0],
+         [1, 1, 1]]
+        line i has (span_idx[i]+1)  zeors
         Parameters
         ----------
         span_idx shape(batch_size * num_passages, 1)
         '''
         device = span_idx.device
+        span_idx = span_idx.squeeze().unsqueeze(-1)
         x = (torch.arange(0, shape[-1]).view(1, -1).expand(shape[0], -1).float().to(device) -
              span_idx.float().view(-1, 1).expand(-1, shape[-1]))
         return torch.where(x > 0, torch.zeros(shape).to(device), torch.ones(shape).to(device))
 
     @staticmethod
-    def get_best_span(span_start_logits: torch.Tensor, span_end_logits: torch.Tensor) -> torch.Tensor:
+    def get_best_span(span_start_probs: torch.Tensor,
+                      span_end_probs: torch.Tensor,
+                      content: torch.Tensor,
+                      passages_verify: torch.Tensor) -> torch.Tensor:
         '''
         Parameters
         ----------
-        span_start_logits: shape(batch_size, num_passages, passage_length)
-        span_end_logits: shape(batch_size, num_passages, passage_length)
-
+        span_start_probs: shape(batch_size, num_passages, passage_length)
+        span_end_probs: shape(batch_size, num_passages, passage_length)
+        content: shape(batch_size, num_passages, passage_length)
+        passages_verify: shape(batch_size, num_passages)
         Return
         ------
         best_word_span: shape(batch_size, 3)
             3 for [best_passage_id, start, end]
         '''
-        if span_start_logits.dim() != 3 or span_end_logits.dim() != 3:
+        if span_start_probs.dim() != 3 or span_end_probs.dim() != 3:
             raise ValueError("Input shapes must be (batch_size, num_passages, passage_length)")
-        batch_size, num_passages, passage_length = span_start_logits.size()
-        max_span_log_prob = np.ones((batch_size, num_passages)) * -1e20
+        batch_size, num_passages, passage_length = span_start_probs.size()
+        max_span_prob = np.ones((batch_size, num_passages)) * -1e20
         max_span_batch = np.ones((batch_size)) * -1e20
         span_start_argmax = torch.zeros(batch_size, num_passages).long()
-        best_word_span = span_start_logits.new_zeros((batch_size, 3), dtype=torch.long)
+        best_word_span = span_start_probs.new_zeros((batch_size, 3), dtype=torch.long)
 
-        span_start_logits = span_start_logits.detach().cpu().numpy()
-        span_end_logits = span_end_logits.detach().cpu().numpy()
-
+        span_start_probs_clone = span_start_probs.clone().detach().cpu().numpy()
+        span_end_probs_clone = span_end_probs.clone().detach().cpu().numpy()
+        content_clone = content.clone().detach().cpu().numpy()
+        passages_verify_clone = passages_verify.clone().detach().cpu().numpy()
         for b in range(batch_size):
             for p in range(num_passages):
                 for j in range(passage_length):
-                    val1 = span_start_logits[b, p, span_start_argmax[b, p]]
-                    if val1 < span_start_logits[b, p, j]:
+                    val1 = span_start_probs_clone[b, p, span_start_argmax[b, p]]
+                    if val1 < span_start_probs_clone[b, p, j]:
                         span_start_argmax[b, p] = j
-                        val1 = span_start_logits[b, p, j]
+                        val1 = span_start_probs_clone[b, p, j]
 
-                    val2 = span_end_logits[b, p, j]
+                    val2 = span_end_probs_clone[b, p, j]
+                    # pdb.set_trace()
+                    value = (val1 * val2) *\
+                        np.mean(content_clone[b, p, span_start_argmax[b, p]:j + 1]) *\
+                        passages_verify_clone[b, p]
+                    # value = val1 + val2
 
-                    if val1 + val2 > max_span_log_prob[b, p]:
-                        max_span_log_prob[b, p] = val1 + val2
-                        # print(span_end_logits[b, p, j:])
-                        if max_span_log_prob[b, p] > max_span_batch[b]:
+                    if value > max_span_prob[b, p]:
+                        max_span_prob[b, p] = value
+                        # print(span_end_probs_clone[b, p, j:])
+                        if max_span_prob[b, p] > max_span_batch[b]:
                             best_word_span[b, 0] = p
                             best_word_span[b, 1] = span_start_argmax[b, p]
                             best_word_span[b, 2] = j
-                            max_span_batch[b] = max_span_log_prob[b, p]
+                            max_span_batch[b] = max_span_prob[b, p]
         return best_word_span
+
+    def get_prob_map(self, span_start_probs: torch.Tensor, span_end_probs: torch.Tensor) -> torch.Tensor:
+        '''
+        Parameters
+        ----------
+        span_start_logits: shape(batch_size * num_passages, passage_length)
+        span_end_logits: shape(batch_size * num_passages, passage_length)
+
+        Return
+        ------
+        prob_p_mask: shape(batch_size * num_passages, passage_length)
+        for one passage the return like [0, 0, 0, 1, 1, 1, 0, 0]
+        [span_start: span_end] is 1 and other is 0
+        '''
+        if span_start_probs.dim() != 2 or span_end_probs.dim() != 2:
+            raise ValueError("Input shapes must be (batch_size * num_passages, passage_length)")
+        batch_size, passage_length = span_start_probs.size()
+        max_span_prob = np.ones((batch_size)) * -1e20
+        span_start_argmax = torch.zeros(batch_size).long()
+        span_start_idx = span_start_probs.new_zeros((batch_size, 1), dtype=torch.long)
+        span_end_idx = span_start_probs.new_zeros((batch_size, 1), dtype=torch.long)
+        span_start_probs_clone = span_start_probs.clone().detach().cpu().numpy()
+        span_end_probs_clone = span_end_probs.clone().detach().cpu().numpy()
+
+        for b in range(batch_size):
+            for j in range(passage_length):
+                val1 = span_start_probs_clone[b, span_start_argmax[b]]
+                if val1 < span_start_probs_clone[b, j]:
+                    span_start_argmax[b] = j
+                    val1 = span_start_probs_clone[b, j]
+
+                val2 = span_end_probs_clone[b, j]
+                # pdb.set_trace()
+                value = (val1 * val2)
+
+                if value > max_span_prob[b]:
+                    max_span_prob[b] = value
+                    span_start_idx[b] = span_start_argmax[b]
+                    span_end_idx[b] = j
+        prob_p = self.map_span_to_01(span_end_idx, (batch_size, passage_length)) -\
+            self.map_span_to_01(span_start_idx - 1, (batch_size, passage_length))
+        return prob_p
 
     def get_metrics(self, reset: bool = False) -> Dict[str, float]:
         rouge_l = self._rouge_metrics.get_metric(reset)

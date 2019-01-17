@@ -18,39 +18,12 @@
                 "type":"characters"
             }
         },
-        // "tokenizer": {
-        //     "type": "word",
-        //     "word_splitter": {
-        //         "type": "just_spaces"
-        //     }
-        // },
         "lazy":true,
         "passage_length_limit":400,
         "question_length_limit":50
     },
-    // "dataset_reader":{
-    //     "type":"multiprocess",
-    //     "base_reader":{
-    //         "type":"msmarco_multi_passage_limited",
-    //         "token_indexers":{
-    //             "tokens":{
-    //                 "type":"single_id",
-    //                 "lowercase_tokens":true
-    //             },
-    //             "token_characters":{
-    //                 "type":"characters"
-    //             }
-    //         },
-    //         "passage_length_limit":400,
-    //         "question_length_limit":50
-    //     },
-    //     "num_workers": 8
-    // },
-    // "train_data_path":"/home/meefly/working/vnet/fixtures/small_samples.json",
-    // "train_data_path":"/data/nfsdata/meijie/data/msmarco/train_v2.1.json",
-    // "validation_data_path":"/data/nfsdata/meijie/data/msmarco/dev_v2.1.json",
-    "train_data_path":"/home/meefly/misc/train.json",
-    // "validation_data_path":"/home/meefly/misc/dev.json",
+    "train_data_path":"/data/nfsdata/meijie/data/msmarco/train_v2.1.json",
+    "validation_data_path":"/data/nfsdata/meijie/data/msmarco/dev_v2.1.json",
     "model":{
         "type":"vnet",
         "text_field_embedder":{
@@ -110,6 +83,13 @@
             "tensor_2_dim": 400,
             "combination": "x,y,x*y"
         },
+        "pointer_net": {
+            "bidirectional": false,
+            "input_size": 1000,
+            "hidden_dim": 200,
+            "lstm_layers": 2,
+            "dropout": 0.2
+        },
         "span_end_lstm":{
             "type":"lstm",
             "bidirectional":false,
@@ -119,31 +99,21 @@
             "dropout":0.2
         },
         "ptr_dim":200,
-        "dropout":0.2,
-        "max_num_passages": 10
+        "max_num_passages": 10,
+        "language": "en",
+        "dropout":0.2
     },
     "iterator":{
         "type":"bucket",
         "sorting_keys":[["question", "num_tokens"]],
-        // "sorting_keys":[["question", "num_token_characters"]],
-        "batch_size":6
+        "batch_size":2
     },
-    // "iterator":{
-    //     "type": "multiprocess",
-    //     "iterator":{
-    //         "type":"bucket",
-    //         "sorting_keys":[["question", "num_tokens"]],
-    //         // "sorting_keys":[["question", "num_token_characters"]],
-    //         "batch_size":5
-    //     },
-    //     "num_workers": 8
-    // },
     "trainer":{
-        "num_epochs":10,
+        "num_epochs":5,
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":2,
+        "cuda_device":0,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

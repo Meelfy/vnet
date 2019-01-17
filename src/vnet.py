@@ -29,6 +29,7 @@ from allennlp.training.metrics import BooleanAccuracy, CategoricalAccuracy
 from allennlp.training.metrics.bleu import BLEU
 
 from .MsmarcoRouge import MsmarcoRouge
+from .modules.Pointer_Network import PointerNet
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -81,7 +82,9 @@ class VNet(Model):
                  match_layer: Seq2SeqEncoder,
                  matrix_attention_layer: MatrixAttention,
                  modeling_layer: Seq2SeqEncoder,
+                 pointer_net: PointerNet,
                  span_end_lstm: Seq2SeqEncoder,
+                 language: str = 'en',
                  ptr_dim: int = 200,
                  dropout: float = 0.2,
                  max_num_passages: int = 5,
@@ -89,6 +92,8 @@ class VNet(Model):
                  initializer: InitializerApplicator = InitializerApplicator(),
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
         super().__init__(vocab, regularizer)
+        self.language = language
+        self.relu = torch.nn.ReLU()
         self.max_num_passages = max_num_passages
         self.ptr_dim = ptr_dim
         self._text_field_embedder = text_field_embedder
@@ -102,18 +107,18 @@ class VNet(Model):
 
         self._match_layer = match_layer
         self._ptr_layer_1 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
-                                                            modeling_dim +
-                                                            ptr_dim, ptr_dim))
-        self._ptr_layer_2 = TimeDistributed(torch.nn.Linear(ptr_dim, 1))
+                                                            modeling_dim, 1))
+        self._ptr_layer_2 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
+                                                            modeling_dim, 1))
+        # self._ptr_layer_2 = TimeDistributed(torch.nn.Linear(ptr_dim, 1))
 
         self._content_layer_1 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
                                                                 modeling_dim, ptr_dim))
         self._content_layer_2 = TimeDistributed(torch.nn.Linear(ptr_dim, 1))
 
         self._passages_matrix_attention = matrix_attention_layer
-        self._span_end_lstm = span_end_lstm
-        self._span_end_lstm._module.weight_hh_l0.requires_grad = False
-        self._span_end_lstm._module.weight_hh_l1.requires_grad = False
+
+        self._pointer_net = pointer_net
 
         self._passage_predictor = TimeDistributed(torch.nn.Linear(self.max_num_passages, 1))
 
@@ -194,6 +199,7 @@ class VNet(Model):
         # ---------------------------------------
         # Part One: Question and Passage Modeling
         # ---------------------------------------
+        device = passages['token_characters'].device
         # passages['token_characters']
         #   torch.Size([batch_size, num_passage, passage_length, num_characters])
         # passages['tokens']
@@ -298,38 +304,18 @@ class VNet(Model):
         match_passages_vector = self._dropout(self._match_layer(
             match_passages_vector, torch.ones(match_passages_vector.size()[:2])
             .to(match_passages_vector.device)))
-        # Shape: (num_passages*batch_size, passage_length, ptr_dim)
+        span_start_logits = self._ptr_layer_1(match_passages_vector).squeeze()
+        span_end_logits = self._ptr_layer_2(match_passages_vector).squeeze()
+        # span_start_logits, span_end_logits = self._pointer_net(match_passages_vector, passages_mask)
         # Shape: (num_passages*batch_size, passage_length)
-        span_start_logits = self._ptr_layer_2(torch.tanh(self._ptr_layer_1(
-                                              torch.cat((match_passages_vector,
-                                                         self._start_h_embedding.repeat(num_passages *
-                                                                                        batch_size,
-                                                                                        passage_length,
-                                                                                        self.ptr_dim)),
-                                                        dim=-1)))).squeeze(-1)
-        # shape(num_passages*batch_size, passage_length)
         span_start_probs = util.masked_softmax(span_start_logits, passages_mask)
-        # shape(num_passages*batch_size, 1, encoding_dim * 4 + modeling_dim)
-        # c = torch.matmul(match_passages_vector.transpose(1, 2),
-        #                  span_start_probs.unsqueeze(2)).squeeze(-1).unsqueeze(1)
-        c = util.weighted_sum(match_passages_vector, span_start_probs).unsqueeze(1)
-        # shape(num_passages*batch_size, 1, ptr_dim)
-        end_h_embedding = self._span_end_lstm(c, torch.ones(c.size()[:2]).to(c.device))
-        span_end_logits = self._ptr_layer_2(torch.tanh(self._ptr_layer_1(
-                                            torch.cat((match_passages_vector,
-                                                       end_h_embedding.repeat(1,
-                                                                              passage_length,
-                                                                              1)),
-                                                      dim=-1)))).squeeze(-1)
-        # shape(num_passages*batch_size, passage_length)
         span_end_probs = util.masked_softmax(span_end_logits, passages_mask)
 
         # -----------------------------------
         # Part Three: Answer Content Modeling
         # -----------------------------------
-        relu = torch.nn.ReLU()
         # shape(num_passages*batch_size, passage_length)
-        p = torch.sigmoid(self._content_layer_2(relu(self._content_layer_1(
+        p = torch.sigmoid(self._content_layer_2(self.relu(self._content_layer_1(
             match_passages_vector)))).squeeze(-1)
 
         # embedded_passages shape(batch_size*num_passages, passage_length, embedding_dim)
@@ -338,7 +324,7 @@ class VNet(Model):
         ground_truth_p = self.map_span_to_01(spans_end, p.size()) -\
             self.map_span_to_01(spans_start - 1, p.size())
         prob_p = self.get_prob_map(span_start_probs, span_end_probs)
-        prob_p = prob_p.to(c.device)
+        prob_p = prob_p.to(device)
         # pdb.set_trace()
         # prob_p = prob_p.clamp(0, 1)
         embedded_answers_candidates = embedded_passages *\
@@ -350,9 +336,9 @@ class VNet(Model):
         # Part Four:  Cross-Passage Answer Verification
         # ---------------------------------------------
         # shape(batch_size, num_passages, embedding_dim)
-        batch_r = r.view(-1, num_passages, embedding_dim)
+        batch_r = r.view(batch_size, num_passages, embedding_dim)
         set_diagonal_zero = (1 - torch.eye(num_passages)).unsqueeze(0).repeat(batch_size, 1, 1)
-        set_diagonal_zero = set_diagonal_zero.to(c.device)
+        set_diagonal_zero = set_diagonal_zero.to(device)
         # shape(batch_size, num_passages, num_passages)
         passages_self_similarity = self._matrix_attention(batch_r, batch_r) * set_diagonal_zero
         # shape(batch_size, num_passages, num_passages)
@@ -363,7 +349,7 @@ class VNet(Model):
         # shape(batch_size, num_passages, num_passages)
         g = self._passages_matrix_attention(batch_r, attention_batch_r)
         pad_size = self.max_num_passages - g.size(-1)
-        g = F.pad(g, (0, pad_size, 0, pad_size), 'constant', 0)
+        g = F.pad(g, (0, pad_size, 0, pad_size), 'constant', 0.0)
         # shape(batch_size, num_passages)
         passages_verify = self._passage_predictor(g).squeeze(-1)
         best_span = self.get_best_span(span_start_probs.view(batch_size, num_passages, -1),
@@ -399,10 +385,11 @@ class VNet(Model):
             loss_Content = -loss_Content / passage_length / batch_size
 
             # shape(batch_size, num_passages)
-            ground_truth_passages_verify = (spans_end != -1).float().to(c.device).view(batch_size,
-                                                                                       num_passages)
+            ground_truth_passages_verify = (spans_end != -1).float().to(device).view(batch_size,
+                                                                                     num_passages)
             loss_Verification = torch.log_softmax(passages_verify, dim=-1) * ground_truth_passages_verify
-            loss_Verification = -torch.sum(loss_Verification) / num_passages / batch_size
+            loss_Verification = -torch.sum(loss_Verification) /\
+                min(torch.sum(ground_truth_passages_verify), 1)
             loss = loss_Boundary + 0.5 * loss_Content + 0.5 * loss_Verification
             # loss = loss_Boundary + 0.5 * loss_Verification
             # loss = loss_Boundary
@@ -431,24 +418,39 @@ class VNet(Model):
                 best_span_string = passage_str[passage_id][start_offset:end_offset]
                 output_dict['best_span_str'].append(best_span_string)
                 answer_texts = metadata[i].get('answer_texts', [])
-                answer_texts = list(set([' '.join(item) for sublist in answer_texts for item in sublist]))
-                # answer_text = answer_texts[np.array([len(text) for text in answer_texts]).argmax()]
-                # answer_text = answer_texts[passage_id] or ['']
+                if self.language == 'zh':
+                    answer_texts = list(set([' '.join(item)
+                                             for sublist in answer_texts for item in sublist]))
+                elif self.language == 'en':
+                    answer_texts = list(set([item for sublist in answer_texts for item in sublist]))
                 if answer_texts:
-                    self._rouge_metrics(' '.join(best_span_string), answer_texts)
-                    # self._bleu_metrics(best_span_string, answer_texts)
+                    if self.language == 'zh':
+                        self._rouge_metrics(' '.join(best_span_string), answer_texts)
+                    elif self.language == 'en':
+                        self._rouge_metrics(best_span_string, answer_texts)
                 if loss < 9:
-                    logger.debug('start_offset:%d, end_offset:%d' % (start_offset, end_offset))
-                    logger.debug("span_start_probs.argmax: {}".format(
-                        ' '.join(map(str, span_start_probs.argmax(-1).cpu().numpy()))))
-                    logger.debug("span_end_probs.argmax: {}".format(
-                        ' '.join(map(str, span_end_probs.argmax(-1).cpu().numpy()))))
+                    logger.debug('passage_id:%d, start_idx:%d, end_idx:%d' %
+                                 (passage_id, start_idx, end_idx))
+                    # logger.debug("span_start_logits: {}".format(
+                    #     ' '.join(map(str, span_start_logits[0].clone().detach().cpu().numpy()))))
+                    # logger.debug("span_start_probs.argmax: {}".format(
+                    #     ' '.join(map(str, span_start_probs.view(batch_size, num_passages, -1)[i]
+                    #                  .argmax(-1).cpu().numpy()))))
+                    # logger.debug("span_end_probs.argmax: {}".format(
+                    #     ' '.join(map(str, span_end_probs.view(batch_size, num_passages, -1)[i]
+                    #                  .argmax(-1).cpu().numpy()))))
                     logger.debug("spans_start: {}".format(
-                        ' '.join(map(str, spans_start.cpu().numpy()))))
+                        ' '.join(map(str, spans_start.view(batch_size, num_passages)[i]
+                                     .cpu().numpy()))))
                     logger.debug("spans_end: {}".format(
-                        ' '.join(map(str, spans_end.cpu().numpy()))))
+                        ' '.join(map(str, spans_end.view(batch_size, num_passages)[i]
+                                     .cpu().numpy()))))
                     logger.debug('Predict: %s' % output_dict['best_span_str'][-1])
-                    logger.debug('Truth: %s' % '\n'.join(answer_texts))
+                    for ans in answer_texts:
+                        if self.language == 'zh':
+                            logger.debug('Truth: %s' % ans.replace(' ', ''))
+                        elif self.language == 'en':
+                            logger.debug('Truth: %s' % ans)
             self._span_start_accuracy(span_start_probs.view(batch_size, num_passages, -1),
                                       spans_start.view(batch_size, num_passages),
                                       (spans_start.view(batch_size, num_passages) != -1))
@@ -520,7 +522,7 @@ class VNet(Model):
                     value = (val1 * val2) *\
                         np.mean(content_clone[b, p, span_start_argmax[b, p]:j + 1]) *\
                         passages_verify_clone[b, p]
-                    # value = val1 + val2
+                    # value = val1 * val2
 
                     if value > max_span_prob[b, p]:
                         max_span_prob[b, p] = value
@@ -564,7 +566,7 @@ class VNet(Model):
 
                 val2 = span_end_probs_clone[b, j]
                 # pdb.set_trace()
-                value = (val1 * val2)
+                value = val1 * val2
 
                 if value > max_span_prob[b]:
                     max_span_prob[b] = value

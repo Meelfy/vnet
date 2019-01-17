@@ -5,12 +5,10 @@
             "tokens":{
                 "type":"single_id",
                 "lowercase_tokens":true
-            },
-            "token_characters":{
-                "type":"characters"
             }
         },
         "lazy":true,
+        "language": "zh",
         "passage_length_limit":500,
         "question_length_limit":50
     },
@@ -26,23 +24,7 @@
                     "type":"embedding",
                     "pretrained_file":"/data/nfsdata/nlp/embeddings/chinese/word_embedding300.data",
                     "embedding_dim":300,
-                    "trainable":false
-                },
-                "token_characters":{
-                    "type":"character_encoding",
-                    "embedding":{
-                        "num_embeddings":30000,
-                        "embedding_dim":30
-                    },
-                    "encoder":{
-                        "type":"cnn",
-                        "embedding_dim":30,
-                        "num_filters":100,
-                        "ngram_filter_sizes":[
-                            1
-                        ]
-                    },
-                    "dropout":0.0
+                    "trainable":true
                 }
             }
         },
@@ -50,7 +32,7 @@
         "phrase_layer":{
             "type":"lstm",
             "bidirectional":true,
-            "input_size":400,
+            "input_size":300,
             "hidden_size":100,
             "num_layers":2,
             "dropout":0.0
@@ -73,8 +55,8 @@
         },
         "matrix_attention_layer": {
             "type": "linear",
-            "tensor_1_dim": 400,
-            "tensor_2_dim": 400,
+            "tensor_1_dim": 300,
+            "tensor_2_dim": 300,
             "combination": "x,y,x*y"
         },
         "pointer_net": {
@@ -108,7 +90,7 @@
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":3,
+        "cuda_device":1,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

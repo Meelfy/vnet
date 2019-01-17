@@ -51,6 +51,7 @@ class MsmarcoMultiPassageReader(DatasetReader):
                  token_indexers: Dict[str, TokenIndexer] = None,
                  lazy: bool = False,
                  build_pickle: bool = True,
+                 language: str = 'en',
                  passage_length_limit: int = None,
                  question_length_limit: int = None) -> None:
         super().__init__(lazy)
@@ -59,6 +60,7 @@ class MsmarcoMultiPassageReader(DatasetReader):
         self._token_indexers = token_indexers or {'tokens': SingleIdTokenIndexer()}
         self.passage_length_limit = passage_length_limit
         self.question_length_limit = question_length_limit
+        self.language = language
 
     @overrides
     def _read(self, file_path: str) -> Iterable[Instance]:
@@ -177,7 +179,12 @@ class MsmarcoMultiPassageReader(DatasetReader):
     def _read_instances_file(self, file_path: str):
         f_preprocessed = open(file_path, 'r')
         for line in f_preprocessed.readlines():
+            if line.replace(' ', '').strip() == "":
+                continue
             json_obj = json.loads(line.strip())
+            if not sum([len(text) >= 5 for text, idx in json_obj['question_tokens']]):
+                if self.language == 'en':
+                    continue
             yield self._json_blob_to_instance(json_obj)
         f_preprocessed.close()
 

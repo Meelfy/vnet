@@ -19,6 +19,7 @@
             }
         },
         "lazy":true,
+        "language": "en",
         "passage_length_limit":400,
         "question_length_limit":50
     },
@@ -106,14 +107,14 @@
     "iterator":{
         "type":"bucket",
         "sorting_keys":[["question", "num_tokens"]],
-        "batch_size":2
+        "batch_size":4
     },
     "trainer":{
         "num_epochs":5,
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":0,
+        "cuda_device":2,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

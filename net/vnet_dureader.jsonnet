@@ -1,29 +1,23 @@
 {
-    // "vocabulary":{
-    //     "pretrained_files":{
-    //         "tokens": "/home/meefly/data/msmarco/vocabulary/tokens.txt",
-    //         "token_characters": "/home/meefly/data/msmarco/vocabulary/token_characters.txt",
-    //         "non_padded_namespaces": "/home/meefly/data/msmarco/vocabulary/non_padded_namespaces.txt"
-    //     },
-    //     "only_include_pretrained_words":true
-    // },
     "dataset_reader":{
         "type":"msmarco_multi_passage_limited",
         "token_indexers":{
             "tokens":{
                 "type":"single_id",
                 "lowercase_tokens":true
-            },
+            }
+            ,
             "token_characters":{
                 "type":"characters"
             }
         },
         "lazy":true,
+        "language": "zh",
         "passage_length_limit":500,
         "question_length_limit":50
     },
-    "train_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/zhidao.train.json",
-    "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/devset/zhidao.dev.json",
+    "train_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/train.json",
+    "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/devset/dev.json",
     // "train_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/test.txt",
     // "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/test.txt",
     "model":{
@@ -36,8 +30,9 @@
                     // "embedding_dim":300,
                     "pretrained_file":"/data/nfsdata/nlp/embeddings/chinese/Tencent_AILab_ChineseEmbedding.txt",
                     "embedding_dim":200,
-                    "trainable":false
-                },
+                    "trainable":true
+                }
+                ,
                 "token_characters":{
                     "type":"character_encoding",
                     "embedding":{
@@ -118,7 +113,7 @@
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":1,
+        "cuda_device":3,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

@@ -19,6 +19,7 @@
             }
         },
         "lazy":true,
+        "language": "en",
         "passage_length_limit":400,
         "question_length_limit":50
     },

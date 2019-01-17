@@ -199,21 +199,23 @@ class VNet(Model):
         # ---------------------------------------
         # Part One: Question and Passage Modeling
         # ---------------------------------------
-        device = passages['token_characters'].device
+        device = passages['tokens'].device
         # passages['token_characters']
-        #   torch.Size([batch_size, num_passage, passage_length, num_characters])
+        #   torch.Size([batch_size, num_passages, passage_length, num_characters])
         # passages['tokens']
-        #   torch.Size([batch_size, num_passage, passage_length])
-        # shape(passages_batch_size=num_passage*batch_size, question_length, question_embedding_size )
-        batch_size, num_passages, passage_length, num_characters = passages['token_characters'].size()
-        # shape(batch_size*num_passage, passage_length, num_characters)
+        #   torch.Size([batch_size, num_passages, passage_length])
+        # shape(passages_batch_size=num_passages*batch_size, question_length, question_embedding_size )
+        batch_size, num_passages, passage_length = passages['tokens'].size()
+        # shape(batch_size*num_passages, passage_length, num_characters)
         batch_passages = {}
-        batch_passages['token_characters'] = passages['token_characters'].view(-1,
-                                                                               passage_length,
-                                                                               num_characters)
-        # shape(batch_size*num_passage, passage_length)
+        if 'token_characters' in passages:
+            num_characters = passages['token_characters'].size(-1)
+            batch_passages['token_characters'] = passages['token_characters'].view(batch_size * num_passages,
+                                                                                   passage_length,
+                                                                                   num_characters)
+        # shape(batch_size*num_passages, passage_length)
         batch_passages['tokens'] = passages['tokens'].view(-1, passage_length)
-        # shape(batch_size*num_passage, passage_length, embedding_dim)
+        # shape(batch_size*num_passages, passage_length, embedding_dim)
         try:
             embedded_passages = self._highway_layer(self._text_field_embedder(batch_passages))
         except Exception as e:
@@ -223,11 +225,13 @@ class VNet(Model):
 
         # shape(batch_size, question_length, num_characters)
         questions = {}
-        batch_size, question_length, num_characters = question['token_characters'].size()
-        questions['token_characters'] = question['token_characters'].repeat(1, num_passages, 1)\
-                                                                    .view(-1,
-                                                                          question_length,
-                                                                          num_characters)
+        batch_size, question_length = question['tokens'].size()
+        if 'token_characters' in question:
+            num_characters = question['token_characters'].size(-1)
+            questions['token_characters'] = question['token_characters'].repeat(1, num_passages, 1)\
+                                                                        .view(batch_size * num_passages,
+                                                                              question_length,
+                                                                              num_characters)
         questions['tokens'] = question['tokens'].repeat(1, num_passages).view(-1, question_length)
         try:
             embedded_question = self._highway_layer(self._text_field_embedder(question))
@@ -387,6 +391,9 @@ class VNet(Model):
             # shape(batch_size, num_passages)
             ground_truth_passages_verify = (spans_end != -1).float().to(device).view(batch_size,
                                                                                      num_passages)
+            pad_size = self.max_num_passages - ground_truth_passages_verify.size(-1)
+            ground_truth_passages_verify = F.pad(ground_truth_passages_verify,
+                                                 (0, pad_size), 'constant', 0.0)
             loss_Verification = torch.log_softmax(passages_verify, dim=-1) * ground_truth_passages_verify
             loss_Verification = -torch.sum(loss_Verification) /\
                 min(torch.sum(ground_truth_passages_verify), 1)

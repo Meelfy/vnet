@@ -230,7 +230,7 @@ def process(l):
 
 def main():
     data_path = "/data/nfsdata/meijie/data/dureader/preprocessed/"
-    file_path = os.path.join(data_path, 'devset', 'search.dev.json')
+    file_path = os.path.join(data_path, 'trainset', 'zhidao.train.json')
     f_save = open(file_path + '.instances', 'w')
     with open(file_path) as f:
         dureader_preprocessed_data = f.readlines()

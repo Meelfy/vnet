@@ -176,6 +176,17 @@ class MsmarcoMultiPassageReader(DatasetReader):
                 else:
                     logger.info("wrong instance")
 
+    @staticmethod
+    def check_max_character_num(json_obj):
+        max_num_characters = 30
+        question_tokens = json_obj['question_tokens']
+        passages_tokens = json_obj['passages_tokens']
+        if any([len(text) > max_num_characters for text, idx in question_tokens]):
+            return False
+        if any([len(text) > max_num_characters for sublist in passages_tokens for text, idx in sublist]):
+            return False
+        return True
+
     def _read_instances_file(self, file_path: str):
         f_preprocessed = open(file_path, 'r')
         for line in f_preprocessed.readlines():
@@ -185,6 +196,8 @@ class MsmarcoMultiPassageReader(DatasetReader):
             if not sum([len(text) >= 5 for text, idx in json_obj['question_tokens']]):
                 if self.language == 'en':
                     continue
+            if not self.check_max_character_num(json_obj):
+                continue
             yield self._json_blob_to_instance(json_obj)
         f_preprocessed.close()
 

@@ -14,10 +14,15 @@ The original algorithm is modified in the following two aspects:
 """
 import torch
 import torch.nn as nn
+import logging
 from torch.nn import Parameter
 from allennlp.nn import util
 from allennlp.modules.seq2seq_encoders.seq2seq_encoder import Seq2SeqEncoder
+from allennlp.modules import TimeDistributed
 from overrides import overrides
+
+logger = logging.getLogger(__name__)
+# logger.setLevel(logging.DEBUG)
 
 
 class PointerNetEncoder(nn.Module):
@@ -177,37 +182,33 @@ class PointerNetDecoder(nn.Module):
 
         # Used for propagating .cuda() command
         self.mask = Parameter(torch.ones(1), requires_grad=False)
-        self.runner = Parameter(torch.zeros(1), requires_grad=False)
 
-    def forward(self, embedded_inputs,
+        self._ptr_layer_1 = TimeDistributed(torch.nn.Linear(embedding_dim * 2,
+                                                            embedding_dim, bias=False))
+        self._ptr_layer_2 = TimeDistributed(torch.nn.Linear(hidden_dim,
+                                                            embedding_dim))
+        self._ptr_layer_3 = TimeDistributed(torch.nn.Linear(embedding_dim, 1))
+
+    def forward(self,
+                embedded_inputs,    # input_sequence
+                hidden,             # lstm hidden of input_sequence
+                context,            # output of lstm
                 decoder_input,
-                hidden,
-                context,
                 passages_mask):
         """
         PointerNetDecoder - Forward-pass
-
-        :param Tensor embedded_inputs: Embedded inputs of Pointer-Net
-        :param Tensor decoder_input: First decoder's input
-        :param Tensor hidden: First decoder's hidden states
-        :param Tensor context: PointerNetEncoder's outputs
-        :return: (Output probabilities, Pointers indices), last hidden state
+        Return
+        ------
+        span_start_logits, span_end_logits
         """
 
         batch_size = embedded_inputs.size(0)
-        input_length = embedded_inputs.size(1)
+        passage_length = embedded_inputs.size(1)
 
-        # (batch, seq_len)
-        mask = self.mask.repeat(input_length).unsqueeze(0).repeat(batch_size, 1)
+        # (batch_size, passage_length)
+        mask = self.mask.view(1, 1).repeat(batch_size, passage_length)
+        # -inf
         self.att.init_inf(mask.size())
-
-        # Generating arang(input_length), broadcasted across batch_size
-        runner = self.runner.repeat(input_length)
-        for i in range(input_length):
-            runner.data[i] = i
-        runner = runner.unsqueeze(0).expand(batch_size, -1).long()
-
-        outputs = []
 
         def step(x, hidden):
             """
@@ -238,19 +239,33 @@ class PointerNetDecoder(nn.Module):
 
             return hidden_t, c_t, output
 
-        # Recurrence loop
-        for _ in range(2):
-            h_t, c_t, span_logits = step(decoder_input, hidden)
-            hidden = (h_t, c_t)
-            span_probs = util.masked_softmax(span_logits, passages_mask)
-            # import pdb
-            # pdb.set_trace()
-            decoder_input = util.weighted_sum(embedded_inputs, span_probs)
-
-            outputs.append(span_logits.unsqueeze(0))
-
-        outputs = torch.cat(outputs).permute(1, 0, 2)
-        return outputs, hidden
+        # (, passage_length)
+        logger.debug("embedded_inputs.size %s" % str(embedded_inputs.size()))
+        logger.debug("start_hidden[0].size %s" % str(hidden[0].size()))
+        logger.debug("start_hidden[1].size %s" % str(hidden[1].size()))
+        F = torch.tanh(self._ptr_layer_1(torch.cat([embedded_inputs,
+                                                    embedded_inputs.new_zeros(
+                                                        embedded_inputs.size())], dim=-1)) +
+                       self._ptr_layer_2(hidden[0].unsqueeze(1)).repeat(1, passage_length, 1))
+        logger.debug("F.size %s" % str(F.size()))
+        # linear with bias
+        span_start_logits = self._ptr_layer_3(F).squeeze()
+        logger.debug("span_start_logits.size %s" % str(span_start_logits.size()))
+        span_start_probs = util.masked_softmax(span_start_logits, passages_mask)
+        decoder_input = util.weighted_sum(embedded_inputs, span_start_probs)
+        logger.debug("decoder_input.size %s" % str(decoder_input.size()))
+        h_t, c_t, _ = step(decoder_input, hidden)
+        hidden = (h_t, c_t)
+        logger.debug("end_hidden[0].size %s" % str(hidden[0].size()))
+        logger.debug("end_hidden[1].size %s" % str(hidden[1].size()))
+        # end
+        F = torch.tanh(self._ptr_layer_1(torch.cat([embedded_inputs,
+                                                    embedded_inputs.new_zeros(
+                                                        embedded_inputs.size())], dim=-1)) +
+                       self._ptr_layer_2(hidden[0].unsqueeze(1)).repeat(1, passage_length, 1))
+        span_end_logits = self._ptr_layer_3(F).squeeze()
+        # span_end_probs = util.masked_softmax(span_end_logits, passages_mask)
+        return span_start_logits, span_end_logits
 
 
 @Seq2SeqEncoder.register("PointerNet")
@@ -287,30 +302,36 @@ class PointerNet(Seq2SeqEncoder):
         nn.init.uniform_(self.decoder_input0, -1, 1)
 
     @overrides
-    def forward(self, embedded_inputs, passages_mask):
+    def forward(self, embedded_inputs: torch.Tensor, passages_mask: torch.Tensor):
         """
         PointerNet - Forward-pass
 
-        :param Tensor inputs: Input sequence
-        :return: Pointers probabilities and indices
+        Parameters
+        ----------
+        embedded_inputs
+            Shape(batch_size * num_passages, passage_length, embedding_size)
+        Return
+        ------
+        span_start_logits, span_end_logits
         """
         batch_size = embedded_inputs.size(0)
-
+        # uniform initialize
         decoder_input0 = self.decoder_input0.unsqueeze(0).expand(batch_size, -1)
 
+        # zeros initialize
         encoder_hidden0 = self._encoder.init_hidden(batch_size)
+        # use lstm to encode
         encoder_outputs, encoder_hidden = self._encoder(embedded_inputs,
                                                         encoder_hidden0)
         # pdb.set_trace()
         if self.bidir:
-            decoder_hidden0 = (torch.cat(tuple(encoder_hidden[0][-2:]), dim=-1),
-                               torch.cat(tuple(encoder_hidden[1][-2:]), dim=-1))
+            hidden0 = (torch.cat(tuple(encoder_hidden[0][-2:]), dim=-1),
+                       torch.cat(tuple(encoder_hidden[1][-2:]), dim=-1))
         else:
-            decoder_hidden0 = (encoder_hidden[0][-1],
-                               encoder_hidden[1][-1])
-        outputs, decoder_hidden = self._decoder(embedded_inputs,
-                                                decoder_input0,
-                                                decoder_hidden0,
-                                                encoder_outputs,
-                                                passages_mask)
-        return outputs[:, 0, :], outputs[:, 1, :]
+            hidden0 = (encoder_hidden[0][-1],
+                       encoder_hidden[1][-1])
+        return self._decoder(embedded_inputs,
+                             hidden0,            # hidden
+                             encoder_outputs,    # context
+                             decoder_input0,     # decoder_input
+                             passages_mask)

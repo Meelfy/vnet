@@ -106,7 +106,7 @@
         "type":"bucket",
         "sorting_keys":[["question", "num_tokens"]],
         "biggest_batch_first":true,
-        "batch_size":4
+        "batch_size":8
     },
     "trainer":{
         "num_epochs":5,

@@ -1,9 +1,9 @@
 {
     "vocabulary":{
         "pretrained_files":{
-            "tokens": "/home/meefly/data/msmarco/vocabulary/tokens.txt",
-            "token_characters": "/home/meefly/data/msmarco/vocabulary/token_characters.txt",
-            "non_padded_namespaces": "/home/meefly/data/msmarco/vocabulary/non_padded_namespaces.txt"
+            "tokens": "/data/nfsdata/meijie/data/msmarco/vocabulary/tokens.txt",
+            "token_characters": "/data/nfsdata/meijie/data/msmarco/vocabulary/token_characters.txt",
+            "non_padded_namespaces": "/data/nfsdata/meijie/data/msmarco/vocabulary/non_padded_namespaces.txt"
         },
         "only_include_pretrained_words":true
     },

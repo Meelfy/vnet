@@ -36,7 +36,7 @@
                 "token_characters":{
                     "type":"character_encoding",
                     "embedding":{
-                        "num_embeddings":40000,
+                        "num_embeddings":20000,  // 12765
                         "embedding_dim":30
                     },
                     "encoder":{

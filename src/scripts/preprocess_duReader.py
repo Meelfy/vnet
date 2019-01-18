@@ -127,6 +127,7 @@ def data_to_json_obj(data):
     json_obj = {}
     max_passage_len = 500
     max_question_len = 50
+    max_num_characters = 30
     # question_text, passages_texts, qid, answer_texts, char_spans = data
     json_obj['answer_texts'] = answer_texts
     json_obj['passages_texts'] = passages_texts
@@ -137,6 +138,10 @@ def data_to_json_obj(data):
 
     passages_tokens = [passage_tokens[:max_passage_len] for passage_tokens in passages_tokens]
     question_tokens = question_tokens[:max_question_len]
+    if any([len(token.text) > max_num_characters for token in question_tokens]):
+        return None
+    if any([len(token.text) > max_num_characters for sublist in passages_tokens for token in sublist]):
+        return None
     char_spans = char_spans or []
     # We need to convert character indices in `passage_text` to token indices in
     # `passage_tokens`, as the latter is what we'll actually use for supervision.

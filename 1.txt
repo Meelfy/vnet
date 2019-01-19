@@ -1,0 +1,1190 @@
+----------------------start-----------------------
+------------------passages_texts------------------
+The CE marking is the manufacturer's declaration that the product meets the requirements of the applicable EC directives. Officially, CE is an abbreviation of Conformite Conformité, europeenne Européenne Meaning. european conformity
+The CE marking is the manufacturer's declaration that the product meets the requirements of the applicable EC directives. Officially, CE is an abbreviation [92mof Conformite Conformité, europeenne Européenne Meaning.[0m european conformity
+The CE marking is the manufacturer's declaration that the product meets the requirements of the applicable EC directives. Officially, CE is [94man abbreviation of Conformite Conformité, europeenne Européenne Meaning. european conformity[0m
+------------------golden_answer-------------------
+['An abbreviation of Conformite Conformité, europeenne Européenne Meaning. european conformity.']
+------------------rougeL_answer-------------------
+['of Conformite Conformité, europeenne Européenne Meaning.']
+--------------------F1_answer---------------------
+['an abbreviation of Conformite Conformité, europeenne Européenne Meaning. european conformity']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+The CE marking is the manufacturer's declaration that the product meets the requirements of the applicable EC directives. Officially, CE is an abbreviation of Conformite Conformité, europeenne Européenne Meaning. European, CONFORMITY however ce originally  Stood For , Communaute communauté Europeenne Européenne. french for european community
+The CE marking is the manufacturer's declaration that the product meets the requirements of the applicable EC directives. Officially, CE is an abbreviation [92mof Conformite Conformité, europeenne Européenne[0m Meaning. European, CONFORMITY however ce originally  Stood For , Communaute communauté Europeenne Européenne. french for european community
+The CE marking is the manufacturer's declaration that the product meets the requirements of the applicable EC directives. Officially, CE is [94man abbreviation of Conformite Conformité, europeenne Européenne Meaning. European, CONFORMITY[0m however ce originally  Stood For , Communaute communauté Europeenne Européenne. french for european community
+------------------golden_answer-------------------
+['An abbreviation of Conformite Conformité, europeenne Européenne Meaning. european conformity.']
+------------------rougeL_answer-------------------
+['of Conformite Conformité, europeenne Européenne']
+--------------------F1_answer---------------------
+['an abbreviation of Conformite Conformité, europeenne Européenne Meaning. European, CONFORMITY']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+The presence of communication amid scientific minds was equally important to the success of the Manhattan Project as scientific intellect was. The only cloud hanging over the impressive achievement of the atomic researchers and engineers is what their success truly meant; hundreds of thousands of innocent lives obliterated.
+The presence of communication amid scientific minds was equally important to the success of the Manhattan Project as scientific intellect was. The [92monly cloud hanging over the impressive achievement of the atomic researchers and engineers is what their success truly meant; hundreds of thousands of innocent lives[0m obliterated.
+The presence of communication amid scientific minds was equally important to [94mthe success of the Manhattan Project as scientific intellect was. The only cloud hanging over the impressive achievement of the atomic researchers and engineers is what their success truly meant; hundreds of thousands of innocent lives obliterated.[0m
+------------------golden_answer-------------------
+['The immediate impact of the success of the manhattan project was the only cloud hanging over the impressive achievement of the atomic researchers and engineers is what their success truly meant; hundreds of thousands of innocent lives obliterated.']
+------------------rougeL_answer-------------------
+['only cloud hanging over the impressive achievement of the atomic researchers and engineers is what their success truly meant; hundreds of thousands of innocent lives']
+--------------------F1_answer---------------------
+['the success of the Manhattan Project as scientific intellect was. The only cloud hanging over the impressive achievement of the atomic researchers and engineers is what their success truly meant; hundreds of thousands of innocent lives obliterated.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+For a small fee, Southwest Airlines' Early Bird Check-In allows passengers to check-in to a flight automatically up to 36 hours prior to the flight's scheduled departure time.
+For a small fee, Southwest Airlines' Early Bird Check-In allows [92mpassengers to check-in to a flight automatically up to 36 hours prior to the flight's scheduled departure[0m time.
+For a small fee, Southwest Airlines' Early Bird Check-In [94mallows passengers to check-in to a flight automatically up to 36 hours prior to the flight's scheduled departure time.[0m
+------------------golden_answer-------------------
+["It allows passengers to check-in to a flight automatically up to 36 hours prior to the flight's scheduled departure time."]
+------------------rougeL_answer-------------------
+["passengers to check-in to a flight automatically up to 36 hours prior to the flight's scheduled departure"]
+--------------------F1_answer---------------------
+["allows passengers to check-in to a flight automatically up to 36 hours prior to the flight's scheduled departure time."]
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+On average, Americans brush for just under the two minutes recommended by dental professionals. African Americans brush 18 seconds longer than Americans as a whole, while younger adults ages 18 to 24 spend 16 seconds longer than average brushing. Nearly six of 10 Americans brush their teeth at bedtime and as soon as they wake up in the morning, while 38 percent brush after breakfast. About 17 percent brush after lunch, and 21 percent brush after dinner.
+On average, [92mAmericans brush for just under the two[0m minutes recommended by dental professionals. African Americans brush 18 seconds longer than Americans as a whole, while younger adults ages 18 to 24 spend 16 seconds longer than average brushing. Nearly six of 10 Americans brush their teeth at bedtime and as soon as they wake up in the morning, while 38 percent brush after breakfast. About 17 percent brush after lunch, and 21 percent brush after dinner.
+On [94maverage, Americans brush for just under the two minutes[0m recommended by dental professionals. African Americans brush 18 seconds longer than Americans as a whole, while younger adults ages 18 to 24 spend 16 seconds longer than average brushing. Nearly six of 10 Americans brush their teeth at bedtime and as soon as they wake up in the morning, while 38 percent brush after breakfast. About 17 percent brush after lunch, and 21 percent brush after dinner.
+------------------golden_answer-------------------
+['Americans brush for just under the two minutes on average.']
+------------------rougeL_answer-------------------
+['Americans brush for just under the two']
+--------------------F1_answer---------------------
+['average, Americans brush for just under the two minutes']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+There are 3 main reasons why Stalin wanted to control Eastern Europe. 1.) Russia has historically no secure border. 2.) They wanted to set up satellite countries. 3.)
+There are 3 main reasons [92mwhy Stalin wanted to control Eastern Europe. 1.) Russia has historically no secure border. 2.) They wanted to set up satellite[0m countries. 3.)
+There are 3 [94mmain reasons why Stalin wanted to control Eastern Europe. 1.) Russia has historically no secure border. 2.) They wanted to set up satellite countries.[0m 3.)
+------------------golden_answer-------------------
+['The reasons why Stalin wanted to control Eastern Europe are Russia has historically no secure border and they wanted to set up satellite countries.']
+------------------rougeL_answer-------------------
+['why Stalin wanted to control Eastern Europe. 1.) Russia has historically no secure border. 2.) They wanted to set up satellite']
+--------------------F1_answer---------------------
+['main reasons why Stalin wanted to control Eastern Europe. 1.) Russia has historically no secure border. 2.) They wanted to set up satellite countries.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+The customer support phone number of BancFirst is +1(405) 948-7930, 1-855-889-9216, 1-888-200-9149 (Click phone number to call). data-ad-slot=7829909793> Bancfirst Oklahoma Customer Service Phone Number BancFirst Customer Service Phone Number Phone Number of BancFirst is +1(405) 948-7930, 1-855-889-9216, 1-888-200-9149. BancFirst Corporation or BancFirst is a public financial institution, serves the residents of the United States. It is an Oklahoma state charted financial institution. It is counted among the leading financial institutions throughout the state.
+[92mThe customer support phone number of BancFirst is +1(405) 948-7930,[0m 1-855-889-9216, 1-888-200-9149 (Click phone number to call). data-ad-slot=7829909793> Bancfirst Oklahoma Customer Service Phone Number BancFirst Customer Service Phone Number Phone Number of BancFirst is +1(405) 948-7930, 1-855-889-9216, 1-888-200-9149. BancFirst Corporation or BancFirst is a public financial institution, serves the residents of the United States. It is an Oklahoma state charted financial institution. It is counted among the leading financial institutions throughout the state.
+The [94mcustomer support phone number of BancFirst is +1(405) 948-7930, 1-855-889-9216, 1-888-200-9149[0m (Click phone number to call). data-ad-slot=7829909793> Bancfirst Oklahoma Customer Service Phone Number BancFirst Customer Service Phone Number Phone Number of BancFirst is +1(405) 948-7930, 1-855-889-9216, 1-888-200-9149. BancFirst Corporation or BancFirst is a public financial institution, serves the residents of the United States. It is an Oklahoma state charted financial institution. It is counted among the leading financial institutions throughout the state.
+------------------golden_answer-------------------
+['The customer support phone number of BancFirst is +1(405) 948-7930, 1-855-889-9216, 1-888-200-9149.']
+------------------rougeL_answer-------------------
+['The customer support phone number of BancFirst is +1(405) 948-7930,']
+--------------------F1_answer---------------------
+['customer support phone number of BancFirst is +1(405) 948-7930, 1-855-889-9216, 1-888-200-9149']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+BancFirst Customer Support Service Phone Number The customer support phone number of BancFirst is +1(405) 948-7930, 1-855-889-9216, 1-888-200-9149 (Click phone number to call). The postal and official address, email address and phone number (helpline) of BancFirst Service Center and BancFirst customer service phone number is given below. The helpline of BancFirst customer service phone number may or may not be toll free.
+BancFirst Customer Support Service Phone Number The [92mcustomer support phone number of BancFirst is +1(405) 948-7930,[0m 1-855-889-9216, 1-888-200-9149 (Click phone number to call). The postal and official address, email address and phone number (helpline) of BancFirst Service Center and BancFirst customer service phone number is given below. The helpline of BancFirst customer service phone number may or may not be toll free.
+BancFirst Customer Support Service Phone Number [94mThe customer support phone number of BancFirst is +1(405) 948-7930, 1-855-889-9216, 1-888-200-9149[0m (Click phone number to call). The postal and official address, email address and phone number (helpline) of BancFirst Service Center and BancFirst customer service phone number is given below. The helpline of BancFirst customer service phone number may or may not be toll free.
+------------------golden_answer-------------------
+['The customer support phone number of BancFirst is +1(405) 948-7930, 1-855-889-9216, 1-888-200-9149.']
+------------------rougeL_answer-------------------
+['customer support phone number of BancFirst is +1(405) 948-7930,']
+--------------------F1_answer---------------------
+['The customer support phone number of BancFirst is +1(405) 948-7930, 1-855-889-9216, 1-888-200-9149']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Phone Number of BancFirst is +1(405) 948-7930, 1-855-889-9216, 1-888-200-9149 . BancFirst Corporation or BancFirst is a public financial institution, serves the residents of the United States. It is an Oklahoma state charted financial institution. It is counted among the leading financial institutions throughout the state.
+Phone Number [92mof BancFirst is +1(405) 948-7930,[0m 1-855-889-9216, 1-888-200-9149 . BancFirst Corporation or BancFirst is a public financial institution, serves the residents of the United States. It is an Oklahoma state charted financial institution. It is counted among the leading financial institutions throughout the state.
+Phone [94mNumber of BancFirst is +1(405) 948-7930, 1-855-889-9216, 1-888-200-9149[0m . BancFirst Corporation or BancFirst is a public financial institution, serves the residents of the United States. It is an Oklahoma state charted financial institution. It is counted among the leading financial institutions throughout the state.
+------------------golden_answer-------------------
+['The customer support phone number of BancFirst is +1(405) 948-7930, 1-855-889-9216, 1-888-200-9149.']
+------------------rougeL_answer-------------------
+['of BancFirst is +1(405) 948-7930,']
+--------------------F1_answer---------------------
+['Number of BancFirst is +1(405) 948-7930, 1-855-889-9216, 1-888-200-9149']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Shelton, CT. Sponsored Topics. Shelton is a city in Fairfield County, Connecticut, United States. The population was 39,559 at the 2010 census. Shelton was settled by the English as part of the town of Stratford, Connecticut, in 1639.
+Shelton, CT. Sponsored Topics. Shelton is a city [92min Fairfield County, Connecticut, United[0m States. The population was 39,559 at the 2010 census. Shelton was settled by the English as part of the town of Stratford, Connecticut, in 1639.
+Shelton, CT. Sponsored Topics. [94mShelton is a city in Fairfield County, Connecticut, United States.[0m The population was 39,559 at the 2010 census. Shelton was settled by the English as part of the town of Stratford, Connecticut, in 1639.
+------------------golden_answer-------------------
+['Shelton is in Fairfield County, Connecticut, United States.']
+------------------rougeL_answer-------------------
+['in Fairfield County, Connecticut, United']
+--------------------F1_answer---------------------
+['Shelton is a city in Fairfield County, Connecticut, United States.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+The average cost for a Jeep Compass Alternator Replacement is between $377 and $577. Labor costs are estimated between $123 and $156 while parts are priced between $254 and $421. Estimate does not include taxes and fees. Get a Personalized Estimate for your Jeep Compass.
+The average cost for a [92mJeep Compass Alternator Replacement is between $377 and[0m $577. Labor costs are estimated between $123 and $156 while parts are priced between $254 and $421. Estimate does not include taxes and fees. Get a Personalized Estimate for your Jeep Compass.
+The average cost for [94ma Jeep Compass Alternator Replacement is between $377 and $577.[0m Labor costs are estimated between $123 and $156 while parts are priced between $254 and $421. Estimate does not include taxes and fees. Get a Personalized Estimate for your Jeep Compass.
+------------------golden_answer-------------------
+['A Jeep Compass Alternator Replacement is between $377 and $577.']
+------------------rougeL_answer-------------------
+['Jeep Compass Alternator Replacement is between $377 and']
+--------------------F1_answer---------------------
+['a Jeep Compass Alternator Replacement is between $377 and $577.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+오무라이스. 1  Omurice is a contemporary Asian dish consisting of an omelette made with fried rice. Its name derives from the combination of the English words omelette and rice. 2  A relatively simple dish, it typically calls for rice fried with ketchup, chicken and onions wrapped in a thin sheet of fried egg.
+오무라이스. 1  Omurice is a [92mcontemporary Asian dish consisting of an omelette made with fried[0m rice. Its name derives from the combination of the English words omelette and rice. 2  A relatively simple dish, it typically calls for rice fried with ketchup, chicken and onions wrapped in a thin sheet of fried egg.
+오무라이스. 1  Omurice is [94ma contemporary Asian dish consisting of an omelette made with fried rice.[0m Its name derives from the combination of the English words omelette and rice. 2  A relatively simple dish, it typically calls for rice fried with ketchup, chicken and onions wrapped in a thin sheet of fried egg.
+------------------golden_answer-------------------
+['A contemporary Asian dish consisting of an omelette made with fried rice.']
+------------------rougeL_answer-------------------
+['contemporary Asian dish consisting of an omelette made with fried']
+--------------------F1_answer---------------------
+['a contemporary Asian dish consisting of an omelette made with fried rice.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Omurice is a contemporary Asian dish consisting of an omelette made with fried rice. Its name derives from the combination of the English words omelette and rice. Omurice is said to have originated from Japan and it became a popular dish at a western-style restaurant in Tokyo's Ginza district around the turn of the 19th century.
+Omurice is a [92mcontemporary Asian dish consisting of an omelette made with fried[0m rice. Its name derives from the combination of the English words omelette and rice. Omurice is said to have originated from Japan and it became a popular dish at a western-style restaurant in Tokyo's Ginza district around the turn of the 19th century.
+Omurice is [94ma contemporary Asian dish consisting of an omelette made with fried rice.[0m Its name derives from the combination of the English words omelette and rice. Omurice is said to have originated from Japan and it became a popular dish at a western-style restaurant in Tokyo's Ginza district around the turn of the 19th century.
+------------------golden_answer-------------------
+['A contemporary Asian dish consisting of an omelette made with fried rice.']
+------------------rougeL_answer-------------------
+['contemporary Asian dish consisting of an omelette made with fried']
+--------------------F1_answer---------------------
+['a contemporary Asian dish consisting of an omelette made with fried rice.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+A cut-open omurice with ketchup. Omurice or omu-rice (オムライス, Omu-raisu) is an example of yōshoku (a Western-influenced style of Japanese cuisine) consisting of an omelette made with fried rice and usually topped with ketchup. With omu and raisu being contractions of the words omelette and rice, the name is an example of wasei-eigo.
+A cut-open omurice with ketchup. Omurice or omu-rice (オムライス, Omu-raisu) is an example of yōshoku (a Western-influenced style of Japanese cuisine) consisting [92mof an omelette made with[0m fried rice and usually topped with ketchup. With omu and raisu being contractions of the words omelette and rice, the name is an example of wasei-eigo.
+A cut-open omurice with ketchup. Omurice or omu-rice (オムライス, Omu-raisu) is an example of yōshoku (a Western-influenced style of Japanese cuisine) [94mconsisting of an omelette made with fried rice[0m and usually topped with ketchup. With omu and raisu being contractions of the words omelette and rice, the name is an example of wasei-eigo.
+------------------golden_answer-------------------
+['A contemporary Asian dish consisting of an omelette made with fried rice.']
+------------------rougeL_answer-------------------
+['of an omelette made with']
+--------------------F1_answer---------------------
+['consisting of an omelette made with fried rice']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+It might seem surprising to some that it's virtually impossible to get CPAP machines without a prescription as a motorized oxygen mask doesn't qualify to most as being on the same plane as actual medication, but it really is.t might seem surprising to some that it's virtually impossible to get CPAP machines without a prescription as a motorized oxygen mask doesn't qualify to most as being on the same plane as actual medication, but it really is.
+It might seem surprising to some that it's virtually impossible to get CPAP machines without a prescription as a motorized oxygen [92mmask doesn't qualify to most as being on the same plane as actual medication, but it[0m really is.t might seem surprising to some that it's virtually impossible to get CPAP machines without a prescription as a motorized oxygen mask doesn't qualify to most as being on the same plane as actual medication, but it really is.
+It might seem surprising to some that it's virtually impossible to get CPAP machines without a prescription as [94ma motorized oxygen mask doesn't qualify to most as being on the same plane as actual medication, but it really is.[0mt might seem surprising to some that it's virtually impossible to get CPAP machines without a prescription as a motorized oxygen mask doesn't qualify to most as being on the same plane as actual medication, but it really is.
+------------------golden_answer-------------------
+["A motorized oxygen mask doesn't qualify to most as being on the same plane as actual medication, but it really is."]
+------------------rougeL_answer-------------------
+["mask doesn't qualify to most as being on the same plane as actual medication, but it"]
+--------------------F1_answer---------------------
+["a motorized oxygen mask doesn't qualify to most as being on the same plane as actual medication, but it really is."]
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+It might seem surprising to some that it's virtually impossible to get CPAP machines without a prescription as a motorized oxygen mask doesn't qualify to most as being on the same plane as actual medication, but it really is.f you're searching for a way to find and use any model of CPAP machines without a prescription there are some things you should consider first before going ahead with such a plan.
+It might seem surprising to some that it's virtually impossible to get CPAP machines without a prescription as a motorized oxygen [92mmask doesn't qualify to most as being on the same plane as actual medication, but it[0m really is.f you're searching for a way to find and use any model of CPAP machines without a prescription there are some things you should consider first before going ahead with such a plan.
+It might seem surprising to some that it's virtually impossible to get CPAP machines without a prescription as [94ma motorized oxygen mask doesn't qualify to most as being on the same plane as actual medication, but it really[0m is.f you're searching for a way to find and use any model of CPAP machines without a prescription there are some things you should consider first before going ahead with such a plan.
+------------------golden_answer-------------------
+["A motorized oxygen mask doesn't qualify to most as being on the same plane as actual medication, but it really is."]
+------------------rougeL_answer-------------------
+["mask doesn't qualify to most as being on the same plane as actual medication, but it"]
+--------------------F1_answer---------------------
+["a motorized oxygen mask doesn't qualify to most as being on the same plane as actual medication, but it really"]
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Folic acid is the synthetic form of B9, found in supplements and fortified foods, while folate occurs naturally in foods. All the B vitamins are water-soluble, meaning the body does not store them. Folic acid is crucial for proper brain function and plays an important role in mental and emotional health.
+Folic acid is the synthetic form of B9, found in supplements and fortified foods, while folate occurs naturally in foods. All the B vitamins are water-soluble, meaning the body does not store them. Folic acid is crucial for proper [92mbrain function and plays an important role in mental and emotional[0m health.
+Folic acid is the synthetic form of B9, found in supplements and fortified foods, while folate occurs naturally in foods. All the B vitamins are water-soluble, meaning the body does not store them. Folic acid is [94mcrucial for proper brain function and plays an important role in mental and emotional health.[0m
+------------------golden_answer-------------------
+['Crucial for proper brain function and plays an important role in mental and emotional health.']
+------------------rougeL_answer-------------------
+['brain function and plays an important role in mental and emotional']
+--------------------F1_answer---------------------
+['crucial for proper brain function and plays an important role in mental and emotional health.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Introduction. Granuloma annulare is a long-lasting rash that looks like a ring of small red or skin-coloured bumps. The rash usually appears over the backs of your forearms, hands or feet. It tends to affect children and young adults, and is slightly more common in females.
+Introduction. Granuloma annulare is a long-lasting rash that looks like a [92mring of small red or[0m skin-coloured bumps. The rash usually appears over the backs of your forearms, hands or feet. It tends to affect children and young adults, and is slightly more common in females.
+Introduction. Granuloma annulare is a long-lasting rash that looks like [94ma ring of small red or skin-coloured bumps.[0m The rash usually appears over the backs of your forearms, hands or feet. It tends to affect children and young adults, and is slightly more common in females.
+------------------golden_answer-------------------
+['A ring of small red or skin-coloured bumps']
+------------------rougeL_answer-------------------
+['ring of small red or']
+--------------------F1_answer---------------------
+['a ring of small red or skin-coloured bumps.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Granuloma annulare is a long-lasting rash that looks like a ring of small red or skin-coloured bumps. The rash usually appears over the backs of your forearms, hands or feet.
+Granuloma annulare is a long-lasting rash that looks like a [92mring of small red or[0m skin-coloured bumps. The rash usually appears over the backs of your forearms, hands or feet.
+Granuloma annulare is a long-lasting rash that looks like [94ma ring of small red or skin-coloured bumps.[0m The rash usually appears over the backs of your forearms, hands or feet.
+------------------golden_answer-------------------
+['A ring of small red or skin-coloured bumps']
+------------------rougeL_answer-------------------
+['ring of small red or']
+--------------------F1_answer---------------------
+['a ring of small red or skin-coloured bumps.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Introduction. Granuloma annulare is a long-lasting rash that looks like a ring of small red or skin-coloured bumps. The rash usually appears over the backs of your forearms, hands or feet.
+Introduction. Granuloma annulare is a long-lasting rash that looks like a [92mring of small red or[0m skin-coloured bumps. The rash usually appears over the backs of your forearms, hands or feet.
+Introduction. Granuloma annulare is a long-lasting rash that looks like [94ma ring of small red or skin-coloured bumps.[0m The rash usually appears over the backs of your forearms, hands or feet.
+------------------golden_answer-------------------
+['A ring of small red or skin-coloured bumps']
+------------------rougeL_answer-------------------
+['ring of small red or']
+--------------------F1_answer---------------------
+['a ring of small red or skin-coloured bumps.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+What Does DBA Mean? Share Doing business as (DBA) is a term that is used in today’s business industry in regards to the liability and formal actions that are taken by a particular company. Doing business as means that the company is working under a fictitious name, concealing its true identity. To elaborate, the name of the company is legally the name of the proprietor of the business establishment.
+What Does DBA Mean? Share Doing business as (DBA) [92mis a term that is used in today’s business industry in regards to the liability and formal actions that are taken by a particular[0m company. Doing business as means that the company is working under a fictitious name, concealing its true identity. To elaborate, the name of the company is legally the name of the proprietor of the business establishment.
+What Does DBA Mean? Share Doing business as [94m(DBA) is a term that is used in today’s business industry in regards to the liability and formal actions that are taken by a particular company. Doing business as means[0m that the company is working under a fictitious name, concealing its true identity. To elaborate, the name of the company is legally the name of the proprietor of the business establishment.
+------------------golden_answer-------------------
+["DBA means 'Doing business as' is a term that is used in today’s business industry in regards to the liability and formal actions that are taken by a particular company."]
+------------------rougeL_answer-------------------
+['is a term that is used in today’s business industry in regards to the liability and formal actions that are taken by a particular']
+--------------------F1_answer---------------------
+['(DBA) is a term that is used in today’s business industry in regards to the liability and formal actions that are taken by a particular company. Doing business as means']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+A triglyceride (TG, triacylglycerol, TAG, or triacylglyceride) is an ester derived from glycerol and three to four fatty acids (from tri-and glyceride). Triglycerides are the main constituents of body fat in humans and other animals, as well as vegetable fat. They are also present in the blood to enable the bidirectional transference of adipose fat and blood glucose from the liver, and are a major component of human skin oils.
+A triglyceride (TG, triacylglycerol, TAG, or triacylglyceride) [92mis an ester derived from glycerol and three to four[0m fatty acids (from tri-and glyceride). Triglycerides are the main constituents of body fat in humans and other animals, as well as vegetable fat. They are also present in the blood to enable the bidirectional transference of adipose fat and blood glucose from the liver, and are a major component of human skin oils.
+A triglyceride (TG, triacylglycerol, TAG, or triacylglyceride) [94mis an ester derived from glycerol and three to four fatty acids[0m (from tri-and glyceride). Triglycerides are the main constituents of body fat in humans and other animals, as well as vegetable fat. They are also present in the blood to enable the bidirectional transference of adipose fat and blood glucose from the liver, and are a major component of human skin oils.
+------------------golden_answer-------------------
+['A triglyceride is an ester derived from glycerol and three to four fatty acids.']
+------------------rougeL_answer-------------------
+['is an ester derived from glycerol and three to four']
+--------------------F1_answer---------------------
+['is an ester derived from glycerol and three to four fatty acids']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+A triglyceride (TG, triacylglycerol, TAG, or triacylglyceride) is an ester derived from glycerol and three fatty acids (from tri- and glyceride). Triglycerides are the main constituents of body fat in humans and other animals, as well as vegetable fat. They are also present in the blood to enable the bidirectional transference of adipose fat and blood glucose from the liver, and are a major component of human skin oils.
+A triglyceride (TG, triacylglycerol, TAG, or triacylglyceride) [92mis an ester derived from glycerol and three[0m fatty acids (from tri- and glyceride). Triglycerides are the main constituents of body fat in humans and other animals, as well as vegetable fat. They are also present in the blood to enable the bidirectional transference of adipose fat and blood glucose from the liver, and are a major component of human skin oils.
+A triglyceride (TG, triacylglycerol, TAG, or triacylglyceride) [94mis an ester derived from glycerol and three fatty acids[0m (from tri- and glyceride). Triglycerides are the main constituents of body fat in humans and other animals, as well as vegetable fat. They are also present in the blood to enable the bidirectional transference of adipose fat and blood glucose from the liver, and are a major component of human skin oils.
+------------------golden_answer-------------------
+['A triglyceride is an ester derived from glycerol and three to four fatty acids.']
+------------------rougeL_answer-------------------
+['is an ester derived from glycerol and three']
+--------------------F1_answer---------------------
+['is an ester derived from glycerol and three fatty acids']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+A: Nails rust in water because water allows the iron to react with any oxygen present, which forms iron oxide, known as rust. In order to cause rust quickly, there must be some impurities in the water, particularly salts, since these speed up the transfer of electrons from iron to oxygen.
+A: [92mNails rust in water because water allows the iron to react with any oxygen present, which forms iron oxide, known as rust. In order to cause rust quickly, there must be some impurities in the water, particularly salts, since these speed up the transfer of electrons from iron to[0m oxygen.
+A: Nails rust in [94mwater because water allows the iron to react with any oxygen present, which forms iron oxide, known as rust. In order to cause rust quickly, there must be some impurities in the water, particularly salts, since these speed up the transfer of electrons from iron to oxygen.[0m
+------------------golden_answer-------------------
+['Nails rust in water because water allows the iron to react with any oxygen present, which forms iron oxide. Nails rust due to presence of some impurities in the water, particularly salts, which speeds up the transfer of electrons from iron to oxygen.']
+------------------rougeL_answer-------------------
+['Nails rust in water because water allows the iron to react with any oxygen present, which forms iron oxide, known as rust. In order to cause rust quickly, there must be some impurities in the water, particularly salts, since these speed up the transfer of electrons from iron to']
+--------------------F1_answer---------------------
+['water because water allows the iron to react with any oxygen present, which forms iron oxide, known as rust. In order to cause rust quickly, there must be some impurities in the water, particularly salts, since these speed up the transfer of electrons from iron to oxygen.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Quick Answer. Nails rust in water because water allows the iron to react with any oxygen present, which forms iron oxide, known as rust. In order to cause rust quickly, there must be some impurities in the water, particularly salts, since these speed up the transfer of electrons from iron to oxygen. Continue Reading
+Quick Answer. [92mNails rust in water because water allows the iron to react with any oxygen present, which forms iron oxide, known as rust. In order to cause rust quickly, there must be some impurities in the water, particularly salts, since these speed up the transfer of electrons from iron to[0m oxygen. Continue Reading
+Quick Answer. Nails rust in [94mwater because water allows the iron to react with any oxygen present, which forms iron oxide, known as rust. In order to cause rust quickly, there must be some impurities in the water, particularly salts, since these speed up the transfer of electrons from iron to oxygen.[0m Continue Reading
+------------------golden_answer-------------------
+['Nails rust in water because water allows the iron to react with any oxygen present, which forms iron oxide. Nails rust due to presence of some impurities in the water, particularly salts, which speeds up the transfer of electrons from iron to oxygen.']
+------------------rougeL_answer-------------------
+['Nails rust in water because water allows the iron to react with any oxygen present, which forms iron oxide, known as rust. In order to cause rust quickly, there must be some impurities in the water, particularly salts, since these speed up the transfer of electrons from iron to']
+--------------------F1_answer---------------------
+['water because water allows the iron to react with any oxygen present, which forms iron oxide, known as rust. In order to cause rust quickly, there must be some impurities in the water, particularly salts, since these speed up the transfer of electrons from iron to oxygen.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+What causes tooth root resorption? A: A study on external root resorption in the journal Schweiz Monatsschr Zahnmed states that trauma, periodontitis, orthodontic treatment, internal bleaching, cysts, tumors or stimuli from a necrotic dental pulp may cause tooth root resorption.
+What causes tooth root resorption? A: A study on external root resorption in the journal Schweiz Monatsschr Zahnmed states that trauma, periodontitis, orthodontic treatment, internal bleaching, cysts, tumors [92mor stimuli from a necrotic dental pulp may cause tooth root[0m resorption.
+What causes tooth root resorption? A: A study on external root resorption in the journal Schweiz Monatsschr Zahnmed states that [94mtrauma, periodontitis, orthodontic treatment, internal bleaching, cysts, tumors or stimuli from a necrotic dental pulp may cause tooth root resorption.[0m
+------------------golden_answer-------------------
+['Trauma, Periodontitis, Orthodontic treatment, Internal bleaching, Cysts, Tumors or Stimuli from a necrotic dental pulp may cause tooth root resorption.']
+------------------rougeL_answer-------------------
+['or stimuli from a necrotic dental pulp may cause tooth root']
+--------------------F1_answer---------------------
+['trauma, periodontitis, orthodontic treatment, internal bleaching, cysts, tumors or stimuli from a necrotic dental pulp may cause tooth root resorption.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+While this may be convenient and useful for a person who is bed-ridden, it is not practical for someone who is capable of and wants to move around. 1  Better Portability-Portable oxygen tank cylinders are light, convenient to carry around, which means you can have oxygen to go whenever you need it.
+While this may be convenient and useful for a person who is bed-ridden, it is not practical for someone who is capable of and wants to move around. 1  Better Portability-Portable oxygen tank cylinders [92mare light, convenient to carry around, which means you can have oxygen to go whenever you need[0m it.
+While this may be convenient and useful for a person who is bed-ridden, it is not practical for someone who is capable of and wants to move around. 1  Better Portability-Portable [94moxygen tank cylinders are light, convenient to carry around, which means you can have oxygen to go whenever[0m you need it.
+------------------golden_answer-------------------
+['Portable oxygen tank cylinders are light, convenient to carry around,you can have oxygen to go whenever you need it.']
+------------------rougeL_answer-------------------
+['are light, convenient to carry around, which means you can have oxygen to go whenever you need']
+--------------------F1_answer---------------------
+['oxygen tank cylinders are light, convenient to carry around, which means you can have oxygen to go whenever']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+1 Better Portability-Portable oxygen tank cylinders are light, convenient to carry around, which means you can have oxygen to go whenever you need it. 2  They are also safe to use and operate. 3  The newer models are made of aluminum and are even lighter than earlier models.
+1 Better Portability-Portable [92moxygen tank cylinders are light, convenient to carry around, which means you can have oxygen to go whenever you need[0m it. 2  They are also safe to use and operate. 3  The newer models are made of aluminum and are even lighter than earlier models.
+1 Better Portability-Portable [94moxygen tank cylinders are light, convenient to carry around, which means you can have oxygen to go whenever[0m you need it. 2  They are also safe to use and operate. 3  The newer models are made of aluminum and are even lighter than earlier models.
+------------------golden_answer-------------------
+['Portable oxygen tank cylinders are light, convenient to carry around,you can have oxygen to go whenever you need it.']
+------------------rougeL_answer-------------------
+['oxygen tank cylinders are light, convenient to carry around, which means you can have oxygen to go whenever you need']
+--------------------F1_answer---------------------
+['oxygen tank cylinders are light, convenient to carry around, which means you can have oxygen to go whenever']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Information literacy is the ability to think critically about information. It is a fundamental part of critical inquiry in the Information Age. The information literate student can: 1. Determine the extent of information he or she needs.
+Information literacy [92mis the ability to think critically about[0m information. It is a fundamental part of critical inquiry in the Information Age. The information literate student can: 1. Determine the extent of information he or she needs.
+Information literacy [94mis the ability to think critically about information. It[0m is a fundamental part of critical inquiry in the Information Age. The information literate student can: 1. Determine the extent of information he or she needs.
+------------------golden_answer-------------------
+['It is the ability to think critically about information.']
+------------------rougeL_answer-------------------
+['is the ability to think critically about']
+--------------------F1_answer---------------------
+['is the ability to think critically about information. It']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Information literacy is the ability to think critically about information. It is a fundamental part of critical inquiry in the Information Age. Although the term ´information literacy´ is spreading throughout the library literature today, it is not a new idea.
+Information literacy [92mis the ability to think critically about[0m information. It is a fundamental part of critical inquiry in the Information Age. Although the term ´information literacy´ is spreading throughout the library literature today, it is not a new idea.
+Information literacy [94mis the ability to think critically about information. It[0m is a fundamental part of critical inquiry in the Information Age. Although the term ´information literacy´ is spreading throughout the library literature today, it is not a new idea.
+------------------golden_answer-------------------
+['It is the ability to think critically about information.']
+------------------rougeL_answer-------------------
+['is the ability to think critically about']
+--------------------F1_answer---------------------
+['is the ability to think critically about information. It']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Information literacy is the ability to think critically about information. It is a fundamental part of critical inquiry in the Information Age. The information literate student can: 1. 1  Determine the extent of information he or she needs.  Access the needed information effectively and efficiently.
+Information literacy [92mis the ability to think critically about[0m information. It is a fundamental part of critical inquiry in the Information Age. The information literate student can: 1. 1  Determine the extent of information he or she needs.  Access the needed information effectively and efficiently.
+Information literacy [94mis the ability to think critically about information. It[0m is a fundamental part of critical inquiry in the Information Age. The information literate student can: 1. 1  Determine the extent of information he or she needs.  Access the needed information effectively and efficiently.
+------------------golden_answer-------------------
+['It is the ability to think critically about information.']
+------------------rougeL_answer-------------------
+['is the ability to think critically about']
+--------------------F1_answer---------------------
+['is the ability to think critically about information. It']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Something about these graceful animals just makes a Cheetah’s tummy roar! Cheetahs consume an average of 6-8 lbs. of food each day, and in some cases may go as long as 4-10 days with out water. Extinction Is Forever. The Cheetah is considered Endangered in Appendix 1 to the Conservation Of International Trade in Endangered Species (CITES). Humans have been proven to be the most feared predator by the Cheetah. Living space and adequate food supply is being robbed from these innocent creatures.
+Something about these graceful animals just makes a Cheetah’s tummy roar! Cheetahs consume an average of 6-8 lbs. of food each day, and in some cases may go as long as 4-10 days with out water. Extinction Is Forever. The [92mCheetah is considered[0m Endangered in Appendix 1 to the Conservation Of International Trade in Endangered Species (CITES). Humans have been proven to be the most feared predator by the Cheetah. Living space and adequate food supply is being robbed from these innocent creatures.
+Something about these graceful animals just makes a Cheetah’s tummy roar! Cheetahs consume an average of 6-8 lbs. of food each day, and in some cases may go as long as 4-10 days with out water. Extinction Is Forever. [94mThe Cheetah is considered Endangered[0m in Appendix 1 to the Conservation Of International Trade in Endangered Species (CITES). Humans have been proven to be the most feared predator by the Cheetah. Living space and adequate food supply is being robbed from these innocent creatures.
+------------------golden_answer-------------------
+['Yes, Cheetah is considered Endangered species.']
+------------------rougeL_answer-------------------
+['Cheetah is considered']
+--------------------F1_answer---------------------
+['The Cheetah is considered Endangered']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Here are some of the key provisions in a Partnership Agreement: 1  Partnership name. 2  Business address. 3  Names of Partners. 4  Effective date of agreement. 5  Primary purpose of partnership. 6  Voting requirements for partnership decisions. 7  Specify how costs will be shared among the partners. 8  Specify how profits will be shared among the partners.
+Here are some of the key provisions in a Partnership Agreement: 1  Partnership name. 2  Business address. 3  Names of [92mPartners. 4  Effective date of agreement. 5  Primary purpose of partnership. 6  Voting requirements for partnership decisions. 7  Specify how costs will be shared among the partners. 8  Specify how profits will be shared among[0m the partners.
+Here are some of the key provisions in [94ma Partnership Agreement: 1  Partnership name. 2  Business address. 3  Names of Partners. 4  Effective date of agreement. 5  Primary purpose of partnership. 6  Voting requirements for partnership decisions. 7  Specify how costs will be shared among the partners. 8  Specify how profits will be shared among the partners.[0m
+------------------golden_answer-------------------
+['1 Partnership name. 2 Business address. 3 Names of Partners. 4 Effective date of agreement. 5 Primary purpose of partnership. 6 Voting requirements for partnership decisions. 7 Specify how costs will be shared among the partners. 8 Specify how profits will be shared among the partners are the key purpose for partnership agreement.']
+------------------rougeL_answer-------------------
+['Partners. 4  Effective date of agreement. 5  Primary purpose of partnership. 6  Voting requirements for partnership decisions. 7  Specify how costs will be shared among the partners. 8  Specify how profits will be shared among']
+--------------------F1_answer---------------------
+['a Partnership Agreement: 1  Partnership name. 2  Business address. 3  Names of Partners. 4  Effective date of agreement. 5  Primary purpose of partnership. 6  Voting requirements for partnership decisions. 7  Specify how costs will be shared among the partners. 8  Specify how profits will be shared among the partners.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+LINK / CITE ADD TO WORD LIST. adjective. The definition of traumatic is something that is extremely upsetting or something that causes great harm or damage to the mind or body. 1  Getting into a serious accident that gives you PTSD is an example of a traumatic event.
+LINK / CITE ADD TO WORD LIST. adjective. The definition of traumatic is something that is extremely upsetting [92mor something that causes great harm or damage to the mind or[0m body. 1  Getting into a serious accident that gives you PTSD is an example of a traumatic event.
+LINK / CITE ADD TO WORD LIST. adjective. The definition of traumatic is something that [94mis extremely upsetting or something that causes great harm or damage to the mind or body.[0m 1  Getting into a serious accident that gives you PTSD is an example of a traumatic event.
+------------------golden_answer-------------------
+['It is extremely upsetting or something that causes great harm or damage to the mind or body.']
+------------------rougeL_answer-------------------
+['or something that causes great harm or damage to the mind or']
+--------------------F1_answer---------------------
+['is extremely upsetting or something that causes great harm or damage to the mind or body.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+hab·i·tus. n. pl. habitus. The physical and constitutional characteristics of an individual, especially as related to the tendency to develop a certain disease. [Latin, condition; see habit .]. (ˈhaebɪtəs). ˈhæbɪtəs
+hab·i·tus. n. pl. habitus. [92mThe physical and constitutional characteristics[0m of an individual, especially as related to the tendency to develop a certain disease. [Latin, condition; see habit .]. (ˈhaebɪtəs). ˈhæbɪtəs
+hab·i·tus. n. pl. habitus. [94mThe physical and constitutional characteristics of[0m an individual, especially as related to the tendency to develop a certain disease. [Latin, condition; see habit .]. (ˈhaebɪtəs). ˈhæbɪtəs
+------------------golden_answer-------------------
+['The physical or constitutional characteristics of a person.']
+------------------rougeL_answer-------------------
+['The physical and constitutional characteristics']
+--------------------F1_answer---------------------
+['The physical and constitutional characteristics of']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+habitus. The physical or constitutional characteristics of a person: build, constitution, habit, physique.
+habitus. [92mThe physical or constitutional characteristics of[0m a person: build, constitution, habit, physique.
+habitus. [94mThe physical or constitutional characteristics of a person:[0m build, constitution, habit, physique.
+------------------golden_answer-------------------
+['The physical or constitutional characteristics of a person.']
+------------------rougeL_answer-------------------
+['The physical or constitutional characteristics of']
+--------------------F1_answer---------------------
+['The physical or constitutional characteristics of a person:']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+phish. 1  to try to obtain financial or other confidential information from Internet users, typically by sending an email that looks as if it is from a legitimate organization, usually a financial institution, but contains a link to a fake website that replicates the real one.
+phish. 1  [92mto try to obtain financial or other confidential information from[0m Internet users, typically by sending an email that looks as if it is from a legitimate organization, usually a financial institution, but contains a link to a fake website that replicates the real one.
+phish. 1  to [94mtry to obtain financial or other confidential information from Internet users,[0m typically by sending an email that looks as if it is from a legitimate organization, usually a financial institution, but contains a link to a fake website that replicates the real one.
+------------------golden_answer-------------------
+['Phish is try to obtain financial or other confidential information from Internet users.']
+------------------rougeL_answer-------------------
+['to try to obtain financial or other confidential information from']
+--------------------F1_answer---------------------
+['try to obtain financial or other confidential information from Internet users,']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+verb (used without object) 1. to try to obtain financial or other confidential information from Internet users, typically by sending an email that looks as if it is from a legitimate organization, usually a financial institution, but contains a link to a fake website that replicates the real one.
+verb (used without object) 1. [92mto try to obtain financial or other confidential information from[0m Internet users, typically by sending an email that looks as if it is from a legitimate organization, usually a financial institution, but contains a link to a fake website that replicates the real one.
+verb (used without object) 1. to [94mtry to obtain financial or other confidential information from Internet users,[0m typically by sending an email that looks as if it is from a legitimate organization, usually a financial institution, but contains a link to a fake website that replicates the real one.
+------------------golden_answer-------------------
+['Phish is try to obtain financial or other confidential information from Internet users.']
+------------------rougeL_answer-------------------
+['to try to obtain financial or other confidential information from']
+--------------------F1_answer---------------------
+['try to obtain financial or other confidential information from Internet users,']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+A silicate is a compound containing an anionic silicon compound. The great majority of the silicates are oxides, but hexafluorosilicate ([SiF6]2−) and other anions are also included. Orthosilicate is the anion SiO4−.
+A silicate [92mis a compound containing an anionic silicon[0m compound. The great majority of the silicates are oxides, but hexafluorosilicate ([SiF6]2−) and other anions are also included. Orthosilicate is the anion SiO4−.
+A silicate [94mis a compound containing an anionic silicon compound.[0m The great majority of the silicates are oxides, but hexafluorosilicate ([SiF6]2−) and other anions are also included. Orthosilicate is the anion SiO4−.
+------------------golden_answer-------------------
+['It is a compound containing an anionic silicon compound.']
+------------------rougeL_answer-------------------
+['is a compound containing an anionic silicon']
+--------------------F1_answer---------------------
+['is a compound containing an anionic silicon compound.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+ALS, or amyotrophic laterals sclerosis, is a progressive neurodegenerative disease that affects nerve cells in the brain and the spinal cord. A-myo-trophic comes from the Greek language. A means no. Myo refers to muscle, and Trophic means nourishment – No muscle nourishment. When a muscle has no nourishment, it atrophies or wastes away.
+ALS, or amyotrophic [92mlaterals sclerosis, is a progressive neurodegenerative disease that affects nerve cells in the brain and the spinal[0m cord. A-myo-trophic comes from the Greek language. A means no. Myo refers to muscle, and Trophic means nourishment – No muscle nourishment. When a muscle has no nourishment, it atrophies or wastes away.
+ALS, or [94mamyotrophic laterals sclerosis, is a progressive neurodegenerative disease that affects nerve cells in the brain and the spinal cord.[0m A-myo-trophic comes from the Greek language. A means no. Myo refers to muscle, and Trophic means nourishment – No muscle nourishment. When a muscle has no nourishment, it atrophies or wastes away.
+------------------golden_answer-------------------
+['Amyotrophic laterals sclerosis, is a progressive neurodegenerative disease that affects nerve cells in the brain and the spinal cord.']
+------------------rougeL_answer-------------------
+['laterals sclerosis, is a progressive neurodegenerative disease that affects nerve cells in the brain and the spinal']
+--------------------F1_answer---------------------
+['amyotrophic laterals sclerosis, is a progressive neurodegenerative disease that affects nerve cells in the brain and the spinal cord.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+The time period varies depending on the facility. For example, the timeframe for a patient who is discharged to an acute care facility is up to nine days; the timeframe is up to 27 days for inpatient rehabilitation facility and 45 days for a skilled nursing facility.
+The time period varies depending on the facility. For example, the timeframe for a patient who is discharged [92mto[0m an acute care facility is up to nine days; the timeframe is up to 27 days for inpatient rehabilitation facility and 45 days for a skilled nursing facility.
+The time period varies depending on the facility. For example, the timeframe for a patient who is discharged to an acute care facility is [94mup to nine days;[0m the timeframe is up to 27 days for inpatient rehabilitation facility and 45 days for a skilled nursing facility.
+------------------golden_answer-------------------
+['up to nine days.']
+------------------rougeL_answer-------------------
+['to']
+--------------------F1_answer---------------------
+['up to nine days;']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+One-third of France’s land is crop growing. Wheat is the major single crop grown at large farms in the Paris Basin and in the north.In southern France, most of the grapes produced are used in making wine being of high quality that come from several regions.In the Mediterranean region, grapes are used for cheaper wines.heat is the major single crop grown at large farms in the Paris Basin and in the north. In southern France, most of the grapes produced are used in making wine being of high quality that come from several regions.
+[92mOne-third of France’s land is crop growing. Wheat is the major single crop grown at large farms in the Paris Basin and in[0m the north.In southern France, most of the grapes produced are used in making wine being of high quality that come from several regions.In the Mediterranean region, grapes are used for cheaper wines.heat is the major single crop grown at large farms in the Paris Basin and in the north. In southern France, most of the grapes produced are used in making wine being of high quality that come from several regions.
+One-third [94mof France’s land is crop growing. Wheat is the major single crop grown at large farms in the Paris Basin and in[0m the north.In southern France, most of the grapes produced are used in making wine being of high quality that come from several regions.In the Mediterranean region, grapes are used for cheaper wines.heat is the major single crop grown at large farms in the Paris Basin and in the north. In southern France, most of the grapes produced are used in making wine being of high quality that come from several regions.
+------------------golden_answer-------------------
+['One-third of France’s land is crop growing. Wheat is the major single crop grown at large farms in the Paris Basin and in the north.France is one of the largest wine producers in the world.']
+------------------rougeL_answer-------------------
+['One-third of France’s land is crop growing. Wheat is the major single crop grown at large farms in the Paris Basin and in']
+--------------------F1_answer---------------------
+['of France’s land is crop growing. Wheat is the major single crop grown at large farms in the Paris Basin and in']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+A Functional Capacities Evaluation ( FCE ) is a physical test whose purpose ostensibly is to determine if you a capable of returning to the job you held at the time of your job injury ; if you are not able to do so , the evaluation is supposed to determine what type of work ( sedentary , light , medium , heavy or very heavy ) you are capable of ...
+[92mA Functional Capacities Evaluation ( FCE ) is a physical test whose purpose ostensibly is to determine if you a capable of returning to the job you held at the time of your[0m job injury ; if you are not able to do so , the evaluation is supposed to determine what type of work ( sedentary , light , medium , heavy or very heavy ) you are capable of ...
+A[94m Functional Capacities Evaluation ( FCE ) is a physical test whose purpose ostensibly is to determine if you a capable of returning to the job you held at the time of your job injury[0m ; if you are not able to do so , the evaluation is supposed to determine what type of work ( sedentary , light , medium , heavy or very heavy ) you are capable of ...
+------------------golden_answer-------------------
+['A Functional Capacities Evaluation is a physical test whose purpose ostensibly is to determine if you a capable of returning to the job you held at the time of your job injury.']
+------------------rougeL_answer-------------------
+['A Functional Capacities Evaluation ( FCE ) is a physical test whose purpose ostensibly is to determine if you a capable of returning to the job you held at the time of your']
+--------------------F1_answer---------------------
+[' Functional Capacities Evaluation ( FCE ) is a physical test whose purpose ostensibly is to determine if you a capable of returning to the job you held at the time of your job injury']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Radiation. The principal risks associated with nuclear power arise from health effects of radiation. This radiation consists of subatomic particles traveling at or near the velocity of light---186,000 miles per second.ining uranium to fuel nuclear power plants leaves mill tailings, the residues from chemical processing of the ore, which lead to radon exposures to the public. However, these effects are grossly over-compensated by the fact that mining uranium out of the ground reduces future radon exposures.
+Radiation. The principal risks associated with [92mnuclear power arise from health effects of radiation. This radiation consists of subatomic particles traveling at or near the velocity of light---186,000 miles per second.ining uranium to fuel nuclear power plants leaves mill tailings, the residues from chemical processing of the ore, which lead to radon exposures to the[0m public. However, these effects are grossly over-compensated by the fact that mining uranium out of the ground reduces future radon exposures.
+Radiation. The principal risks associated with [94mnuclear power arise from health effects of radiation. This radiation consists of subatomic particles traveling at or near the velocity of light---186,000 miles per second.ining uranium to fuel nuclear power plants leaves mill tailings, the residues from chemical processing of the ore, which lead to radon exposures to the public.[0m However, these effects are grossly over-compensated by the fact that mining uranium out of the ground reduces future radon exposures.
+------------------golden_answer-------------------
+['Nuclear power arise from health effects of radiation. This radiation consists of subatomic particles traveling at or near the velocity of light---186,000 miles per second.ining uranium to fuel nuclear power plants leaves mill tailings, the residues from chemical processing of the ore, which lead to radon exposures to the public.']
+------------------rougeL_answer-------------------
+['nuclear power arise from health effects of radiation. This radiation consists of subatomic particles traveling at or near the velocity of light---186,000 miles per second.ining uranium to fuel nuclear power plants leaves mill tailings, the residues from chemical processing of the ore, which lead to radon exposures to the']
+--------------------F1_answer---------------------
+['nuclear power arise from health effects of radiation. This radiation consists of subatomic particles traveling at or near the velocity of light---186,000 miles per second.ining uranium to fuel nuclear power plants leaves mill tailings, the residues from chemical processing of the ore, which lead to radon exposures to the public.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Garcinia gummi-gutta is a tropical species of Garcinia native to Indonesia. Common names include garcinia cambogia (a former scientific name), as well as brindleberry, Malabar tamarind, and kudam puli (pot tamarind).This fruit looks like a small pumpkin and is green to pale yellow in color.arcinia gummi-gutta is a tropical species of Garcinia native to Indonesia. Common names include garcinia cambogia (a former scientific name), as well as brindleberry, Malabar tamarind, and kudam puli (pot tamarind).
+Garcinia gummi-gutta is a tropical species of Garcinia native to Indonesia. Common names [92minclude garcinia cambogia (a former scientific name), as well as brindleberry, Malabar tamarind, and[0m kudam puli (pot tamarind).This fruit looks like a small pumpkin and is green to pale yellow in color.arcinia gummi-gutta is a tropical species of Garcinia native to Indonesia. Common names include garcinia cambogia (a former scientific name), as well as brindleberry, Malabar tamarind, and kudam puli (pot tamarind).
+Garcinia gummi-gutta is a tropical species of Garcinia native to Indonesia. Common names [94minclude garcinia cambogia (a former scientific name), as well as brindleberry, Malabar tamarind, and kudam puli[0m (pot tamarind).This fruit looks like a small pumpkin and is green to pale yellow in color.arcinia gummi-gutta is a tropical species of Garcinia native to Indonesia. Common names include garcinia cambogia (a former scientific name), as well as brindleberry, Malabar tamarind, and kudam puli (pot tamarind).
+------------------golden_answer-------------------
+['It include garcinia cambogia (a former scientific name), as well as brindleberry, Malabar tamarind, and kudam puli.']
+------------------rougeL_answer-------------------
+['include garcinia cambogia (a former scientific name), as well as brindleberry, Malabar tamarind, and']
+--------------------F1_answer---------------------
+['include garcinia cambogia (a former scientific name), as well as brindleberry, Malabar tamarind, and kudam puli']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+The Feeding Habit. The feeding habit of zebras is a bit complex. Zebras are basically herbivores. They eat plain grass, shrubs, herbs, twigs, leaves, roots and bark from trees.
+The Feeding Habit. The feeding habit of zebras is a bit complex. Zebras are basically herbivores. They eat plain [92mgrass, shrubs, herbs, twigs, leaves, roots and bark from[0m trees.
+The Feeding Habit. The feeding habit of zebras is a bit complex. Zebras are basically herbivores. They eat [94mplain grass, shrubs, herbs, twigs, leaves, roots and bark from trees.[0m
+------------------golden_answer-------------------
+['Plain grass, shrubs, herbs, twigs, leaves, roots and bark from trees.']
+------------------rougeL_answer-------------------
+['grass, shrubs, herbs, twigs, leaves, roots and bark from']
+--------------------F1_answer---------------------
+['plain grass, shrubs, herbs, twigs, leaves, roots and bark from trees.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+The colon is also called the large intestine. The ileum (last part of the small intestine) connects to the cecum (first part of the colon) in the lower right abdomen. The rest of the colon is divided into four parts: • The ascending colon travels up the right side of the abdomen. • The transverse colon runs across the abdomen. • The descending colon travels down the left abdomen. • The sigmoid colon is a short curving of the colon, just before the rectum.
+[92mThe colon is also called the large[0m intestine. The ileum (last part of the small intestine) connects to the cecum (first part of the colon) in the lower right abdomen. The rest of the colon is divided into four parts: • The ascending colon travels up the right side of the abdomen. • The transverse colon runs across the abdomen. • The descending colon travels down the left abdomen. • The sigmoid colon is a short curving of the colon, just before the rectum.
+The [94mcolon is also called the large intestine.[0m The ileum (last part of the small intestine) connects to the cecum (first part of the colon) in the lower right abdomen. The rest of the colon is divided into four parts: • The ascending colon travels up the right side of the abdomen. • The transverse colon runs across the abdomen. • The descending colon travels down the left abdomen. • The sigmoid colon is a short curving of the colon, just before the rectum.
+------------------golden_answer-------------------
+['No, The colon is also called the large intestine.']
+------------------rougeL_answer-------------------
+['The colon is also called the large']
+--------------------F1_answer---------------------
+['colon is also called the large intestine.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+As a result of pressure, friction, and plate material melting in the mantle, earthquakes and volcanoes are common near convergent boundaries. When two plates move towards one another, they form either a subduction zone or a continental collision. This depends on the nature of the plates involved.
+As a result of pressure, friction, and plate material melting in the mantle, earthquakes and volcanoes are common near convergent boundaries. When two plates move towards one another, they form either a [92msubduction[0m zone or a continental collision. This depends on the nature of the plates involved.
+As a result of pressure, friction, and plate material melting in the mantle, earthquakes and volcanoes are common near convergent boundaries. When two plates move towards one another, they form either [94ma subduction zone[0m or a continental collision. This depends on the nature of the plates involved.
+------------------golden_answer-------------------
+['A subduction zone']
+------------------rougeL_answer-------------------
+['subduction']
+--------------------F1_answer---------------------
+['a subduction zone']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+First, understand that the award letter you receive from FAFSA is an estimate. You will receive your estimated award letter 6-8 weeks after submitting your application. This estimate indicates what you are eligible for, based on the information you provided, not your actual FAFSA money. FAFSA may indicate that you are eligible for a Pell grant in a certain amount, for example. Your financial aid award is determined by the school you will be attending and their financial aid offices. While FAFSA could estimate $2,000 per semester for the above-mentioned grant, your university may only approve $1,500 of this. The same principle applies to all other government grants and loans. In turn, you will receive another document, this time from your university’s financial aid office, which outlines what you will receive in aid, should you accept it.
+First, understand that the award letter you receive from FAFSA is an estimate. You will receive your estimated award letter 6-8 weeks after submitting your application. This estimate indicates what you are eligible for, based on the information you provided, not your actual FAFSA money. FAFSA may indicate that you are eligible for a Pell grant in a certain amount, for example. Your financial aid award is determined by the school you will be attending and their financial aid offices. While FAFSA could estimate $2,000 [92mper semester for the[0m above-mentioned grant, your university may only approve $1,500 of this. The same principle applies to all other government grants and loans. In turn, you will receive another document, this time from your university’s financial aid office, which outlines what you will receive in aid, should you accept it.
+First, understand that the award letter you receive from FAFSA is an estimate. You will receive your estimated award letter 6-8 weeks after submitting your application. This estimate indicates what you are eligible for, based on the information you provided, not your actual FAFSA money. FAFSA may indicate that you are eligible for a Pell grant in a certain amount, for example. Your financial aid award is determined by the school you will be attending and their financial aid offices. While [94mFAFSA could estimate $2,000 per semester for the above-mentioned grant,[0m your university may only approve $1,500 of this. The same principle applies to all other government grants and loans. In turn, you will receive another document, this time from your university’s financial aid office, which outlines what you will receive in aid, should you accept it.
+------------------golden_answer-------------------
+['FAFSA could estimate $2,000 per semester for the above-mentioned grant.']
+------------------rougeL_answer-------------------
+['per semester for the']
+--------------------F1_answer---------------------
+['FAFSA could estimate $2,000 per semester for the above-mentioned grant,']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Most cases of bacterial conjunctivitis improve quickly after starting antibiotics for pink eye treatment. Within 24 to 48 hours, redness, irritation, and eye discharge should begin to improve. Even as symptoms improve, you should continue to take your antibiotics for the full course. Allergic Pink Eye.
+Most cases of bacterial conjunctivitis improve quickly after starting antibiotics for pink eye treatment. [92mWithin 24 to[0m 48 hours, redness, irritation, and eye discharge should begin to improve. Even as symptoms improve, you should continue to take your antibiotics for the full course. Allergic Pink Eye.
+Most cases of bacterial conjunctivitis improve quickly after starting antibiotics for pink eye treatment. [94mWithin 24 to 48 hours,[0m redness, irritation, and eye discharge should begin to improve. Even as symptoms improve, you should continue to take your antibiotics for the full course. Allergic Pink Eye.
+------------------golden_answer-------------------
+['Within 24 to 48 hours.']
+------------------rougeL_answer-------------------
+['Within 24 to']
+--------------------F1_answer---------------------
+['Within 24 to 48 hours,']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Inflammation is caused as a result of the body’s natural response to toxins, injury and infections and can cause degeneration of the body’s systems. The oil of oregano possesses anti-oxidant and anti-inflammatory properties which prevent inflammation, thus strengthening the body’s resistance.
+Inflammation is caused as a result of the body’s natural response to toxins, injury and infections and can cause degeneration of the body’s systems. The oil [92mof oregano possesses anti-oxidant and anti-inflammatory properties which[0m prevent inflammation, thus strengthening the body’s resistance.
+Inflammation is caused as a result of the body’s natural response to toxins, injury and infections and can cause degeneration of the body’s systems. [94mThe oil of oregano possesses anti-oxidant and anti-inflammatory properties which prevent inflammation,[0m thus strengthening the body’s resistance.
+------------------golden_answer-------------------
+['Yes, The oil of oregano possesses anti-oxidant and anti-inflammatory properties which prevent inflammation.']
+------------------rougeL_answer-------------------
+['of oregano possesses anti-oxidant and anti-inflammatory properties which']
+--------------------F1_answer---------------------
+['The oil of oregano possesses anti-oxidant and anti-inflammatory properties which prevent inflammation,']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Subtrochanteric fractures are located between the lesser trochanter and the femoral isthmus that is, in the proximal part of the femoral shaft. They are less common than femoral neck and intertrochanteric fractures, accounting for approximately 5% to 15 % of hip fractures.
+[92mSubtrochanteric fractures are located between the lesser trochanter and the femoral isthmus that is, in the proximal part of the femoral[0m shaft. They are less common than femoral neck and intertrochanteric fractures, accounting for approximately 5% to 15 % of hip fractures.
+Subtrochanteric [94mfractures are located between the lesser trochanter and the femoral isthmus that is, in the proximal part of the femoral shaft.[0m They are less common than femoral neck and intertrochanteric fractures, accounting for approximately 5% to 15 % of hip fractures.
+------------------golden_answer-------------------
+['Yes, Subtrochanteric fractures are located between the lesser trochanter and the femoral isthmus that is, in the proximal part of the femoral shaft.']
+------------------rougeL_answer-------------------
+['Subtrochanteric fractures are located between the lesser trochanter and the femoral isthmus that is, in the proximal part of the femoral']
+--------------------F1_answer---------------------
+['fractures are located between the lesser trochanter and the femoral isthmus that is, in the proximal part of the femoral shaft.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+The best site for people who loves Visayan (Bisaya or Cebuano) language offering Bisaya English and English Bisaya Translations and Dictionary. Bisaya (Cebuano or Visayan) is one of the most widely spoken language in the Philippines especially in Visayas.
+The best site for people who loves Visayan (Bisaya or Cebuano) language offering Bisaya English and English Bisaya Translations and Dictionary. Bisaya (Cebuano or Visayan) is [92mone of the most widely spoken language in the Philippines especially in[0m Visayas.
+The best site for people who loves Visayan (Bisaya or Cebuano) language offering Bisaya English and English Bisaya Translations and Dictionary. Bisaya (Cebuano or Visayan) [94mis one of the most widely spoken language in the Philippines especially in Visayas.[0m
+------------------golden_answer-------------------
+['It is one of the most widely spoken language in the Philippines especially in Visayas.']
+------------------rougeL_answer-------------------
+['one of the most widely spoken language in the Philippines especially in']
+--------------------F1_answer---------------------
+['is one of the most widely spoken language in the Philippines especially in Visayas.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+A yoke used for oxen. A yoke used for oxen. The definition of yoke is the bar that is used as a frame to pull or support something heavy. 1. An example of yoke is the wood that oxen are hooked to on an old-style plow. 2.
+A yoke used for oxen. A yoke used for oxen. The definition of yoke is the bar [92mthat is used as a frame to pull or support something[0m heavy. 1. An example of yoke is the wood that oxen are hooked to on an old-style plow. 2.
+A yoke used for oxen. A yoke used for oxen. The definition of yoke is [94mthe bar that is used as a frame to pull or support something heavy.[0m 1. An example of yoke is the wood that oxen are hooked to on an old-style plow. 2.
+------------------golden_answer-------------------
+['The bar that is used as a frame to pull or support something heavy.']
+------------------rougeL_answer-------------------
+['that is used as a frame to pull or support something']
+--------------------F1_answer---------------------
+['the bar that is used as a frame to pull or support something heavy.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+A yoke used for oxen. A yoke used for oxen. The definition of yoke is the bar that is used as a frame to pull or support something heavy. 1. An example of yoke is the wood that oxen are hooked to on an old-style plow.
+A yoke used for oxen. A yoke used for oxen. The definition of yoke is the bar [92mthat is used as a frame to pull or support something[0m heavy. 1. An example of yoke is the wood that oxen are hooked to on an old-style plow.
+A yoke used for oxen. A yoke used for oxen. The definition of yoke is [94mthe bar that is used as a frame to pull or support something heavy.[0m 1. An example of yoke is the wood that oxen are hooked to on an old-style plow.
+------------------golden_answer-------------------
+['The bar that is used as a frame to pull or support something heavy.']
+------------------rougeL_answer-------------------
+['that is used as a frame to pull or support something']
+--------------------F1_answer---------------------
+['the bar that is used as a frame to pull or support something heavy.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+The definition of yoke is the bar that is used as a frame to pull or support something heavy. 1. An example of yoke is the wood that oxen are hooked to on an old-style plow. 2.
+The definition of yoke is the bar [92mthat is used as a frame to pull or support something[0m heavy. 1. An example of yoke is the wood that oxen are hooked to on an old-style plow. 2.
+The definition of yoke is [94mthe bar that is used as a frame to pull or support something heavy.[0m 1. An example of yoke is the wood that oxen are hooked to on an old-style plow. 2.
+------------------golden_answer-------------------
+['The bar that is used as a frame to pull or support something heavy.']
+------------------rougeL_answer-------------------
+['that is used as a frame to pull or support something']
+--------------------F1_answer---------------------
+['the bar that is used as a frame to pull or support something heavy.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+A yoke used for oxen. A yoke used for oxen. The definition of yoke is the bar that is used as a frame to pull or support something heavy.
+A yoke used for oxen. A yoke used for oxen. The definition of yoke is the bar [92mthat is used as a frame to pull or support something[0m heavy.
+A yoke used for oxen. A yoke used for oxen. The definition of yoke is [94mthe bar that is used as a frame to pull or support something heavy.[0m
+------------------golden_answer-------------------
+['The bar that is used as a frame to pull or support something heavy.']
+------------------rougeL_answer-------------------
+['that is used as a frame to pull or support something']
+--------------------F1_answer---------------------
+['the bar that is used as a frame to pull or support something heavy.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+A yoke used for oxen. A yoke used for oxen. The definition of yoke is the bar that is used as a frame to pull or support something heavy. 1. An example of yoke is the wood that oxen are hooked to on an old-style plow. 2. A bar used across the shoulders to balance a load equally on both sides is an example of a yoke. 3.
+A yoke used for oxen. A yoke used for oxen. The definition of yoke is the bar [92mthat is used as a frame to pull or support something[0m heavy. 1. An example of yoke is the wood that oxen are hooked to on an old-style plow. 2. A bar used across the shoulders to balance a load equally on both sides is an example of a yoke. 3.
+A yoke used for oxen. A yoke used for oxen. The definition of yoke is [94mthe bar that is used as a frame to pull or support something heavy.[0m 1. An example of yoke is the wood that oxen are hooked to on an old-style plow. 2. A bar used across the shoulders to balance a load equally on both sides is an example of a yoke. 3.
+------------------golden_answer-------------------
+['The bar that is used as a frame to pull or support something heavy.']
+------------------rougeL_answer-------------------
+['that is used as a frame to pull or support something']
+--------------------F1_answer---------------------
+['the bar that is used as a frame to pull or support something heavy.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Derek Cianfrance wrote the script based on the town his wife Shannon Plumb grew up in, Schenectady, NY. The film was mostly filmed there on location. The phrase Place Beyond the Pines is actually the Native American meaning to the word Schenectady..
+Derek Cianfrance wrote the script based on the town his wife Shannon Plumb grew up in, Schenectady, NY. The film was mostly filmed there on location. The phrase Place Beyond the Pines is actually [92mthe Native American meaning to the[0m word Schenectady..
+Derek Cianfrance wrote the script based on the town his wife Shannon Plumb grew up in, Schenectady, NY. The film was mostly filmed there on location. The phrase Place Beyond the Pines [94mis actually the Native American meaning to the word Schenectady..[0m
+------------------golden_answer-------------------
+['It is actually the Native American meaning to the word Schenectady']
+------------------rougeL_answer-------------------
+['the Native American meaning to the']
+--------------------F1_answer---------------------
+['is actually the Native American meaning to the word Schenectady..']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Latex paint is not considered hazardous waste and is not accepted at household hazardous waste (HHW) events. Unfortunately, latex paint does find its way to HHW events. In 2009, at HHW events, Montgomery County collected 188,000 pounds of latex paint and non-hazardous materials that cost $65,737 to dispose of.
+Latex paint [92mis not considered[0m hazardous waste and is not accepted at household hazardous waste (HHW) events. Unfortunately, latex paint does find its way to HHW events. In 2009, at HHW events, Montgomery County collected 188,000 pounds of latex paint and non-hazardous materials that cost $65,737 to dispose of.
+Latex paint [94mis not considered hazardous waste[0m and is not accepted at household hazardous waste (HHW) events. Unfortunately, latex paint does find its way to HHW events. In 2009, at HHW events, Montgomery County collected 188,000 pounds of latex paint and non-hazardous materials that cost $65,737 to dispose of.
+------------------golden_answer-------------------
+['No, it is not considered hazardous waste.']
+------------------rougeL_answer-------------------
+['is not considered']
+--------------------F1_answer---------------------
+['is not considered hazardous waste']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+The Femoral Nerve. The femoral nerve is one of the major peripheral nerves of the lower limb. In this article, we shall look at the anatomy of the femoral nerve – its anatomical course, motor and sensory functions, and any clinical relevance.
+The Femoral Nerve. The [92mfemoral nerve is one of the major peripheral nerves of the lower[0m limb. In this article, we shall look at the anatomy of the femoral nerve – its anatomical course, motor and sensory functions, and any clinical relevance.
+The Femoral Nerve. [94mThe femoral nerve is one of the major peripheral nerves of the lower limb.[0m In this article, we shall look at the anatomy of the femoral nerve – its anatomical course, motor and sensory functions, and any clinical relevance.
+------------------golden_answer-------------------
+['Yes,  The femoral nerve is one of the major peripheral nerves of the lower limb.']
+------------------rougeL_answer-------------------
+['femoral nerve is one of the major peripheral nerves of the lower']
+--------------------F1_answer---------------------
+['The femoral nerve is one of the major peripheral nerves of the lower limb.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+The Fission Theory: This theory proposes that the Moon was once part of the Earth and somehow separated from the Earth early in the history of the solar system. The present Pacific Ocean basin is the most popular site for the part of the Earth from which the Moon came.
+The Fission Theory: This theory [92mproposes that the Moon was once part of the Earth and somehow separated from the Earth early in the history of the solar[0m system. The present Pacific Ocean basin is the most popular site for the part of the Earth from which the Moon came.
+The Fission Theory: This [94mtheory proposes that the Moon was once part of the Earth and somehow separated from the Earth early in the history of the solar system.[0m The present Pacific Ocean basin is the most popular site for the part of the Earth from which the Moon came.
+------------------golden_answer-------------------
+['Theory proposes that the Moon was once part of the Earth and somehow separated from the Earth early in the history of the solar system.']
+------------------rougeL_answer-------------------
+['proposes that the Moon was once part of the Earth and somehow separated from the Earth early in the history of the solar']
+--------------------F1_answer---------------------
+['theory proposes that the Moon was once part of the Earth and somehow separated from the Earth early in the history of the solar system.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+The Fission Theory: This theory proposes that the Moon was once part of the Earth and somehow separated from the Earth early in the history of the solar system.
+The Fission Theory: This theory [92mproposes that the Moon was once part of the Earth and somehow separated from the Earth early in the history of the solar[0m system.
+The Fission Theory: This [94mtheory proposes that the Moon was once part of the Earth and somehow separated from the Earth early in the history of the solar system.[0m
+------------------golden_answer-------------------
+['Theory proposes that the Moon was once part of the Earth and somehow separated from the Earth early in the history of the solar system.']
+------------------rougeL_answer-------------------
+['proposes that the Moon was once part of the Earth and somehow separated from the Earth early in the history of the solar']
+--------------------F1_answer---------------------
+['theory proposes that the Moon was once part of the Earth and somehow separated from the Earth early in the history of the solar system.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Five Serious Theories. 1  The Fission Theory: The Moon was once part of the Earth and somehow separated from the Earth early in the history of the Solar System. 2  The present Pacific Ocean basin is the most popular site for the part of the Earth from which the Moon came.
+Five Serious Theories. 1  The Fission Theory: The [92mMoon was once part of the Earth and somehow separated from the Earth early in the history of[0m the Solar System. 2  The present Pacific Ocean basin is the most popular site for the part of the Earth from which the Moon came.
+Five Serious Theories. 1  The Fission [94mTheory: The Moon was once part of the Earth and somehow separated from the Earth early in the history of the Solar System.[0m 2  The present Pacific Ocean basin is the most popular site for the part of the Earth from which the Moon came.
+------------------golden_answer-------------------
+['Theory proposes that the Moon was once part of the Earth and somehow separated from the Earth early in the history of the solar system.']
+------------------rougeL_answer-------------------
+['Moon was once part of the Earth and somehow separated from the Earth early in the history of']
+--------------------F1_answer---------------------
+['Theory: The Moon was once part of the Earth and somehow separated from the Earth early in the history of the Solar System.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+1 The Fission Theory: The Moon was once part of the Earth and somehow separated from the Earth early in the history of the Solar System. 2  The present Pacific Ocean basin is the most popular site for the part of the Earth from which the Moon came.
+1 The Fission Theory: The [92mMoon was once part of the Earth and somehow separated from the Earth early in the history of[0m the Solar System. 2  The present Pacific Ocean basin is the most popular site for the part of the Earth from which the Moon came.
+1 The Fission [94mTheory: The Moon was once part of the Earth and somehow separated from the Earth early in the history of the Solar System.[0m 2  The present Pacific Ocean basin is the most popular site for the part of the Earth from which the Moon came.
+------------------golden_answer-------------------
+['Theory proposes that the Moon was once part of the Earth and somehow separated from the Earth early in the history of the solar system.']
+------------------rougeL_answer-------------------
+['Moon was once part of the Earth and somehow separated from the Earth early in the history of']
+--------------------F1_answer---------------------
+['Theory: The Moon was once part of the Earth and somehow separated from the Earth early in the history of the Solar System.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Physical education is a course taught in school that focuses on developing physical fitness and the ability to perform and enjoy day-to-day physical activities with ease. Kids also develop skills necessary to participate in a wide range of activities, such as soccer, basketball, or swimming.
+Physical education is a course taught in school that focuses on developing physical fitness [92mand the ability to perform and enjoy day-to-day physical activities with[0m ease. Kids also develop skills necessary to participate in a wide range of activities, such as soccer, basketball, or swimming.
+Physical education is a course taught in school that focuses on developing [94mphysical fitness and the ability to perform and enjoy day-to-day physical activities with ease.[0m Kids also develop skills necessary to participate in a wide range of activities, such as soccer, basketball, or swimming.
+------------------golden_answer-------------------
+['Physical fitness and the ability to perform and enjoy day-to-day physical activities with ease.']
+------------------rougeL_answer-------------------
+['and the ability to perform and enjoy day-to-day physical activities with']
+--------------------F1_answer---------------------
+['physical fitness and the ability to perform and enjoy day-to-day physical activities with ease.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+FLOODSPOT - WiFi Water Leak Sensor - Description. The FloodSpot is a sensor that works with wireless technology (Wi-Fi) to bring the user full monitoring of floods and water leaks. Current Wi-Fi must be present in the immediate area to have the FloodSpot connected and running without any delay. SpotProtect has a cloud server that is included with the purchase of the FloodSpot.
+FLOODSPOT - WiFi Water Leak Sensor - Description. The FloodSpot [92mis a sensor that works with wireless technology (Wi-Fi) to bring the user full monitoring of floods and water[0m leaks. Current Wi-Fi must be present in the immediate area to have the FloodSpot connected and running without any delay. SpotProtect has a cloud server that is included with the purchase of the FloodSpot.
+FLOODSPOT - WiFi Water Leak Sensor - Description. The FloodSpot [94mis a sensor that works with wireless technology (Wi-Fi) to bring the user full monitoring of floods and water leaks.[0m Current Wi-Fi must be present in the immediate area to have the FloodSpot connected and running without any delay. SpotProtect has a cloud server that is included with the purchase of the FloodSpot.
+------------------golden_answer-------------------
+['It is a sensor that works with wireless technology (Wi-Fi) to bring the user full monitoring of floods and water leaks.']
+------------------rougeL_answer-------------------
+['is a sensor that works with wireless technology (Wi-Fi) to bring the user full monitoring of floods and water']
+--------------------F1_answer---------------------
+['is a sensor that works with wireless technology (Wi-Fi) to bring the user full monitoring of floods and water leaks.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+what to do when you miss your vein: run it under really really hot water and rub really really hard on the spot where you missed. not only will you decrease the chances of an absess forming--BUT you will also soon feel the warm rush as if you hadn't missed at all.
+what to do when you miss your vein: run it [92munder really really hot water and rub really really hard on the spot where you missed. not only will you decrease the chances of an absess forming--BUT you will also soon feel the warm rush as if you hadn't missed at[0m all.
+what to do when you miss your vein: [94mrun it under really really hot water and rub really really hard on the spot where you missed. not only will you decrease the chances of an absess forming--BUT you will also soon feel the warm rush as if you hadn't missed at all.[0m
+------------------golden_answer-------------------
+["Run it under really really hot water and rub really really hard on the spot where you missed. not only will you decrease the chances of an absess forming--BUT you will also soon feel the warm rush as if you hadn't missed at all."]
+------------------rougeL_answer-------------------
+["under really really hot water and rub really really hard on the spot where you missed. not only will you decrease the chances of an absess forming--BUT you will also soon feel the warm rush as if you hadn't missed at"]
+--------------------F1_answer---------------------
+["run it under really really hot water and rub really really hard on the spot where you missed. not only will you decrease the chances of an absess forming--BUT you will also soon feel the warm rush as if you hadn't missed at all."]
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Nice video, but he forgot the most critical part. The forcing cone is a very misunderstood part of the revolver barrel and even many professional gunsmiths don't really understand them. THE critical dimension of a forcing cone is not the depth or angle of the cone, it's the diameter of the MOUTH of the forcing cone. That outer mouth dimension is critical.
+Nice video, but he forgot the most critical part. The forcing cone is a very [92mmisunderstood part of the revolver barrel and even many professional gunsmiths don't really understand[0m them. THE critical dimension of a forcing cone is not the depth or angle of the cone, it's the diameter of the MOUTH of the forcing cone. That outer mouth dimension is critical.
+Nice video, but he forgot the most critical part. The forcing cone is [94ma very misunderstood part of the revolver barrel and even many professional gunsmiths don't really understand them.[0m THE critical dimension of a forcing cone is not the depth or angle of the cone, it's the diameter of the MOUTH of the forcing cone. That outer mouth dimension is critical.
+------------------golden_answer-------------------
+["A very misunderstood part of the revolver barrel and even many professional gunsmiths don't really understand them."]
+------------------rougeL_answer-------------------
+["misunderstood part of the revolver barrel and even many professional gunsmiths don't really understand"]
+--------------------F1_answer---------------------
+["a very misunderstood part of the revolver barrel and even many professional gunsmiths don't really understand them."]
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+The tri-shield insignia with distinctive, diagonally arranged red, white and blue shields, was widely introduced in 1960 and was featured front-and-center in the grilles of the LeSabre, Electra and Invicta models. The three-model lineup inspired the three shields in the new design. Each carried over the stag head and gold cross cues from the previous single-shield design. As with the original shield design, the tri-shield design evolved. By the early 1970s, a ring motif surrounded the shields and the white color of one of the shields changed to silver. By the late 1970s, the tri-shield was used primarily on hood ornaments on some models, while the symbol of a hawk on the Buick name was used as the official logo, particularly in print and television advertising.
+[92mThe tri-shield insignia with distinctive, diagonally arranged red, white and[0m blue shields, was widely introduced in 1960 and was featured front-and-center in the grilles of the LeSabre, Electra and Invicta models. The three-model lineup inspired the three shields in the new design. Each carried over the stag head and gold cross cues from the previous single-shield design. As with the original shield design, the tri-shield design evolved. By the early 1970s, a ring motif surrounded the shields and the white color of one of the shields changed to silver. By the late 1970s, the tri-shield was used primarily on hood ornaments on some models, while the symbol of a hawk on the Buick name was used as the official logo, particularly in print and television advertising.
+The [94mtri-shield insignia with distinctive, diagonally arranged red, white and blue shields,[0m was widely introduced in 1960 and was featured front-and-center in the grilles of the LeSabre, Electra and Invicta models. The three-model lineup inspired the three shields in the new design. Each carried over the stag head and gold cross cues from the previous single-shield design. As with the original shield design, the tri-shield design evolved. By the early 1970s, a ring motif surrounded the shields and the white color of one of the shields changed to silver. By the late 1970s, the tri-shield was used primarily on hood ornaments on some models, while the symbol of a hawk on the Buick name was used as the official logo, particularly in print and television advertising.
+------------------golden_answer-------------------
+['The tri-shield buick insignia with distinctive, diagonally arranged red, white and blue shields.']
+------------------rougeL_answer-------------------
+['The tri-shield insignia with distinctive, diagonally arranged red, white and']
+--------------------F1_answer---------------------
+['tri-shield insignia with distinctive, diagonally arranged red, white and blue shields,']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+SIZE OF YOUR BINDER- The size of our binder depends on your sheet size. Binder size is always. measured by the size sheet the binder will hold. Most binders are made to hold 11” x 8 1/2” or. 8 1/2” x 5 1/2” sheets. Always list the binding edge of your sheet first.
+SIZE OF YOUR BINDER- The size [92mof our binder depends on your sheet size. Binder size is always. measured by the size sheet the binder will[0m hold. Most binders are made to hold 11” x 8 1/2” or. 8 1/2” x 5 1/2” sheets. Always list the binding edge of your sheet first.
+SIZE OF YOUR BINDER- [94mThe size of our binder depends on your sheet size. Binder size is always. measured by the size sheet the binder will hold.[0m Most binders are made to hold 11” x 8 1/2” or. 8 1/2” x 5 1/2” sheets. Always list the binding edge of your sheet first.
+------------------golden_answer-------------------
+['The size of our binder depends on your sheet size. Binder size is always measured by the size sheet the binder will hold.']
+------------------rougeL_answer-------------------
+['of our binder depends on your sheet size. Binder size is always. measured by the size sheet the binder will']
+--------------------F1_answer---------------------
+['The size of our binder depends on your sheet size. Binder size is always. measured by the size sheet the binder will hold.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+You can drop-off passengers in the designated areas on the terminal forecourts. In the North Terminal, the drop-off zone is on the lower level forecourt between the Sofitel and the multi-storey car park.In the South Terminal, passengers can also be dropped off on the lower level.efore you leave, double check the flight is on time. Make sure you leave at least 30-40 minutes after landing for passengers to clear passport control, baggage reclaim and Customs.
+You can drop-off passengers in the designated areas on the [92mterminal forecourts. In the North Terminal, the drop-off zone is on the lower level forecourt between the Sofitel and the multi-storey car park.In the South Terminal, passengers can also be dropped off on the[0m lower level.efore you leave, double check the flight is on time. Make sure you leave at least 30-40 minutes after landing for passengers to clear passport control, baggage reclaim and Customs.
+You can drop-off passengers in [94mthe designated areas on the terminal forecourts. In the North Terminal, the drop-off zone is on the lower level forecourt between the Sofitel and the multi-storey car park.In the South Terminal, passengers can also be dropped off on the lower[0m level.efore you leave, double check the flight is on time. Make sure you leave at least 30-40 minutes after landing for passengers to clear passport control, baggage reclaim and Customs.
+------------------golden_answer-------------------
+['You can drop-off passengers in the designated areas on the terminal forecourts. In the North Terminal, the drop-off zone is on the lower level forecourt between the Sofitel and the multi-storey car park. In the South Terminal, passengers can also be dropped off on the lower level.']
+------------------rougeL_answer-------------------
+['terminal forecourts. In the North Terminal, the drop-off zone is on the lower level forecourt between the Sofitel and the multi-storey car park.In the South Terminal, passengers can also be dropped off on the']
+--------------------F1_answer---------------------
+['the designated areas on the terminal forecourts. In the North Terminal, the drop-off zone is on the lower level forecourt between the Sofitel and the multi-storey car park.In the South Terminal, passengers can also be dropped off on the lower']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+A quitclaim deed is a legal instrument which is used to transfer interest in real property. The entity transferring its interest is called the grantor, and when the quitclaim deed is properly completed and executed it transfers any interest the grantor has in the property to a recipient, called the grantee.
+A quitclaim deed is a legal instrument which is used to transfer interest in real property. The [92mentity transferring its interest is called[0m the grantor, and when the quitclaim deed is properly completed and executed it transfers any interest the grantor has in the property to a recipient, called the grantee.
+A quitclaim deed is a legal instrument which is used to transfer interest in real property. [94mThe entity transferring its interest is called the grantor,[0m and when the quitclaim deed is properly completed and executed it transfers any interest the grantor has in the property to a recipient, called the grantee.
+------------------golden_answer-------------------
+['The entity transferring its interest is called the grantor.']
+------------------rougeL_answer-------------------
+['entity transferring its interest is called']
+--------------------F1_answer---------------------
+['The entity transferring its interest is called the grantor,']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+1. Chronic health conditions. According to the National Council on Aging, about 92 percent of seniors have at least one chronic disease and 77 percent have at least two. Heart disease, stroke, cancer, and diabetes are among the most common and costly chronic health conditions causing two-thirds of deaths each year.
+1. Chronic health conditions. According to the National Council on Aging, about 92 percent of seniors have at least one chronic disease and 77 percent have at least two. Heart [92mdisease, stroke, cancer,[0m and diabetes are among the most common and costly chronic health conditions causing two-thirds of deaths each year.
+1. Chronic health conditions. According to the National Council on Aging, about 92 percent of seniors have at least one chronic disease and 77 percent have at least two. [94mHeart disease, stroke, cancer, and diabetes[0m are among the most common and costly chronic health conditions causing two-thirds of deaths each year.
+------------------golden_answer-------------------
+['Heart disease, stroke, cancer, and diabetes.']
+------------------rougeL_answer-------------------
+['disease, stroke, cancer,']
+--------------------F1_answer---------------------
+['Heart disease, stroke, cancer, and diabetes']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+An element in an electronic document that links to another place in the same document or to an entirely different document. Typically, you click on the hyperlink to follow the link. Hyperlinks are the most essential ingredient of all hypertext systems, including the World Wide Web. PREVIOUSHyperDisco.
+An element in an electronic document that links to another place in the same document or to an entirely different document. Typically, you click on the hyperlink to follow the link. Hyperlinks are the most [92messential ingredient of all hypertext systems, including the World Wide[0m Web. PREVIOUSHyperDisco.
+An element in an electronic document that links to another place in the same document or to an entirely different document. Typically, you click on the hyperlink to follow the link. Hyperlinks are [94mthe most essential ingredient of all hypertext systems, including the World Wide Web.[0m PREVIOUSHyperDisco.
+------------------golden_answer-------------------
+['The most essential ingredient of all hypertext systems, including the World Wide Web.']
+------------------rougeL_answer-------------------
+['essential ingredient of all hypertext systems, including the World Wide']
+--------------------F1_answer---------------------
+['the most essential ingredient of all hypertext systems, including the World Wide Web.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+A slip (also sometimes called a scoop, scraper, or road scraper) was the common implement for moving dirt when doing such things as digging ponds or making fills where large volumes of dirt were needed.
+A slip (also sometimes called a scoop, scraper, or road scraper) was the common [92mimplement for moving dirt when doing such things as digging ponds or making fills where large volumes of dirt were[0m needed.
+A slip (also sometimes called a scoop, scraper, or road scraper) was [94mthe common implement for moving dirt when doing such things as digging ponds or making fills where large volumes of dirt were needed.[0m
+------------------golden_answer-------------------
+['The common implement for moving dirt when doing such things as digging ponds or making fills where large volumes of dirt were needed.']
+------------------rougeL_answer-------------------
+['implement for moving dirt when doing such things as digging ponds or making fills where large volumes of dirt were']
+--------------------F1_answer---------------------
+['the common implement for moving dirt when doing such things as digging ponds or making fills where large volumes of dirt were needed.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+As a rule of thumb, the temperature must be below 50 degrees (F) to see one's breath. The phenomenon is dependent on a number of criteria, including pressure and humidity. It is possible to make one's breath visible at room temperatures by partially pressurizing your exhaled breath.
+As a rule of thumb, the temperature must be below [92m50[0m degrees (F) to see one's breath. The phenomenon is dependent on a number of criteria, including pressure and humidity. It is possible to make one's breath visible at room temperatures by partially pressurizing your exhaled breath.
+As a rule of thumb, the temperature must be [94mbelow 50 degrees (F)[0m to see one's breath. The phenomenon is dependent on a number of criteria, including pressure and humidity. It is possible to make one's breath visible at room temperatures by partially pressurizing your exhaled breath.
+------------------golden_answer-------------------
+['Below 50 degrees (F).']
+------------------rougeL_answer-------------------
+['50']
+--------------------F1_answer---------------------
+['below 50 degrees (F)']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Vesicles and Vacuoles Vesicles and vacuoles are membrane-bound sacs that function in storage and transport. Vacuoles are somewhat larger than vesicles, and the membrane of a vacuole does not fuse with the membranes of other cellular components. Vesicles can fuse with other membranes within the cell system (Figure 1).
+[92mVesicles and Vacuoles Vesicles and vacuoles are membrane-bound sacs that function in storage and transport. Vacuoles are somewhat larger than vesicles, and the membrane of a vacuole does not fuse with the membranes of other cellular components. Vesicles can fuse with other membranes within the[0m cell system (Figure 1).
+Vesicles and Vacuoles [94mVesicles and vacuoles are membrane-bound sacs that function in storage and transport. Vacuoles are somewhat larger than vesicles, and the membrane of a vacuole does not fuse with the membranes of other cellular components. Vesicles can fuse with other membranes within the cell system[0m (Figure 1).
+------------------golden_answer-------------------
+['Vesicles and vacuoles are membrane-bound sacs that function in storage and transport. Vacuoles are somewhat larger than vesicles, and the membrane of a vacuole does not fuse with the membranes of other cellular components. Vesicles can fuse with other membranes within the cell system.']
+------------------rougeL_answer-------------------
+['Vesicles and Vacuoles Vesicles and vacuoles are membrane-bound sacs that function in storage and transport. Vacuoles are somewhat larger than vesicles, and the membrane of a vacuole does not fuse with the membranes of other cellular components. Vesicles can fuse with other membranes within the']
+--------------------F1_answer---------------------
+['Vesicles and vacuoles are membrane-bound sacs that function in storage and transport. Vacuoles are somewhat larger than vesicles, and the membrane of a vacuole does not fuse with the membranes of other cellular components. Vesicles can fuse with other membranes within the cell system']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Vesicles and Vacuoles. Vesicles and vacuoles are membrane-bound sacs that function in storage and transport. Vacuoles are somewhat larger than vesicles, and the membrane of a vacuole does not fuse with the membranes of other cellular components. Vesicles can fuse with other membranes within the cell system (Figure 1). Additionally, enzymes within plant vacuoles can break down macromolecules.
+Vesicles and Vacuoles. Vesicles and vacuoles [92mare membrane-bound sacs that function in storage and transport. Vacuoles are somewhat larger than vesicles, and the membrane of a vacuole does not fuse with the membranes of other cellular components. Vesicles can fuse with other membranes within the[0m cell system (Figure 1). Additionally, enzymes within plant vacuoles can break down macromolecules.
+Vesicles and Vacuoles. [94mVesicles and vacuoles are membrane-bound sacs that function in storage and transport. Vacuoles are somewhat larger than vesicles, and the membrane of a vacuole does not fuse with the membranes of other cellular components. Vesicles can fuse with other membranes within the cell system[0m (Figure 1). Additionally, enzymes within plant vacuoles can break down macromolecules.
+------------------golden_answer-------------------
+['Vesicles and vacuoles are membrane-bound sacs that function in storage and transport. Vacuoles are somewhat larger than vesicles, and the membrane of a vacuole does not fuse with the membranes of other cellular components. Vesicles can fuse with other membranes within the cell system.']
+------------------rougeL_answer-------------------
+['are membrane-bound sacs that function in storage and transport. Vacuoles are somewhat larger than vesicles, and the membrane of a vacuole does not fuse with the membranes of other cellular components. Vesicles can fuse with other membranes within the']
+--------------------F1_answer---------------------
+['Vesicles and vacuoles are membrane-bound sacs that function in storage and transport. Vacuoles are somewhat larger than vesicles, and the membrane of a vacuole does not fuse with the membranes of other cellular components. Vesicles can fuse with other membranes within the cell system']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+Catherine (Kitty) Genovese, 5 feet 1 and 105 pounds, was stabbed eight times in the chest and abdomen and four times in the back and she had three cuts on her hands-probably inflicted as she tried to fight off her attacker near her apartment in an alleyway, at 82-70 Austin St., at Lefferts Blvd., Kew Gardens.
+Catherine (Kitty) Genovese, 5 feet 1 and 105 pounds, was [92mstabbed eight times in the chest and abdomen and four times in[0m the back and she had three cuts on her hands-probably inflicted as she tried to fight off her attacker near her apartment in an alleyway, at 82-70 Austin St., at Lefferts Blvd., Kew Gardens.
+Catherine (Kitty) Genovese, 5 feet 1 and 105 pounds, [94mwas stabbed eight times in the chest and abdomen and four times in the back[0m and she had three cuts on her hands-probably inflicted as she tried to fight off her attacker near her apartment in an alleyway, at 82-70 Austin St., at Lefferts Blvd., Kew Gardens.
+------------------golden_answer-------------------
+['She was stabbed eight times in the chest and abdomen and four times in the back.']
+------------------rougeL_answer-------------------
+['stabbed eight times in the chest and abdomen and four times in']
+--------------------F1_answer---------------------
+['was stabbed eight times in the chest and abdomen and four times in the back']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+In some branches of engineering, the term stress is occasionally used in a looser sense as a synonym of internal force. For example, in the analysis of trusses, it may refer to the total traction or compression force acting on a beam, rather than the force divided by the area of its cross-section.
+In some branches of engineering, the term stress is [92moccasionally used in a looser sense as a synonym of internal[0m force. For example, in the analysis of trusses, it may refer to the total traction or compression force acting on a beam, rather than the force divided by the area of its cross-section.
+In some branches of engineering, the term stress [94mis occasionally used in a looser sense as a synonym of internal force.[0m For example, in the analysis of trusses, it may refer to the total traction or compression force acting on a beam, rather than the force divided by the area of its cross-section.
+------------------golden_answer-------------------
+['It is occasionally used in a looser sense as a synonym of internal force.']
+------------------rougeL_answer-------------------
+['occasionally used in a looser sense as a synonym of internal']
+--------------------F1_answer---------------------
+['is occasionally used in a looser sense as a synonym of internal force.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+There is approximately 1 gram of fiber in chicken salad. Adding  celery adds more fiber to the chicken salad, serving it on whole  wheat bread also adds even more fiber. Making the world better, one answer at a time.
+There [92mis approximately 1 gram of fiber in chicken[0m salad. Adding  celery adds more fiber to the chicken salad, serving it on whole  wheat bread also adds even more fiber. Making the world better, one answer at a time.
+There [94mis approximately 1 gram of fiber in chicken salad.[0m Adding  celery adds more fiber to the chicken salad, serving it on whole  wheat bread also adds even more fiber. Making the world better, one answer at a time.
+------------------golden_answer-------------------
+['Yes,there is approximately 1 gram of fiber in chicken salad.']
+------------------rougeL_answer-------------------
+['is approximately 1 gram of fiber in chicken']
+--------------------F1_answer---------------------
+['is approximately 1 gram of fiber in chicken salad.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+There is approximately 1 gram of fiber in chicken salad. Adding  celery adds more fiber to the chicken salad, serving it on whole  wheat bread also adds even more fiber. 1 person found this useful.
+There [92mis approximately 1 gram of fiber in chicken[0m salad. Adding  celery adds more fiber to the chicken salad, serving it on whole  wheat bread also adds even more fiber. 1 person found this useful.
+There [94mis approximately 1 gram of fiber in chicken salad.[0m Adding  celery adds more fiber to the chicken salad, serving it on whole  wheat bread also adds even more fiber. 1 person found this useful.
+------------------golden_answer-------------------
+['Yes,there is approximately 1 gram of fiber in chicken salad.']
+------------------rougeL_answer-------------------
+['is approximately 1 gram of fiber in chicken']
+--------------------F1_answer---------------------
+['is approximately 1 gram of fiber in chicken salad.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+A: Your scores will be available to you within five to 20 days. In most cases, the scores will be available within five to seven days, but we may need up to 20 days to fully process your request, as we would if you accepted your scores on test day.: You will get an unofficial score report with Verbal, Quantitative, Integrated Reasoning and Total scores immediately after your exam. You will receive an email with a URL to access your score report within 20 days of your exam.
+A: Your scores will be available to you within five [92mto 20[0m days. In most cases, the scores will be available within five to seven days, but we may need up to 20 days to fully process your request, as we would if you accepted your scores on test day.: You will get an unofficial score report with Verbal, Quantitative, Integrated Reasoning and Total scores immediately after your exam. You will receive an email with a URL to access your score report within 20 days of your exam.
+A: Your scores will be available to you [94mwithin five to 20 days.[0m In most cases, the scores will be available within five to seven days, but we may need up to 20 days to fully process your request, as we would if you accepted your scores on test day.: You will get an unofficial score report with Verbal, Quantitative, Integrated Reasoning and Total scores immediately after your exam. You will receive an email with a URL to access your score report within 20 days of your exam.
+------------------golden_answer-------------------
+['Within five to 20 days.']
+------------------rougeL_answer-------------------
+['to 20']
+--------------------F1_answer---------------------
+['within five to 20 days.']
+-----------------------end------------------------
+
+
+----------------------start-----------------------
+------------------passages_texts------------------
+There are many reasons why tomato leaves turn yellow, and usually it is a fairly easy fix. Some situations that can cause yellow leaves are under-watering and over-watering, nitrogen deficiencies in the soil, a lack of sunlight on the bottom leaves, or a possible disease.
+There are many reasons why tomato leaves turn yellow, and usually it is a fairly easy fix. Some situations that can cause yellow leaves are under-watering and over-watering, [92mnitrogen deficiencies in the soil, a lack of sunlight on the bottom leaves, or a possible[0m disease.
+There are many reasons why tomato leaves turn yellow, and usually it is a fairly easy fix. Some situations that can cause yellow leaves are [94munder-watering and over-watering, nitrogen deficiencies in the soil, a lack of sunlight on the bottom leaves, or a possible disease.[0m
+------------------golden_answer-------------------
+['Under-watering and over-watering, nitrogen deficiencies in the soil, a lack of sunlight on the bottom leaves, or a possible disease.']
+------------------rougeL_answer-------------------
+['nitrogen deficiencies in the soil, a lack of sunlight on the bottom leaves, or a possible']
+--------------------F1_answer---------------------
+['under-watering and over-watering, nitrogen deficiencies in the soil, a lack of sunlight on the bottom leaves, or a possible disease.']
+-----------------------end------------------------
+
+

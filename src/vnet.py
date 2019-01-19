@@ -32,7 +32,7 @@ from .MsmarcoRouge import MsmarcoRouge
 from .modules.Pointer_Network import PointerNet
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+# logger.setLevel(logging.DEBUG)
 
 
 @Model.register('vnet')

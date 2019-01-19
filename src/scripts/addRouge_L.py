@@ -4,7 +4,7 @@ import sys
 from tqdm import tqdm
 from multiprocessing import Pool
 sys.path.append(".")
-from src.utils import get_answers_with_RougeL
+from src.utils import get_ans_by_f1
 
 
 def get_em_ans(answers, passage_text, span_in_passage, answers_in_passage, flag_has_ans):
@@ -44,7 +44,7 @@ def process_one_sample(data):
         flag_has_ans = get_em_ans(answers, passage_text, span_in_passage, answers_in_passage,
                                   flag_has_ans)
         if not flag_has_ans and len(answers) > 0:
-            ans_rougeL = get_answers_with_RougeL(passage_text, answers)
+            ans_rougeL = get_ans_by_f1(passage_text, answers)
             flag_has_ans = get_em_ans(ans_rougeL, passage_text, span_in_passage, answers_in_passage,
                                       flag_has_ans)
         answer_texts.append(answers)
@@ -73,7 +73,7 @@ def add_rouge_read(file_path: str):
 
 
 def main():
-    file_path = '/home/meefly/misc/train.json'
+    file_path = '/data/nfsdata/meijie/data/msmarco/train_v2.1.json'
     instances = add_rouge_read(file_path)
     f_save = open(file_path + '.pickle', 'wb')
     pickle.dump(instances, f_save)

@@ -78,6 +78,7 @@ class MaxF1Mesure():
 
 
 def get_answers_with_RougeL(passage, answers, threshold=0.7):
+    answers = list(set(answers))
     token_as = [ans.split(' ') for ans in answers]
     token_p = passage.split(' ')
     candidates = []
@@ -153,6 +154,7 @@ def get_lcs(token_as: List[List[str]], token_p: List[str]):
 
 
 def get_ans_by_f1(passage, answers, threshold=0.7):
+    answers = list(set(answers))
     candidates = []
     measure = MaxF1Mesure()
     indices = [0] + [m.start() for m in re.finditer(' ', passage)]
@@ -181,4 +183,14 @@ def get_ans_by_f1(passage, answers, threshold=0.7):
                                    'lo': lo,
                                    'hi': hi,
                                    'score': score})
+    max_score = 0
+    best_answer = ''
+    for candidate in candidates:
+        if candidate['score'] > max_score:
+            best_answer = candidate['candidate']
+            max_score = candidate['score']
+    if best_answer != '':
+        return [best_answer]
+    else:
+        return []
     return [item['candidate'] for item in candidates]

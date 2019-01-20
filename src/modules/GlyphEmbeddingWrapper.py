@@ -5,8 +5,10 @@ from allennlp.common import Params
 from allennlp.data.vocabulary import Vocabulary
 from allennlp.modules.time_distributed import TimeDistributed
 from allennlp.modules.token_embedders.token_embedder import TokenEmbedder
+from allennlp.modules.seq2vec_encoders.seq2vec_encoder import Seq2VecEncoder
+
 try:
-    sys.path.append("/home/meefly/working/WordLanguageModel/")
+    sys.path.append("/home/meelfy/working/WordLanguageModel/")
     from glyph_embedding.models.glyph_embedding import GlyphEmbedding
     from glyph_embedding.utils.default_config import GlyphEmbeddingConfig
 except ModuleNotFoundError as e:
@@ -26,35 +28,35 @@ class GlyphEmbeddingWrapper(TokenEmbedder):
 
     def __init__(self,
                  vocab: Vocabulary,
-                 dropout: float = 0.0,
-                 output_size: int = 300,
-                 glyph_embsize: int = 256) -> None:
+                 glyph_config,
+                 encoder) -> None:
         super(GlyphEmbeddingWrapper, self).__init__()
-        self.glyph_config = GlyphEmbeddingConfig()
+        self.glyph_config = glyph_config
         self.glyph_config.idx2word = vocab._index_to_token['token_characters']
-        self.glyph_config.output_size = output_size
-        self.glyph_config.use_highway = True
-        self.glyph_config.dropout = dropout
-        self.glyph_config.glyph_embsize = glyph_embsize
         self.glyph_embedding = GlyphEmbedding(self.glyph_config)
-        self._encoder = TimeDistributed(self.glyph_embedding)
-        # self._encoder = self.glyph_embedding
+        self._encoder = TimeDistributed(encoder)
 
     def get_output_dim(self) -> int:
-        return self.glyph_config.output_size
+        return self._encoder._module.get_output_dim()
 
     def forward(self, token_characters: torch.Tensor) -> torch.Tensor:
-        import pdb
-        pdb.set_trace()
-        self.glyph_embedding(token_characters)
-        emb, loss = self._encoder(token_characters)
-        return emb
+        mask = (token_characters != 0).long()
+        character_embedding, loss = self.glyph_embedding(token_characters)
+        return self._encoder(character_embedding, mask)
+        # word_embedding, loss = self.glyph_embedding(token_characters)
+        # # emb, loss = self._embedding(token_characters)
+        # return word_embedding
 
     @classmethod
     def from_params(cls, vocab: Vocabulary, params: Params) -> 'GlyphEmbeddingWrapper':
         # pylint: disable=arguments-differ
-        dropout = params.pop_float("dropout", 0.0)
-        output_size = params.pop_int("output_size", 300)
-        glyph_embsize = params.pop_int("glyph_embsize", 256)
+        glyph_config = GlyphEmbeddingConfig()
+        glyph_config.output_size = params.pop_int("output_size", 300)
+        glyph_config.use_highway = True
+        glyph_config.dropout = params.pop_float("dropout", 0.0)
+        glyph_config.glyph_embsize = params.pop_int("glyph_embsize", 256)
+
+        encoder_params: Params = params.pop("encoder")
+        encoder = Seq2VecEncoder.from_params(encoder_params)
         params.assert_empty(cls.__name__)
-        return cls(vocab, dropout, output_size, glyph_embsize)
+        return cls(vocab, glyph_config, encoder)

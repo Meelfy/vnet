@@ -20,8 +20,8 @@
     // "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/test.txt",
     // "train_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/devset/zhidao.dev.json",
     // "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/devset/search.dev.json",
-    "train_data_path":"/home/meefly/working/vnet/fixtures/big_samples_dureader.json",
-    "validation_data_path":"/home/meefly/working/vnet/fixtures/big_samples_dureader.json",
+    "train_data_path":"/home/meelfy/working/vnet/fixtures/big_samples_dureader.json",
+    "validation_data_path":"/home/meelfy/working/vnet/fixtures/big_samples_dureader.json",
     "model":{
         "type":"vnet",
         "text_field_embedder":{
@@ -35,9 +35,17 @@
                 ,
                 "token_characters":{
                     "type":"glyph_encoder",
-                    "output_size": 100,
-                    "glyph_embsize": 256,
-                    "dropout":0.2
+                    "glyph_embsize": 128,
+                    "output_size": 128,
+                    "dropout":0.2,
+                    "encoder":{
+                        "type":"cnn",
+                        "embedding_dim":128,
+                        "num_filters":100,
+                        "ngram_filter_sizes":[
+                            1
+                        ]
+                    }
                 }
             }
         },
@@ -47,7 +55,7 @@
             "bidirectional":true,
             "input_size":400,
             "hidden_size":100,
-            "num_layers":2,
+            "num_layers":1,
             "dropout":0.2
         },
         "modeling_layer":{
@@ -96,14 +104,14 @@
         "type":"bucket",
         "sorting_keys":[["question", "num_tokens"]],
         "biggest_batch_first":true,
-        "batch_size":1
+        "batch_size":4
     },
     "trainer":{
         "num_epochs":10,
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":3,
+        "cuda_device":2,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

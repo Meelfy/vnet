@@ -34,19 +34,9 @@
                 }
                 ,
                 "token_characters":{
-                    "type":"character_encoding",
-                    "embedding":{
-                        "num_embeddings":20000,  // 12765
-                        "embedding_dim":30
-                    },
-                    "encoder":{
-                        "type":"cnn",
-                        "embedding_dim":30,
-                        "num_filters":100,
-                        "ngram_filter_sizes":[
-                            1
-                        ]
-                    },
+                    "type":"glyph_encoder",
+                    "output_size": 100,
+                    "glyph_embsize": 256,
                     "dropout":0.2
                 }
             }
@@ -106,14 +96,14 @@
         "type":"bucket",
         "sorting_keys":[["question", "num_tokens"]],
         "biggest_batch_first":true,
-        "batch_size":8
+        "batch_size":1
     },
     "trainer":{
         "num_epochs":10,
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":1,
+        "cuda_device":3,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

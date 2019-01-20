@@ -30,6 +30,8 @@ from allennlp.training.metrics.bleu import BLEU
 
 from .MsmarcoRouge import MsmarcoRouge
 from .modules.Pointer_Network import PointerNet
+# Allennlp will find where is the GlyphEmbeddingWrapper modules
+from .modules import GlyphEmbeddingWrapper
 
 logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)

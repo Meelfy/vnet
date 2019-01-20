@@ -32,30 +32,30 @@
                     "embedding_dim":200,
                     "trainable":true
                 }
-                ,
-                "token_characters":{
-                    "type":"character_encoding",
-                    "embedding":{
-                        "num_embeddings":20000,  // 12765
-                        "embedding_dim":30
-                    },
-                    "encoder":{
-                        "type":"cnn",
-                        "embedding_dim":30,
-                        "num_filters":100,
-                        "ngram_filter_sizes":[
-                            1
-                        ]
-                    },
-                    "dropout":0.2
-                }
+                // ,
+                // "token_characters":{
+                //     "type":"character_encoding",
+                //     "embedding":{
+                //         "num_embeddings":20000,  // 12765
+                //         "embedding_dim":30
+                //     },
+                //     "encoder":{
+                //         "type":"cnn",
+                //         "embedding_dim":30,
+                //         "num_filters":100,
+                //         "ngram_filter_sizes":[
+                //             1
+                //         ]
+                //     },
+                //     "dropout":0.2
+                // }
             }
         },
         "num_highway_layers":2,
         "phrase_layer":{
             "type":"lstm",
             "bidirectional":true,
-            "input_size":300,
+            "input_size":200,
             "hidden_size":100,
             "num_layers":2,
             "dropout":0.2
@@ -78,8 +78,8 @@
         },
         "matrix_attention_layer": {
             "type": "linear",
-            "tensor_1_dim": 300,
-            "tensor_2_dim": 300,
+            "tensor_1_dim": 200,
+            "tensor_2_dim": 200,
             "combination": "x,y,x*y"
         },
         "pointer_net": {

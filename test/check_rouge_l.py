@@ -1,8 +1,15 @@
 import os
 import json
 import sys
+from embedding_models.model import GlyphEmbedding
 sys.path.insert(0, os.path.dirname(os.path.abspath(os.path.join(__file__, os.pardir))))
 from src.utils import get_ans_by_f1, get_answers_with_RougeL
+# export PYTHONPATH=/home/meefly/working/WordLanguageModel/embedding_models/:$PYTHONPATH;
+# export PYTHONPATH=/home/meefly/working/WordLanguageModel/glyph_embedding/:$PYTHONPATH
+
+from glyph_embedding.utils.default_config import GlyphEmbeddingConfig
+glyph_config = GlyphEmbeddingConfig()
+glyph_embedding = GlyphEmbedding(glyph_config)
 
 
 class bcolors:

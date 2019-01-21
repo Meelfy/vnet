@@ -73,7 +73,7 @@ def add_rouge_read(file_path: str):
 
 
 def main():
-    file_path = '/data/nfsdata/meijie/data/msmarco/train_v2.1.json'
+    file_path = '/data/nfsdata/meijie/data/msmarco/dev_v2.1.json'
     instances = add_rouge_read(file_path)
     f_save = open(file_path + '.pickle', 'wb')
     pickle.dump(instances, f_save)

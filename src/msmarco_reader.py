@@ -68,7 +68,7 @@ class MsmarcoMultiPassageReader(DatasetReader):
 
     @overrides
     def _read(self, file_path: str) -> Iterable[Instance]:
-        is_train = 'train' in str(file_path)
+        is_test = 'test' in file_path or 'eval' in file_path
         if os.path.isfile(file_path + '.instances'):
             if self.char_only:
                 logger.info("load from instances file %s", file_path + '.char.instances')
@@ -161,24 +161,14 @@ class MsmarcoMultiPassageReader(DatasetReader):
                     continue
                 # assert len(spans) == len(passage_texts) == len(answer_texts),\
                 # 'each passage must have a spans and a answer_texts'
-                if is_train:
-                    instance = self.text_to_instance(question_text,
-                                                     passage_texts,
-                                                     qid,
-                                                     answer_texts,
-                                                     spans,
-                                                     max_passage_len=self.passage_length_limit,
-                                                     max_question_len=self.question_length_limit,
-                                                     drop_invalid=False)
-                else:
-                    instance = self.text_to_instance(question_text,
-                                                     passage_texts,
-                                                     qid,
-                                                     answer_texts,
-                                                     spans,
-                                                     max_passage_len=self.passage_length_limit,
-                                                     max_question_len=self.passage_length_limit,
-                                                     drop_invalid=False)
+                instance = self.text_to_instance(question_text,
+                                                 passage_texts,
+                                                 qid,
+                                                 answer_texts,
+                                                 spans,
+                                                 max_passage_len=self.passage_length_limit,
+                                                 max_question_len=self.question_length_limit,
+                                                 drop_invalid=False)
                 if instance is not None:
                     yield instance
                 else:

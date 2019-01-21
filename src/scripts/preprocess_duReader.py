@@ -63,7 +63,7 @@ def process_one_sample(data, fuzzy_matching=False):
     question_tokens = data['question_tokens']
     passages_tokens = data['passages_tokens']
     passages = data['passages']
-    answers = data['answers']
+    answers = data.get('answers', [])
     # qid, passages, query, answers = data
     question_text = query
     passage_texts = [passage['passage_text'] for passage in passages]
@@ -75,55 +75,27 @@ def process_one_sample(data, fuzzy_matching=False):
     #     passage_texts = passage_texts + [passage_texts[-1]] * (10 - len(passage_texts))
     if 'No Answer Present.' in answers:
         return None
+    if answers:
+        for passage_text in passage_texts:
+            answers_in_passage = []
+            span_in_passage = []
 
-    for passage_text in passage_texts:
-        answers_in_passage = []
-        span_in_passage = []
-
-        flag_has_ans = get_em_ans(answers, passage_text, span_in_passage, answers_in_passage,
-                                  flag_has_ans)
-        if fuzzy_matching:
-            if not flag_has_ans and len(answers) > 0:
-                ans_f1 = get_ans_by_f1(passage_text, answers)
-                flag_has_ans = get_em_ans(ans_f1, passage_text, span_in_passage, answers_in_passage,
-                                          flag_has_ans)
-        answer_texts.append(answers)
-        # answer_texts.append(answers_in_passage)
-        spans.append(span_in_passage)
-    if not flag_has_ans:
-        return None
-    instance = (question_text, passage_texts, qid, answer_texts, spans, question_tokens, passages_tokens)
-    return instance
-
-
-def read_preprocessed_data(file_path: str):
-    dataset = []
-    with open(file_path) as f:
-        for l in f.readlines():
-            j = json.loads(l)
-            j['query_type'] = j.pop('question_type')
-            if 'entity_answers' in j:
-                j.pop('entity_answers')
-            j.pop('fact_or_opinion')
-            j['query_id'] = j.pop('question_id')
-            j['query'] = j.pop('question')
-            j['question_tokens'] = segmented_text_to_tuples(j.pop('segmented_question'))
-            passages = []
-            for k in j['documents']:
-                data = {}
-                if k['is_selected']:
-                    data['is_selected'] = 1
-                else:
-                    data['is_selected'] = 0
-                data['passage_text'] = ' '.join(k['paragraphs'])
-                data['url'] = ''
-                passages.append(data)
-            j['passages_tokens'] = [segmented_text_to_tuples(sum(doc['segmented_paragraphs'], []))
-                                    for doc in j['documents']]
-            j['passages'] = passages
-            j.pop('documents')
-            dataset.append(j)
-    return dataset
+            flag_has_ans = get_em_ans(answers, passage_text, span_in_passage, answers_in_passage,
+                                      flag_has_ans)
+            if fuzzy_matching:
+                if not flag_has_ans and len(answers) > 0:
+                    ans_f1 = get_ans_by_f1(passage_text, answers)
+                    flag_has_ans = get_em_ans(ans_f1, passage_text, span_in_passage, answers_in_passage,
+                                              flag_has_ans)
+            answer_texts.append(answers)
+            # answer_texts.append(answers_in_passage)
+            spans.append(span_in_passage)
+        if not flag_has_ans:
+            return None
+        instance = (question_text, passage_texts, qid, answer_texts, spans, question_tokens, passages_tokens)
+        return instance
+    else:
+        return (question_text, passage_texts, qid, answer_texts, spans, question_tokens, passages_tokens)
 
 
 def data_to_json_obj(data):
@@ -153,19 +125,20 @@ def data_to_json_obj(data):
     passages_offsets = [[(token.idx, token.idx + len(token.text)) for token in passage_tokens]
                         for passage_tokens in passages_tokens]
     token_spans = []
-    for passage_id, span_in_passage in enumerate(char_spans):
-        passage_offsets = passages_offsets[passage_id]
-        passage_token_spans: List[Tuple[int, int]] = []
-        for char_span_start, char_span_end in span_in_passage:
-            if char_span_end > passage_offsets[-1][1]:
-                continue
-            (span_start, span_end), error = char_span_to_token_span(
-                passage_offsets,
-                (char_span_start, char_span_end))
-            passage_token_spans.append((span_start, span_end))
-        if not passage_token_spans:
-            passage_token_spans.append((-1, -1))
-        token_spans.append(passage_token_spans)
+    if answer_texts:
+        for passage_id, span_in_passage in enumerate(char_spans):
+            passage_offsets = passages_offsets[passage_id]
+            passage_token_spans: List[Tuple[int, int]] = []
+            for char_span_start, char_span_end in span_in_passage:
+                if char_span_end > passage_offsets[-1][1]:
+                    continue
+                (span_start, span_end), error = char_span_to_token_span(
+                    passage_offsets,
+                    (char_span_start, char_span_end))
+                passage_token_spans.append((span_start, span_end))
+            if not passage_token_spans:
+                passage_token_spans.append((-1, -1))
+            token_spans.append(passage_token_spans)
     question_tokens = [(token.text, token.idx) for token in question_tokens]
     passages_tokens = [[(token.text, token.idx) for token in passage_tokens]
                        for passage_tokens in passages_tokens]
@@ -173,34 +146,6 @@ def data_to_json_obj(data):
     json_obj['passages_tokens'] = passages_tokens
     json_obj['token_spans'] = token_spans
     return json_obj
-
-
-def add_rouge_read(file_path: str):
-    # with open(file_path) as f:
-    #     source = json.load(f)
-    # dataset = ((qid, source['passages'][qid], source['query'][qid], source['answers'][qid])
-    #            for qid in source['query_id'])
-    print('read_preprocessed_data')
-    dataset = read_preprocessed_data(file_path)
-    instances = []
-    pool = Pool()
-    print('add_rouge_read')
-    for instance in tqdm(pool.imap_unordered(process_one_sample, dataset)):
-        # print(instance)
-        if instance is not None:
-            instances.append(instance)
-    return instances
-
-
-def load_data(file_path):
-    instances = add_rouge_read(file_path)
-    instances_json_obj = []
-    pool = Pool()
-    print('data_to_json_obj')
-    for json_obj in tqdm(pool.imap_unordered(data_to_json_obj, instances)):
-        if json_obj is not None:
-            instances_json_obj.append(json_obj)
-    return instances_json_obj
 
 
 def process_char_only(l):

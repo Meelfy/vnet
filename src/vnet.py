@@ -332,8 +332,6 @@ class VNet(Model):
         # embedded_passages shape(batch_size*num_passages, passage_length, embedding_dim)
         # get answers candidates
         # shape(num_passages*batch_size, passage_length)
-        ground_truth_p = self.map_span_to_01(spans_end, p.size()) -\
-            self.map_span_to_01(spans_start - 1, p.size())
         prob_p = self.get_prob_map(span_start_probs, span_end_probs)
         prob_p = prob_p.to(device)
         # pdb.set_trace()
@@ -391,6 +389,8 @@ class VNet(Model):
             loss_Boundary = loss_Boundary / 2
             eps = 1e-7
             p = p.clamp(eps, 1. - eps)
+            ground_truth_p = self.map_span_to_01(spans_end, p.size()) -\
+                self.map_span_to_01(spans_start - 1, p.size())
             loss_Content = torch.sum(torch.log(p) * ground_truth_p)
             loss_Content += torch.sum(torch.log(1 - p) * (1 - ground_truth_p))
             loss_Content = -loss_Content / passage_length / batch_size
@@ -442,7 +442,7 @@ class VNet(Model):
                         self._rouge_metrics(' '.join(best_span_string), answer_texts)
                     elif self.language == 'en':
                         self._rouge_metrics(best_span_string, answer_texts)
-                if loss < 9:
+                if loss < 9 and spans_start is not None:
                     logger.debug('passage_id:%d, start_idx:%d, end_idx:%d' %
                                  (passage_id, start_idx, end_idx))
                     # logger.debug("span_start_logits: {}".format(
@@ -465,12 +465,13 @@ class VNet(Model):
                             logger.debug('Truth: %s' % ans.replace(' ', ''))
                         elif self.language == 'en':
                             logger.debug('Truth: %s' % ans)
-            self._span_start_accuracy(span_start_probs.view(batch_size, num_passages, -1),
-                                      spans_start.view(batch_size, num_passages),
-                                      (spans_start.view(batch_size, num_passages) != -1))
-            self._span_end_accuracy(span_end_probs.view(batch_size, num_passages, -1),
-                                    spans_end.view(batch_size, num_passages),
-                                    (spans_end.view(batch_size, num_passages) != -1))
+            if spans_start is not None:
+                self._span_start_accuracy(span_start_probs.view(batch_size, num_passages, -1),
+                                          spans_start.view(batch_size, num_passages),
+                                          (spans_start.view(batch_size, num_passages) != -1))
+                self._span_end_accuracy(span_end_probs.view(batch_size, num_passages, -1),
+                                        spans_end.view(batch_size, num_passages),
+                                        (spans_end.view(batch_size, num_passages) != -1))
             output_dict['question_tokens'] = question_tokens
             output_dict['passage_tokens'] = passage_tokens
         output_dict['qids'] = [data['qid'] for data in metadata]

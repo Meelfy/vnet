@@ -8,7 +8,11 @@ from multiprocessing import Pool
 from typing import List, Tuple
 from collections import namedtuple
 sys.path.append(".")
-from src.utils import get_answers_with_RougeL
+try:
+    from src.utils import get_answers_with_RougeL
+    from src.utils import get_ans_by_f1
+except Exception as e:
+    print(e)
 
 
 def segmented_text_to_tuples(tokens):
@@ -53,7 +57,7 @@ def get_em_ans(answers, passage_text, span_in_passage, answers_in_passage, flag_
     return flag_has_ans
 
 
-def process_one_sample(data):
+def process_one_sample(data, fuzzy_matching=False):
     qid = data['query_id']
     query = data['query']
     question_tokens = data['question_tokens']
@@ -78,10 +82,11 @@ def process_one_sample(data):
 
         flag_has_ans = get_em_ans(answers, passage_text, span_in_passage, answers_in_passage,
                                   flag_has_ans)
-        # if not flag_has_ans and len(answers) > 0:
-        #     ans_rougeL = get_answers_with_RougeL(passage_text, answers)
-        #     flag_has_ans = get_em_ans(ans_rougeL, passage_text, span_in_passage, answers_in_passage,
-        #                               flag_has_ans)
+        if fuzzy_matching:
+            if not flag_has_ans and len(answers) > 0:
+                ans_f1 = get_ans_by_f1(passage_text, answers)
+                flag_has_ans = get_em_ans(ans_f1, passage_text, span_in_passage, answers_in_passage,
+                                          flag_has_ans)
         answer_texts.append(answers)
         # answer_texts.append(answers_in_passage)
         spans.append(span_in_passage)
@@ -198,6 +203,38 @@ def load_data(file_path):
     return instances_json_obj
 
 
+def process_char_only(l):
+    j = json.loads(l)
+    j['query_type'] = j.pop('question_type')
+    if 'entity_answers' in j:
+        j.pop('entity_answers')
+    j.pop('fact_or_opinion')
+    j['query_id'] = j.pop('question_id')
+    j['query'] = j.pop('question')
+    j['question_tokens'] = segmented_text_to_tuples([ch for ch in j['query'].replace(' ', '')])
+    passages = []
+    for k in j['documents']:
+        data = {}
+        if k['is_selected']:
+            data['is_selected'] = 1
+        else:
+            data['is_selected'] = 0
+        data['passage_text'] = ' '.join(k['paragraphs'])
+        # print(len(data['passage_text']))
+        data['url'] = ''
+        passages.append(data)
+    j['passages_tokens'] = [segmented_text_to_tuples([ch for ch in ''.join(doc['paragraphs'])])
+                            for doc in j['documents']]
+    # print(j['passages_tokens'])
+    j['passages'] = passages
+    j.pop('documents')
+    instance = process_one_sample(j, fuzzy_matching=False)
+    if instance is None:
+        return None
+    json_obj = data_to_json_obj(instance)
+    return json_obj
+
+
 def process(l):
     j = json.loads(l)
     j['query_type'] = j.pop('question_type')
@@ -221,7 +258,7 @@ def process(l):
                             for doc in j['documents']]
     j['passages'] = passages
     j.pop('documents')
-    instance = process_one_sample(j)
+    instance = process_one_sample(j, fuzzy_matching=True)
     if instance is None:
         return None
     json_obj = data_to_json_obj(instance)
@@ -229,13 +266,13 @@ def process(l):
 
 
 def main():
-    data_path = "/data/nfsdata/meijie/data/dureader/preprocessed/"
-    file_path = os.path.join(data_path, 'trainset', 'zhidao.train.json')
-    f_save = open(file_path + '.instances', 'w')
+    data_path = "/data/nfsdata/meijie/data/dureader/preprocessed/devset"
+    file_path = os.path.join(data_path, 'search.dev.json')
+    f_save = open(file_path + '.char.instances', 'w')
     with open(file_path) as f:
         dureader_preprocessed_data = f.readlines()
     pool = Pool()
-    for json_obj in tqdm(pool.imap_unordered(process, dureader_preprocessed_data)):
+    for json_obj in tqdm(pool.imap_unordered(process_char_only, dureader_preprocessed_data)):
         if json_obj is not None:
             f_save.write(json.dumps(json_obj, ensure_ascii=False) + '\n')
     f_save.close()

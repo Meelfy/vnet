@@ -18,10 +18,11 @@
                 "type":"characters"
             }
         },
-        "lazy":true,
+        "lazy": true,
+        "char_only": false,
         "language": "en",
-        "passage_length_limit":400,
-        "question_length_limit":50
+        "passage_length_limit": 400,
+        "question_length_limit": 50
     },
     "train_data_path":"/data/nfsdata/meijie/data/msmarco/train_v2.1.json",
     "validation_data_path":"/data/nfsdata/meijie/data/msmarco/dev_v2.1.json",

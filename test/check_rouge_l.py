@@ -1,15 +1,11 @@
 import os
 import json
 import sys
-from embedding_models.model import GlyphEmbedding
 sys.path.insert(0, os.path.dirname(os.path.abspath(os.path.join(__file__, os.pardir))))
-from src.utils import get_ans_by_f1, get_answers_with_RougeL
-# export PYTHONPATH=/home/meefly/working/WordLanguageModel/embedding_models/:$PYTHONPATH;
-# export PYTHONPATH=/home/meefly/working/WordLanguageModel/glyph_embedding/:$PYTHONPATH
-
-from glyph_embedding.utils.default_config import GlyphEmbeddingConfig
-glyph_config = GlyphEmbeddingConfig()
-glyph_embedding = GlyphEmbedding(glyph_config)
+try:
+    from src.utils import get_ans_by_f1, get_answers_with_RougeL
+except Exception as e:
+    print(e)
 
 
 class bcolors:
@@ -24,16 +20,17 @@ class bcolors:
 
 
 def main():
-    file_path = '/data/nfsdata/meijie/data/msmarco/'
+    file_path = '/data/nfsdata/meijie/data/dureader/preprocessed/trainset'
     data_samples = []
-    with open(os.path.join(file_path, 'train_v2.1.json.instances'), 'r') as f:
-        for idx in range(100):
+    with open(os.path.join(file_path, 'test.txt.char.instances'), 'r') as f:
+        for idx, line in enumerate(f):
+            if idx > 100:
+                break
             line = f.readline()
             data_samples.append(json.loads(line.strip()))
     # dict_keys(['answer_texts', 'passages_texts', 'qid', 'question_tokens',
     #            'passages_tokens', 'token_spans'])
     # data_samples[0].keys()
-    json_obj = data_samples[1]
     for json_obj in data_samples:
         # passages_tokens = json_obj['passages_tokens']
         passages_texts = json_obj['passages_texts']
@@ -44,9 +41,20 @@ def main():
             #     continue
             if answer_texts[idx][0] in passages_texts[idx]:
                 continue
-            golden_answers = list(set([ans[0] for ans in answer_texts]))
-            rougeL_answer = get_answers_with_RougeL(passages_texts[idx], golden_answers)
-            F1_answer = get_ans_by_f1(passages_texts[idx], golden_answers)
+            # import pdb
+            # pdb.set_trace()
+            if 'dureader' in file_path:
+                golden_answers = list(set([ans[0] for ans in answer_texts]))
+                golden_answers = [' '.join(ans) for ans in golden_answers]
+                rougeL_answer = get_answers_with_RougeL(' '.join(passages_texts[idx])[:500], golden_answers)
+                F1_answer = get_ans_by_f1(' '.join(passages_texts[idx])[:500], golden_answers)
+                # passages_texts = [passage_text.replace(' ', '') for passage_text in passages_texts]
+                rougeL_answer = [ans.replace(' ', '') for ans in rougeL_answer]
+                F1_answer = [ans.replace(' ', '') for ans in F1_answer]
+            else:
+                golden_answers = list(set([ans[0] for ans in answer_texts]))
+                rougeL_answer = get_answers_with_RougeL(passages_texts[idx], golden_answers)
+                F1_answer = get_ans_by_f1(passages_texts[idx], golden_answers)
             if not rougeL_answer or not F1_answer:
                 continue
             print('{s:{c}^{n}}'.format(s='start', n=50, c='-'))

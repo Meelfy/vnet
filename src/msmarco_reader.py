@@ -48,8 +48,10 @@ class MsmarcoMultiPassageReader(DatasetReader):
 
     def __init__(self,
                  tokenizer: Tokenizer = None,
+                 char_only: bool = False,
                  token_indexers: Dict[str, TokenIndexer] = None,
                  lazy: bool = False,
+                 max_samples: int = -1,
                  build_pickle: bool = True,
                  language: str = 'en',
                  passage_length_limit: int = None,
@@ -61,13 +63,19 @@ class MsmarcoMultiPassageReader(DatasetReader):
         self.passage_length_limit = passage_length_limit
         self.question_length_limit = question_length_limit
         self.language = language
+        self.char_only = char_only
+        self.max_samples = max_samples
 
     @overrides
     def _read(self, file_path: str) -> Iterable[Instance]:
         is_train = 'train' in str(file_path)
         if os.path.isfile(file_path + '.instances'):
-            logger.info("load from instances file %s", file_path + '.instances')
-            yield from self._read_instances_file(file_path + '.instances')
+            if self.char_only:
+                logger.info("load from instances file %s", file_path + '.char.instances')
+                yield from self._read_instances_file(file_path + '.char.instances')
+            else:
+                logger.info("load from instances file %s", file_path + '.instances')
+                yield from self._read_instances_file(file_path + '.instances')
         elif os.path.isfile(file_path + '.pickle'):
             logger.info("pickle processed data %s", file_path + '.pickle')
             f_reload = open(file_path + '.pickle', 'rb')
@@ -177,6 +185,15 @@ class MsmarcoMultiPassageReader(DatasetReader):
                     logger.info("wrong instance")
 
     @staticmethod
+    def segmented_text_to_tuples(tokens):
+        idx = 0
+        result = []
+        for text in tokens:
+            result.append((text, idx))
+            idx += len(text)
+        return result
+
+    @staticmethod
     def check_max_character_num(json_obj):
         max_num_characters = 30
         question_tokens = json_obj['question_tokens']
@@ -189,7 +206,9 @@ class MsmarcoMultiPassageReader(DatasetReader):
 
     def _read_instances_file(self, file_path: str):
         f_preprocessed = open(file_path, 'r')
-        for line in f_preprocessed.readlines():
+        for count, line in enumerate(f_preprocessed):
+            if self.max_samples != -1 and count > self.max_samples:
+                break
             if line.replace(' ', '').strip() == "":
                 continue
             json_obj = json.loads(line.strip())
@@ -204,6 +223,16 @@ class MsmarcoMultiPassageReader(DatasetReader):
     def _json_blob_to_instance(self, json_obj) -> Instance:
         question_tokens = json_obj['question_tokens']
         passages_tokens = json_obj['passages_tokens']
+        # print(json_obj['passages_texts'])
+        # print(json_obj.keys())
+        # if self.char_only:
+        #     query = ''.join([text for text, idx in json_obj['question_tokens']])
+        #     question_tokens = self.segmented_text_to_tuples(
+        #         [ch for ch in query.replace(' ', '')])
+        #     passages_tokens = [self.segmented_text_to_tuples([ch for ch in doc])
+        #                        for doc in json_obj['passages_texts']]
+        # print(passages_tokens)
+        # print(question_tokens)
         question_tokens = [Token(text=text, idx=idx) for text, idx in question_tokens]
         passages_tokens = [[Token(text=text, idx=idx) for text, idx in passage_tokens]
                            for passage_tokens in passages_tokens]

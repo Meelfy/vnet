@@ -6,14 +6,15 @@
                 "type":"single_id",
                 "lowercase_tokens":true
             }
-            ,
-            "token_characters":{
-                "type":"characters"
-            }
+            // ,
+            // "token_characters":{
+            //     "type":"characters"
+            // }
         },
         "lazy":true,
         "language": "zh",
-        "passage_length_limit":500,
+        "char_only": false,
+        "passage_length_limit": 300,
         "question_length_limit":50
     },
     "train_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/train.json",
@@ -28,25 +29,25 @@
                     "type":"embedding",
                     // "pretrained_file":"/data/nfsdata/nlp/embeddings/chinese/word_embedding300.data",
                     // "embedding_dim":300,
-                    "pretrained_file":"/data/nfsdata/nlp/embeddings/chinese/Tencent_AILab_ChineseEmbedding.txt",
-                    "embedding_dim":200,
+                    // "pretrained_file":"/data/nfsdata/nlp/embeddings/chinese/Tencent_AILab_ChineseEmbedding.txt",
+                    "embedding_dim":300,
                     "trainable":true
                 }
-                ,
-                "token_characters":{
-                    "type":"glyph_encoder",
-                    "glyph_embsize": 128,
-                    "output_size": 128,
-                    "dropout":0.2,
-                    "encoder":{
-                        "type":"cnn",
-                        "embedding_dim":128,
-                        "num_filters":100,
-                        "ngram_filter_sizes":[
-                            1
-                        ]
-                    }
-                }
+                // ,
+                // "token_characters":{
+                //     "type":"glyph_encoder",
+                //     "glyph_embsize": 128,
+                //     "output_size": 128,
+                //     "dropout":0.2,
+                //     "encoder":{
+                //         "type":"cnn",
+                //         "embedding_dim":128,
+                //         "num_filters":100,
+                //         "ngram_filter_sizes":[
+                //             1
+                //         ]
+                //     }
+                // }
             }
         },
         "num_highway_layers":2,
@@ -104,14 +105,14 @@
         "type":"bucket",
         "sorting_keys":[["question", "num_tokens"]],
         "biggest_batch_first":true,
-        "batch_size":4
+        "batch_size":28
     },
     "trainer":{
         "num_epochs":5,
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":2,
+        "cuda_device":3,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

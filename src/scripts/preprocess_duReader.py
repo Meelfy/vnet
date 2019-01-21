@@ -73,9 +73,9 @@ def process_one_sample(data, fuzzy_matching=False):
 
     # if len(passage_texts) != 10:
     #     passage_texts = passage_texts + [passage_texts[-1]] * (10 - len(passage_texts))
-    if 'No Answer Present.' in answers:
-        return None
     if answers:
+        if 'No Answer Present.' in answers:
+            return None
         for passage_text in passage_texts:
             answers_in_passage = []
             span_in_passage = []
@@ -115,10 +115,10 @@ def data_to_json_obj(data):
 
     passages_tokens = [passage_tokens[:max_passage_len] for passage_tokens in passages_tokens]
     question_tokens = question_tokens[:max_question_len]
-    if any([len(token.text) > max_num_characters for token in question_tokens]):
-        return None
-    if any([len(token.text) > max_num_characters for sublist in passages_tokens for token in sublist]):
-        return None
+    # if any([len(token.text) > max_num_characters for token in question_tokens]):
+    #     return None
+    # if any([len(token.text) > max_num_characters for sublist in passages_tokens for token in sublist]):
+    #     return None
     char_spans = char_spans or []
     # We need to convert character indices in `passage_text` to token indices in
     # `passage_tokens`, as the latter is what we'll actually use for supervision.
@@ -182,20 +182,23 @@ def process_char_only(l):
 
 def process(l):
     j = json.loads(l)
-    j['query_type'] = j.pop('question_type')
-    if 'entity_answers' in j:
+    try:
+        j['query_type'] = j.pop('question_type')
+        j.pop('fact_or_opinion')
         j.pop('entity_answers')
-    j.pop('fact_or_opinion')
+    except Exception as e:
+        pass
     j['query_id'] = j.pop('question_id')
     j['query'] = j.pop('question')
     j['question_tokens'] = segmented_text_to_tuples(j.pop('segmented_question'))
     passages = []
     for k in j['documents']:
         data = {}
-        if k['is_selected']:
-            data['is_selected'] = 1
-        else:
-            data['is_selected'] = 0
+        if 'is_selected' in k:
+            if k['is_selected']:
+                data['is_selected'] = 1
+            else:
+                data['is_selected'] = 0
         data['passage_text'] = ' '.join(k['paragraphs'])
         data['url'] = ''
         passages.append(data)
@@ -211,13 +214,15 @@ def process(l):
 
 
 def main():
-    data_path = "/data/nfsdata/meijie/data/dureader/preprocessed/devset"
-    file_path = os.path.join(data_path, 'search.dev.json')
-    f_save = open(file_path + '.char.instances', 'w')
+    data_path = "/data/nfsdata/meijie/data/dureader/preprocessed/testset"
+    file_path = os.path.join(data_path, 'search.test.json')
+    f_save = open(file_path + '.instances', 'w')
+    # f_save = open(file_path + '.char.instances', 'w')
     with open(file_path) as f:
         dureader_preprocessed_data = f.readlines()
     pool = Pool()
-    for json_obj in tqdm(pool.imap_unordered(process_char_only, dureader_preprocessed_data)):
+    # for json_obj in tqdm(pool.imap_unordered(process_char_only, dureader_preprocessed_data)):
+    for json_obj in tqdm(pool.imap_unordered(process, dureader_preprocessed_data)):
         if json_obj is not None:
             f_save.write(json.dumps(json_obj, ensure_ascii=False) + '\n')
     f_save.close()

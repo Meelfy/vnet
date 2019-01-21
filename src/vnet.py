@@ -460,7 +460,7 @@ class VNet(Model):
                         self._rouge_metrics(' '.join(best_span_string), answer_texts)
                     elif self.language == 'en':
                         self._rouge_metrics(best_span_string, answer_texts)
-                if loss < 9 and spans_start is not None:
+                if spans_start is not None and loss < 9:
                     logger.debug('passage_id:%d, start_idx:%d, end_idx:%d' %
                                  (passage_id, start_idx, end_idx))
                     # logger.debug("span_start_logits: {}".format(

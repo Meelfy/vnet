@@ -5,6 +5,7 @@ from collections import namedtuple
 from allennlp.common.util import JsonDict
 from allennlp.data import Instance
 from allennlp.predictors.predictor import Predictor
+from allennlp.data.tokenizers import Token
 
 from .scripts.preprocess_duReader import process
 
@@ -68,13 +69,13 @@ class VNetPredictorDu(Predictor):
       ]
     }
     """
-    @overrides
-    def load_line(self, line: str) -> JsonDict:
-        """
-        If your inputs are not in JSON-lines format (e.g. you have a CSV)
-        you can override this function to parse them correctly.
-        """
-        return process(line)
+    # @overrides
+    # def load_line(self, line: str) -> JsonDict:
+    #     """
+    #     If your inputs are not in JSON-lines format (e.g. you have a CSV)
+    #     you can override this function to parse them correctly.
+    #     """
+    #     return process(line)
 
     @overrides
     def _json_to_instance(self, json_obj: JsonDict) -> Instance:
@@ -83,7 +84,7 @@ class VNetPredictorDu(Predictor):
         """
         question_tokens = json_obj['question_tokens']
         passages_tokens = json_obj['passages_tokens']
-        Token = namedtuple('Token', ['text', 'idx'])
+        # Token = namedtuple('Token', ['text', 'idx'])
         question_tokens = [Token(text=text, idx=idx) for text, idx in question_tokens]
         passages_tokens = [[Token(text=text, idx=idx) for text, idx in passage_tokens]
                            for passage_tokens in passages_tokens]
@@ -121,4 +122,4 @@ class VNetPredictorDu(Predictor):
         output = {}
         output['question_id'] = outputs['qids']
         output['answers'] = [outputs['best_span_str']]
-        return json.dumps(output) + "\n"
+        return json.dumps(output, ensure_ascii=False) + "\n"

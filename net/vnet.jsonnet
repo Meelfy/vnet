@@ -21,10 +21,12 @@
         "lazy": true,
         "char_only": false,
         "language": "en",
+        "max_samples": -1,
         "passage_length_limit": 400,
         "question_length_limit": 50
     },
     "train_data_path":"/data/nfsdata/meijie/data/msmarco/train_v2.1.json",
+    // "validation_data_path":"/data/nfsdata/meijie/data/msmarco/train_v2.1.json",
     "validation_data_path":"/data/nfsdata/meijie/data/msmarco/dev_v2.1.json",
     "model":{
         "type":"vnet",
@@ -34,12 +36,12 @@
                     "type":"embedding",
                     "pretrained_file":"/data/nfsdata/meijie/data/WordEmb/glove.6B.300d.txt",
                     "embedding_dim":300,
-                    "trainable":false
+                    "trainable":true
                 },
                 "token_characters":{
                     "type":"character_encoding",
                     "embedding":{
-                        "num_embeddings":9000,
+                        "num_embeddings":4000,
                         "embedding_dim":16
                     },
                     "encoder":{
@@ -47,7 +49,7 @@
                         "embedding_dim":16,
                         "num_filters":100,
                         "ngram_filter_sizes":[
-                            5
+                            4
                         ]
                     },
                     "dropout":0.2
@@ -61,7 +63,7 @@
             "bidirectional":true,
             "input_size":400,
             "hidden_size":100,
-            "num_layers":2,
+            "num_layers":1,
             "dropout":0.2
         },
         "match_layer":{
@@ -103,13 +105,14 @@
         },
         "ptr_dim":200,
         "max_num_passages": 10,
+        "max_num_character": 15,
         "language": "en",
         "dropout":0.2
     },
     "iterator":{
         "type":"bucket",
         "sorting_keys":[["question", "num_tokens"]],
-        "batch_size":4
+        "batch_size":32
     },
     "trainer":{
         "num_epochs":5,

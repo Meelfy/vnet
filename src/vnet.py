@@ -91,11 +91,13 @@ class VNet(Model):
                  ptr_dim: int = 200,
                  dropout: float = 0.2,
                  max_num_passages: int = 5,
+                 max_num_character: int = 4,
                  mask_lstms: bool = True,
                  initializer: InitializerApplicator = InitializerApplicator(),
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
         super().__init__(vocab, regularizer)
         self.language = language
+        self.max_num_character = max_num_character
         self.relu = torch.nn.ReLU()
         self.max_num_passages = max_num_passages
         self.ptr_dim = ptr_dim
@@ -217,7 +219,13 @@ class VNet(Model):
             batch_passages['token_characters'] = passages['token_characters'].view(batch_size * num_passages,
                                                                                    passage_length,
                                                                                    num_characters)
-            batch_passages['token_characters'] = batch_passages['token_characters'][:, :, :4]
+            batch_passages['token_characters'] = batch_passages['token_characters'][:, :,
+                                                                                    :self.max_num_character]
+            pad_size = self.max_num_character - batch_passages['token_characters'].size(-1)
+            batch_passages['token_characters'] = F.pad(batch_passages['token_characters'],
+                                                       (0, pad_size),
+                                                       'constant',
+                                                       0.0)
         # shape(batch_size*num_passages, passage_length)
         batch_passages['tokens'] = passages['tokens'].view(-1, passage_length)
         # shape(batch_size*num_passages, passage_length, embedding_dim)
@@ -237,7 +245,12 @@ class VNet(Model):
                                                                         .view(batch_size * num_passages,
                                                                               question_length,
                                                                               num_characters)
-            questions['token_characters'] = questions['token_characters'][:, :, :4]
+            questions['token_characters'] = questions['token_characters'][:, :, :self.max_num_character]
+            pad_size = self.max_num_character - questions['token_characters'].size(-1)
+            questions['token_characters'] = F.pad(questions['token_characters'],
+                                                  (0, pad_size),
+                                                  'constant',
+                                                  0.0)
         questions['tokens'] = question['tokens'].repeat(1, num_passages).view(-1, question_length)
         try:
             embedded_question = self._highway_layer(self._text_field_embedder(question))
@@ -401,7 +414,12 @@ class VNet(Model):
             pad_size = self.max_num_passages - ground_truth_passages_verify.size(-1)
             ground_truth_passages_verify = F.pad(ground_truth_passages_verify,
                                                  (0, pad_size), 'constant', 0.0)
-            loss_Verification = torch.log_softmax(passages_verify, dim=-1) * ground_truth_passages_verify
+            # sigmoid passage loss
+            passages_verify = torch.sigmoid(passages_verify)
+            loss_Verification = torch.log(passages_verify) * ground_truth_passages_verify
+            # softmax passage loss
+            # loss_Verification = torch.log_softmax(passages_verify, dim=-1) * ground_truth_passages_verify
+
             loss_Verification = -torch.sum(loss_Verification) /\
                 max(torch.sum(ground_truth_passages_verify), 1)
             loss = loss_Boundary + 0.5 * loss_Content + 0.5 * loss_Verification

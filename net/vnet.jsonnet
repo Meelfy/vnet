@@ -21,7 +21,7 @@
         "lazy": true,
         "char_only": false,
         "language": "en",
-        "max_samples": -1,
+        "max_samples": 10,
         "passage_length_limit": 400,
         "question_length_limit": 50
     },
@@ -119,7 +119,7 @@
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":3,
+        "cuda_device":0,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

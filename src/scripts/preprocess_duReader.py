@@ -70,9 +70,6 @@ def process_one_sample(data, fuzzy_matching=False):
     spans = []
     answer_texts = []
     flag_has_ans = False
-
-    # if len(passage_texts) != 10:
-    #     passage_texts = passage_texts + [passage_texts[-1]] * (10 - len(passage_texts))
     if answers:
         if 'No Answer Present.' in answers:
             return None
@@ -88,13 +85,15 @@ def process_one_sample(data, fuzzy_matching=False):
                     flag_has_ans = get_em_ans(ans_f1, passage_text, span_in_passage, answers_in_passage,
                                               flag_has_ans)
             answer_texts.append(answers)
+            # answer_texts for cal rouge-L
             # answer_texts.append(answers_in_passage)
             spans.append(span_in_passage)
-        if not flag_has_ans:
-            return None
+        # if not flag_has_ans:
+        #     return None
         instance = (question_text, passage_texts, qid, answer_texts, spans, question_tokens, passages_tokens)
         return instance
     else:
+        answer_texts = [answers for passage_text in passage_texts]
         return (question_text, passage_texts, qid, answer_texts, spans, question_tokens, passages_tokens)
 
 
@@ -148,50 +147,53 @@ def data_to_json_obj(data):
     return json_obj
 
 
-def process_char_only(l):
+# def process_char_only(l):
+#     j = json.loads(l)
+#     j['query_type'] = j.pop('question_type')
+#     if 'entity_answers' in j:
+#         j.pop('entity_answers')
+#     j.pop('fact_or_opinion')
+#     j['query_id'] = j.pop('question_id')
+#     j['query'] = j.pop('question')
+#     j['question_tokens'] = segmented_text_to_tuples([ch for ch in j['query'].replace(' ', '')])
+#     passages = []
+#     for k in j['documents']:
+#         data = {}
+#         if k['is_selected']:
+#             data['is_selected'] = 1
+#         else:
+#             data['is_selected'] = 0
+#         data['passage_text'] = ' '.join(k['paragraphs'])
+#         # print(len(data['passage_text']))
+#         data['url'] = ''
+#         passages.append(data)
+#     j['passages_tokens'] = [segmented_text_to_tuples([ch for ch in ''.join(doc['paragraphs'])])
+#                             for doc in j['documents']]
+#     # print(j['passages_tokens'])
+#     j['passages'] = passages
+#     j.pop('documents')
+#     instance = process_one_sample(j, fuzzy_matching=False)
+#     if instance is None:
+#         return None
+#     json_obj = data_to_json_obj(instance)
+#     return json_obj
+
+
+def process(l, char_only=True):
     j = json.loads(l)
-    j['query_type'] = j.pop('question_type')
-    if 'entity_answers' in j:
-        j.pop('entity_answers')
-    j.pop('fact_or_opinion')
     j['query_id'] = j.pop('question_id')
     j['query'] = j.pop('question')
-    j['question_tokens'] = segmented_text_to_tuples([ch for ch in j['query'].replace(' ', '')])
     passages = []
-    for k in j['documents']:
-        data = {}
-        if k['is_selected']:
-            data['is_selected'] = 1
-        else:
-            data['is_selected'] = 0
-        data['passage_text'] = ' '.join(k['paragraphs'])
-        # print(len(data['passage_text']))
-        data['url'] = ''
-        passages.append(data)
-    j['passages_tokens'] = [segmented_text_to_tuples([ch for ch in ''.join(doc['paragraphs'])])
-                            for doc in j['documents']]
-    # print(j['passages_tokens'])
-    j['passages'] = passages
-    j.pop('documents')
-    instance = process_one_sample(j, fuzzy_matching=False)
-    if instance is None:
-        return None
-    json_obj = data_to_json_obj(instance)
-    return json_obj
-
-
-def process(l):
-    j = json.loads(l)
     try:
         j['query_type'] = j.pop('question_type')
         j.pop('fact_or_opinion')
         j.pop('entity_answers')
     except Exception as e:
         pass
-    j['query_id'] = j.pop('question_id')
-    j['query'] = j.pop('question')
-    j['question_tokens'] = segmented_text_to_tuples(j.pop('segmented_question'))
-    passages = []
+    if char_only:
+        j['question_tokens'] = segmented_text_to_tuples([ch for ch in j['query'].replace(' ', '')])
+    else:
+        j['question_tokens'] = segmented_text_to_tuples(j.pop('segmented_question'))
     for k in j['documents']:
         data = {}
         if 'is_selected' in k:
@@ -202,11 +204,15 @@ def process(l):
         data['passage_text'] = ' '.join(k['paragraphs'])
         data['url'] = ''
         passages.append(data)
-    j['passages_tokens'] = [segmented_text_to_tuples(sum(doc['segmented_paragraphs'], []))
-                            for doc in j['documents']]
+    if char_only:
+        j['passages_tokens'] = [segmented_text_to_tuples([ch for ch in ''.join(doc['paragraphs'])])
+                                for doc in j['documents']]
+    else:
+        j['passages_tokens'] = [segmented_text_to_tuples(sum(doc['segmented_paragraphs'], []))
+                                for doc in j['documents']]
     j['passages'] = passages
     j.pop('documents')
-    instance = process_one_sample(j, fuzzy_matching=True)
+    instance = process_one_sample(j, fuzzy_matching=False)
     if instance is None:
         return None
     json_obj = data_to_json_obj(instance)
@@ -214,14 +220,13 @@ def process(l):
 
 
 def main():
-    data_path = "/data/nfsdata/meijie/data/dureader/preprocessed/testset"
-    file_path = os.path.join(data_path, 'search.test.json')
-    f_save = open(file_path + '.instances', 'w')
-    # f_save = open(file_path + '.char.instances', 'w')
+    data_path = "/data/nfsdata/meijie/data/dureader/preprocessed/devset"
+    file_path = os.path.join(data_path, 'search.dev.json')
+    # f_save = open(file_path + '.instances', 'w')
+    f_save = open(file_path + '.char.instances', 'w')
     with open(file_path) as f:
         dureader_preprocessed_data = f.readlines()
     pool = Pool()
-    # for json_obj in tqdm(pool.imap_unordered(process_char_only, dureader_preprocessed_data)):
     for json_obj in tqdm(pool.imap_unordered(process, dureader_preprocessed_data)):
         if json_obj is not None:
             f_save.write(json.dumps(json_obj, ensure_ascii=False) + '\n')

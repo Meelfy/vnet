@@ -13,15 +13,13 @@
         },
         "lazy":true,
         "char_only": true,
-        "max_samples": -1,
+        // "max_samples": 100,
         "language": "zh",
         "passage_length_limit": 500,
-        "question_length_limit":50
+        "question_length_limit": 50
     },
     "train_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/train.json",
     "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/devset/dev.json",
-    // "train_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/test.txt",
-    // "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/test.txt",
     "model":{
         "type":"vnet",
         "text_field_embedder":{
@@ -100,6 +98,7 @@
         },
         "ptr_dim":200,
         "max_num_passages": 5,
+        "max_num_character": 4,
         "language": "zh",
         "dropout":0.2
     },
@@ -107,14 +106,14 @@
         "type":"bucket",
         "sorting_keys":[["question", "num_tokens"]],
         "biggest_batch_first":true,
-        "batch_size":12
+        "batch_size":4
     },
     "trainer":{
         "num_epochs":5,
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":0,
+        "cuda_device":1,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

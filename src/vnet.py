@@ -477,12 +477,12 @@ class VNet(Model):
                     logger.debug("spans_end: {}".format(
                         ' '.join(map(str, spans_end.view(batch_size, num_passages)[i]
                                      .cpu().numpy()))))
-                    logger.debug('Predict: %s' % output_dict['best_span_str'][-1])
-                    for ans in answer_texts:
-                        if self.language == 'zh':
-                            logger.debug('Truth: %s' % ans.replace(' ', ''))
-                        elif self.language == 'en':
-                            logger.debug('Truth: %s' % ans)
+                logger.debug('Predict: %s' % output_dict['best_span_str'][-1])
+                for ans in answer_texts:
+                    if self.language == 'zh':
+                        logger.debug('Truth: %s' % ans.replace(' ', ''))
+                    elif self.language == 'en':
+                        logger.debug('Truth: %s' % ans)
             if spans_start is not None:
                 self._span_start_accuracy(span_start_probs.view(batch_size, num_passages, -1),
                                           spans_start.view(batch_size, num_passages),

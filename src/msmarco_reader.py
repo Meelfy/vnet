@@ -199,44 +199,35 @@ class MsmarcoMultiPassageReader(DatasetReader):
         for count, line in enumerate(f_preprocessed):
             if self.max_samples != -1 and count > self.max_samples:
                 break
-            if line.replace(' ', '').strip() == "":
+            if line.isspace():
                 continue
             json_obj = json.loads(line.strip())
-            if not sum([len(text) >= 5 for text, idx in json_obj['question_tokens']]):
-                if self.language == 'en':
-                    continue
-            if not self.check_max_character_num(json_obj):
-                continue
             yield self._json_blob_to_instance(json_obj)
         f_preprocessed.close()
 
     def _json_blob_to_instance(self, json_obj) -> Instance:
-        question_tokens = json_obj['question_tokens']
-        passages_tokens = json_obj['passages_tokens']
-        # print(json_obj['passages_texts'])
-        # print(json_obj.keys())
-        # if self.char_only:
-        #     query = ''.join([text for text, idx in json_obj['question_tokens']])
-        #     question_tokens = self.segmented_text_to_tuples(
-        #         [ch for ch in query.replace(' ', '')])
-        #     passages_tokens = [self.segmented_text_to_tuples([ch for ch in doc])
-        #                        for doc in json_obj['passages_texts']]
-        # print(passages_tokens)
-        # print(question_tokens)
-        question_tokens = [Token(text=text, idx=idx) for text, idx in question_tokens]
+        question_tokens = [Token(text=text, idx=idx) for text, idx in json_obj['question_tokens']]
         passages_tokens = [[Token(text=text, idx=idx) for text, idx in passage_tokens]
-                           for passage_tokens in passages_tokens]
+                           for passage_tokens in json_obj['passages_tokens']]
         passages_texts = json_obj['passages_texts']
-        token_spans = json_obj['token_spans']
         answer_texts = json_obj['answer_texts']
         qid = json_obj['qid']
-        return self.make_MSMARCO_MultiPassage_instance(question_tokens,
-                                                       passages_tokens,
-                                                       self._token_indexers,
-                                                       passages_texts,
-                                                       qid,
-                                                       token_spans,
-                                                       answer_texts)
+        if 'token_spans' in json_obj:
+            token_spans = json_obj['token_spans']
+            return self.make_MSMARCO_MultiPassage_instance(question_tokens,
+                                                           passages_tokens,
+                                                           self._token_indexers,
+                                                           passages_texts,
+                                                           qid,
+                                                           answer_texts,
+                                                           token_spans)
+        else:
+            return self.make_MSMARCO_MultiPassage_instance(question_tokens,
+                                                           passages_tokens,
+                                                           self._token_indexers,
+                                                           passages_texts,
+                                                           qid,
+                                                           answer_texts)
 
     @overrides
     def text_to_instance(self,  # type: ignore
@@ -254,17 +245,6 @@ class MsmarcoMultiPassageReader(DatasetReader):
         We will drop the invalid examples if `drop_invalid` equals to true.
         """
         question_tokens = self._tokenizer.tokenize(question_text)
-        # p_start_time = time.time()
-        # passages_tokens = []
-        # for passage_text in passages_texts:
-        #     token_list = []
-        #     idx = 0
-        #     for word in passage_text.split(' '):
-        #         if word == ' ':
-        #             continue
-        #         idx += passage_text[idx:].find(word)
-        #         token_list.append(Token(word, idx))
-        #     passages_tokens.append(token_list)
         passages_tokens = [self._tokenizer.tokenize(passage_text) for passage_text in passages_texts]
         if max_passage_len is not None:
             passages_tokens = [passage_tokens[:max_passage_len] for passage_tokens in passages_tokens]
@@ -306,8 +286,8 @@ class MsmarcoMultiPassageReader(DatasetReader):
                                                        self._token_indexers,
                                                        passages_texts,
                                                        qid,
-                                                       token_spans,
-                                                       answer_texts)
+                                                       answer_texts,
+                                                       token_spans)
 
     def make_MSMARCO_MultiPassage_instance(self,
                                            question_tokens: List[Token],
@@ -315,8 +295,8 @@ class MsmarcoMultiPassageReader(DatasetReader):
                                            token_indexers: Dict[str, TokenIndexer],
                                            passages_texts: List[str],
                                            qid: int,
-                                           token_spans: List[List[Tuple[int, int]]] = None,
                                            answer_texts: List[str] = None,
+                                           token_spans: List[List[Tuple[int, int]]] = None,
                                            additional_metadata: Dict[str, Any] = None) -> Instance:
 
         fields: Dict[str, Field] = {}
@@ -335,17 +315,17 @@ class MsmarcoMultiPassageReader(DatasetReader):
                                        for passage_tokens in passages_tokens]}
         if answer_texts:
             metadata['answer_texts'] = answer_texts
-
-        if token_spans:
-            spans_start = []
-            spans_end = []
-            for (idx, spans_in_passage), passage_field in zip(enumerate(token_spans), passages_field):
-                spans_start.append(ListField([IndexField(span_start, passage_field)
-                                              for span_start, span_end in spans_in_passage]))
-                spans_end.append(ListField([IndexField(span_end, passage_field)
-                                            for span_start, span_end in spans_in_passage]))
-            fields['spans_start'] = ListField(spans_start)
-            fields['spans_end'] = ListField(spans_end)
+        if token_spans is None or not token_spans:
+            token_spans = [[(-1, -1)]] * len(passages_texts)
+        spans_start = []
+        spans_end = []
+        for (idx, spans_in_passage), passage_field in zip(enumerate(token_spans), passages_field):
+            spans_start.append(ListField([IndexField(span_start, passage_field)
+                                          for span_start, span_end in spans_in_passage]))
+            spans_end.append(ListField([IndexField(span_end, passage_field)
+                                        for span_start, span_end in spans_in_passage]))
+        fields['spans_start'] = ListField(spans_start)
+        fields['spans_end'] = ListField(spans_end)
 
         metadata.update(additional_metadata)
         fields['metadata'] = MetadataField(metadata)

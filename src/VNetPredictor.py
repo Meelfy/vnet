@@ -83,13 +83,18 @@ class VNetPredictorDu(Predictor):
         Expects JSON that looks like ``{"question": "...", "passage": "..."}``.
         """
         question_tokens = json_obj['question_tokens']
-        passages_tokens = json_obj['passages_tokens']
-        # Token = namedtuple('Token', ['text', 'idx'])
         question_tokens = [Token(text=text, idx=idx) for text, idx in question_tokens]
-        passages_tokens = [[Token(text=text, idx=idx) for text, idx in passage_tokens]
-                           for passage_tokens in passages_tokens]
-        passages_texts = json_obj['passages_texts']
         qid = json_obj['qid']
+        passages_texts = json_obj['passages_texts']
+        if passages_texts:
+            passages_tokens = json_obj['passages_tokens']
+            # Token = namedtuple('Token', ['text', 'idx'])
+            passages_tokens = [[Token(text=text, idx=idx) for text, idx in passage_tokens]
+                               for passage_tokens in passages_tokens]
+        else:
+            # 竟然没有文章
+            passages_texts = ['竟然没有文章']
+            passages_tokens = [[Token(text='竟然没有文章', idx=0)]]
         return self._dataset_reader.\
             make_MSMARCO_MultiPassage_instance(question_tokens,
                                                passages_tokens,

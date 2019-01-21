@@ -20,7 +20,6 @@ import torch.nn.functional as F
 
 from allennlp.data import Vocabulary
 from allennlp.models.model import Model
-from allennlp.modules import Highway
 from allennlp.modules import Seq2SeqEncoder, TimeDistributed, TextFieldEmbedder
 from allennlp.modules.matrix_attention.dot_product_matrix_attention import DotProductMatrixAttention
 from allennlp.modules.matrix_attention.matrix_attention import MatrixAttention
@@ -32,6 +31,7 @@ from .MsmarcoRouge import MsmarcoRouge
 from .modules.Pointer_Network import PointerNet
 # Allennlp will find where is the GlyphEmbeddingWrapper modules
 from .modules import GlyphEmbeddingWrapper
+from .modules.ElasticHighway import ElasticHighway
 
 logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
@@ -79,6 +79,7 @@ class VNet(Model):
 
     def __init__(self, vocab: Vocabulary,
                  text_field_embedder: TextFieldEmbedder,
+                 highway_embedding_size: int,
                  num_highway_layers: int,
                  phrase_layer: Seq2SeqEncoder,
                  match_layer: Seq2SeqEncoder,
@@ -99,8 +100,9 @@ class VNet(Model):
         self.max_num_passages = max_num_passages
         self.ptr_dim = ptr_dim
         self._text_field_embedder = text_field_embedder
-        self._highway_layer = TimeDistributed(Highway(text_field_embedder.get_output_dim(),
-                                                      num_highway_layers))
+        self._highway_layer = TimeDistributed(ElasticHighway(text_field_embedder.get_output_dim(),
+                                                             highway_embedding_size,
+                                                             num_highway_layers))
         self._phrase_layer = phrase_layer
         self._matrix_attention = DotProductMatrixAttention()
         self._modeling_layer = modeling_layer

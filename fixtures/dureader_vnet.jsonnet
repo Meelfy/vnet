@@ -6,15 +6,15 @@
                 "type":"single_id",
                 "lowercase_tokens":true
             }
-            // ,
-            // "token_characters":{
-            //     "type":"characters"
-            // }
+            ,
+            "token_characters":{
+                "type":"characters"
+            }
         },
-        "lazy":true,
-        "char_only":true,
+        "lazy": true,
+        "char_only": true,
         "max_samples": -1,
-        "language": "zh",
+        "language": "zh", 
         "passage_length_limit": 500,
         "question_length_limit": 50
     },
@@ -36,23 +36,24 @@
                     "embedding_dim":300,
                     "trainable":true
                 }
-                // ,
-                // "token_characters":{
-                //     "type":"glyph_encoder",
-                //     "glyph_embsize": 128,
-                //     "output_size": 128,
-                //     "dropout":0.2,
-                //     "encoder":{
-                //         "type":"cnn",
-                //         "embedding_dim":128,
-                //         "num_filters":100,
-                //         "ngram_filter_sizes":[
-                //             1
-                //         ]
-                //     }
-                // }
+                ,
+                "token_characters":{
+                    "type":"glyph_encoder",
+                    "glyph_embsize": 128,
+                    "output_size": 128,
+                    "dropout":0.2,
+                    "encoder":{
+                        "type":"cnn",
+                        "embedding_dim":128,
+                        "num_filters":100,
+                        "ngram_filter_sizes":[
+                            1
+                        ]
+                    }
+                }
             }
         },
+        "highway_embedding_size":300,
         "num_highway_layers":2,
         "phrase_layer":{
             "type":"lstm",
@@ -108,14 +109,14 @@
         "type":"bucket",
         "sorting_keys":[["question", "num_tokens"]],
         "biggest_batch_first":true,
-        "batch_size":28
+        "batch_size":12
     },
     "trainer":{
         "num_epochs":10,
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":2,
+        "cuda_device":0,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

@@ -54,6 +54,7 @@
                 }
             }
         },
+        "highway_embedding_size":400,
         "num_highway_layers":2,
         "phrase_layer":{
             "type":"lstm",

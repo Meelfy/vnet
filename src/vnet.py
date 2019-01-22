@@ -34,7 +34,7 @@ from .modules import GlyphEmbeddingWrapper
 from .modules.ElasticHighway import ElasticHighway
 
 logger = logging.getLogger(__name__)
-# logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG)
 
 
 @Model.register('vnet')
@@ -406,7 +406,7 @@ class VNet(Model):
                 self.map_span_to_01(spans_start - 1, p.size())
             loss_Content = torch.sum(torch.log(p) * ground_truth_p)
             loss_Content += torch.sum(torch.log(1 - p) * (1 - ground_truth_p))
-            loss_Content = -loss_Content / passage_length / batch_size
+            loss_Content = -loss_Content / max(passage_length * batch_size, 1)
 
             # shape(batch_size, num_passages)
             ground_truth_passages_verify = (spans_end != -1).float().to(device).view(batch_size,
@@ -416,6 +416,7 @@ class VNet(Model):
                                                  (0, pad_size), 'constant', 0.0)
             # sigmoid passage loss
             passages_verify = torch.sigmoid(passages_verify)
+            passages_verify = passages_verify.clamp(eps, 1. - eps)
             loss_Verification = torch.log(passages_verify) * ground_truth_passages_verify
             # softmax passage loss
             # loss_Verification = torch.log_softmax(passages_verify, dim=-1) * ground_truth_passages_verify
@@ -428,6 +429,7 @@ class VNet(Model):
             logger.debug('loss_Boundary: %.5f' % loss_Boundary)
             logger.debug('loss_Content: %.5f' % loss_Content)
             logger.debug('loss_Verification: %.5f' % loss_Verification)
+            loss = loss.clamp(0.0, 100)
             output_dict['loss'] = loss
 
         if metadata is not None:

@@ -1,18 +1,58 @@
 import json
 import sys
-import pickle
 import os
-from allennlp.data.tokenizers import WordTokenizer
 from tqdm import tqdm
 from multiprocessing import Pool
 from typing import List, Tuple
 from collections import namedtuple
 sys.path.append(".")
 try:
-    from src.utils import get_answers_with_RougeL
     from src.utils import get_ans_by_f1
+    from src.utils import get_lcs, get_rouge_l
 except Exception as e:
     print(e)
+
+
+def get_answers_with_RougeL(passage, answers, threshold=0.7):
+    answers = list(set(answers))
+    token_as = [list(ans) for ans in answers]
+    token_p = list(passage)
+    candidates = []
+    lcs = get_lcs(token_as, token_p)
+    for lo in range(len(token_p)):
+        for hi in range(lo, len(token_p)):
+            candidate = ' '.join(token_p[lo:hi])
+            if all(ch == ' ' for ch in candidate):
+                continue
+            score = get_rouge_l(lcs, token_as, lo + 1, hi + 1)
+            if score > threshold:
+                if len(candidates) > 0:
+                    if lo == candidates[-1]['lo']:
+                        if score < candidates[-1]['score']:
+                            break
+                        elif score > candidates[-1]['score']:
+                            candidates = candidates[:-1]
+                    elif hi == candidates[-1]['hi'] and score < candidates[-1]['score']:
+                        break
+                    while len(candidates) > 1 and hi == candidates[-1]['hi'] and \
+                            score > candidates[-1]['score']:
+                        candidates = candidates[:-1]
+                        if len(candidates) == 0:
+                            break
+                candidates.append({'candidate': candidate,
+                                   'lo': lo,
+                                   'hi': hi,
+                                   'score': score})
+    max_score = 0
+    best_answer = ''
+    for candidate in candidates:
+        if candidate['score'] > max_score:
+            best_answer = candidate['candidate']
+            max_score = candidate['score']
+    if best_answer != '':
+        return [best_answer]
+    else:
+        return []
 
 
 def segmented_text_to_tuples(tokens):
@@ -71,8 +111,6 @@ def process_one_sample(data, fuzzy_matching=False):
     answer_texts = []
     flag_has_ans = False
     if answers:
-        if 'No Answer Present.' in answers:
-            return None
         for passage_text in passage_texts:
             answers_in_passage = []
             span_in_passage = []
@@ -81,15 +119,25 @@ def process_one_sample(data, fuzzy_matching=False):
                                       flag_has_ans)
             if fuzzy_matching:
                 if not flag_has_ans and len(answers) > 0:
-                    ans_f1 = get_ans_by_f1(passage_text, answers)
-                    flag_has_ans = get_em_ans(ans_f1, passage_text, span_in_passage, answers_in_passage,
-                                              flag_has_ans)
+                    try:
+                        if f1_or_rougeL == 'f1':
+                            ans_f1 = get_ans_by_f1(passage_text[:max_passage_len * 2], answers)
+                            flag_has_ans = get_em_ans(ans_f1, passage_text, span_in_passage,
+                                                      answers_in_passage,
+                                                      flag_has_ans)
+                        elif f1_or_rougeL == 'rougeL':
+                            ans_rougeL = get_answers_with_RougeL(passage_text[:max_passage_len * 2], answers)
+                            flag_has_ans = get_em_ans(ans_rougeL, passage_text, span_in_passage,
+                                                      answers_in_passage,
+                                                      flag_has_ans)
+                    except Exception as e:
+                        pass
             answer_texts.append(answers)
             # answer_texts for cal rouge-L
             # answer_texts.append(answers_in_passage)
             spans.append(span_in_passage)
-        # if not flag_has_ans:
-        #     return None
+        if not flag_has_ans and drop_invalid:
+            return None
         instance = (question_text, passage_texts, qid, answer_texts, spans, question_tokens, passages_tokens)
         return instance
     else:
@@ -101,9 +149,6 @@ def data_to_json_obj(data):
     question_text, passages_texts, qid, answer_texts, char_spans, question_tokens, passages_tokens = data
 
     json_obj = {}
-    max_passage_len = 500
-    max_question_len = 50
-    max_num_characters = 30
     # question_text, passages_texts, qid, answer_texts, char_spans = data
     json_obj['answer_texts'] = answer_texts
     json_obj['passages_texts'] = passages_texts
@@ -147,49 +192,20 @@ def data_to_json_obj(data):
     return json_obj
 
 
-# def process_char_only(l):
-#     j = json.loads(l)
-#     j['query_type'] = j.pop('question_type')
-#     if 'entity_answers' in j:
-#         j.pop('entity_answers')
-#     j.pop('fact_or_opinion')
-#     j['query_id'] = j.pop('question_id')
-#     j['query'] = j.pop('question')
-#     j['question_tokens'] = segmented_text_to_tuples([ch for ch in j['query'].replace(' ', '')])
-#     passages = []
-#     for k in j['documents']:
-#         data = {}
-#         if k['is_selected']:
-#             data['is_selected'] = 1
-#         else:
-#             data['is_selected'] = 0
-#         data['passage_text'] = ' '.join(k['paragraphs'])
-#         # print(len(data['passage_text']))
-#         data['url'] = ''
-#         passages.append(data)
-#     j['passages_tokens'] = [segmented_text_to_tuples([ch for ch in ''.join(doc['paragraphs'])])
-#                             for doc in j['documents']]
-#     # print(j['passages_tokens'])
-#     j['passages'] = passages
-#     j.pop('documents')
-#     instance = process_one_sample(j, fuzzy_matching=False)
-#     if instance is None:
-#         return None
-#     json_obj = data_to_json_obj(instance)
-#     return json_obj
-
-
-def process(l, char_only=True):
+def process(l):
+    # DuReader to MSMarco
     j = json.loads(l)
     j['query_id'] = j.pop('question_id')
     j['query'] = j.pop('question')
     passages = []
+    # test data don't have these infomation
     try:
         j['query_type'] = j.pop('question_type')
         j.pop('fact_or_opinion')
         j.pop('entity_answers')
     except Exception as e:
         pass
+    # char_only don't need jieba
     if char_only:
         j['question_tokens'] = segmented_text_to_tuples([ch for ch in j['query'].replace(' ', '')])
     else:
@@ -212,27 +228,48 @@ def process(l, char_only=True):
                                 for doc in j['documents']]
     j['passages'] = passages
     j.pop('documents')
-    instance = process_one_sample(j, fuzzy_matching=False)
+    # ---------
+    # find word span, if fuzzy_matching is true, this will find best f1 match
+    # ---------
+    instance = process_one_sample(j, fuzzy_matching)
     if instance is None:
         return None
+    # word span to char span and convert to json_obj format
     json_obj = data_to_json_obj(instance)
     return json_obj
 
 
-def main():
-    data_path = "/data/nfsdata/meijie/data/dureader/preprocessed/devset"
-    file_path = os.path.join(data_path, 'search.dev.json')
-    # f_save = open(file_path + '.instances', 'w')
-    f_save = open(file_path + '.char.instances', 'w')
-    with open(file_path) as f:
-        dureader_preprocessed_data = f.readlines()
+def parallel_process_file(file_name):
+    if char_only:
+        f_save = open(file_name + '.char.instances', 'w')
+    else:
+        f_save = open(file_name + '.instances', 'w')
+    with open(file_name) as f:
+        dureader_data = f.readlines()
     pool = Pool()
-    for json_obj in tqdm(pool.imap_unordered(process, dureader_preprocessed_data)):
+    for json_obj in tqdm(pool.imap_unordered(process, dureader_data)):
         if json_obj is not None:
             f_save.write(json.dumps(json_obj, ensure_ascii=False) + '\n')
     f_save.close()
 
 
+def main():
+    data_path = "/data/nfsdata/meijie/data/dureader/raw/testset"
+    file_name = os.path.join(data_path, 'zhidao.test.json.merge_passage')
+    parallel_process_file(file_name)
+    data_path = "/data/nfsdata/meijie/data/dureader/raw/testset"
+    file_name = os.path.join(data_path, 'search.test.json.merge_passage')
+    parallel_process_file(file_name)
+
+
 if __name__ == '__main__':
     Token = namedtuple('Token', ['text', 'idx'])
+    char_only = True
+    drop_invalid = False
+    max_passage_len = 500
+    fuzzy_matching = False
+    max_question_len = 50
+    f1_or_rougeL = 'rougeL'
+    max_num_characters = 30
+    # f1_or_rougeL = 'f1'
     main()

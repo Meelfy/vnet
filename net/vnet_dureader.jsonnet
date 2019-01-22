@@ -6,14 +6,14 @@
                 "type":"single_id",
                 "lowercase_tokens":true
             }
-            ,
-            "token_characters":{
-                "type":"characters"
-            }
+            // ,
+            // "token_characters":{
+            //     "type":"characters"
+            // }
         },
         "lazy":true,
         "char_only": true,
-        // "max_samples": 100,
+        "max_samples": 100,
         "language": "zh",
         "passage_length_limit": 500,
         "question_length_limit": 50
@@ -32,21 +32,21 @@
                     "embedding_dim":300,
                     "trainable":true
                 }
-                ,
-                "token_characters":{
-                    "type":"glyph_encoder",
-                    "glyph_embsize": 128,
-                    "output_size": 128,
-                    "dropout":0.2,
-                    "encoder":{
-                        "type":"cnn",
-                        "embedding_dim":128,
-                        "num_filters":100,
-                        "ngram_filter_sizes":[
-                            1
-                        ]
-                    }
-                }
+                // ,
+                // "token_characters":{
+                //     "type":"glyph_encoder",
+                //     "glyph_embsize": 128,
+                //     "output_size": 128,
+                //     "dropout":0.2,
+                //     "encoder":{
+                //         "type":"cnn",
+                //         "embedding_dim":128,
+                //         "num_filters":100,
+                //         "ngram_filter_sizes":[
+                //             1
+                //         ]
+                //     }
+                // }
             }
         },
         "highway_embedding_size":300,
@@ -106,14 +106,14 @@
         "type":"bucket",
         "sorting_keys":[["question", "num_tokens"]],
         "biggest_batch_first":true,
-        "batch_size":4
+        "batch_size":30
     },
     "trainer":{
         "num_epochs":5,
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":1,
+        "cuda_device":2,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

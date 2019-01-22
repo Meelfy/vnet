@@ -53,6 +53,7 @@ class VNetPredictorDu(Predictor):
       "question": "上海迪士尼可以带吃的进去吗",
       "documents": [
         {
+          'title': "text title",
           'paragraphs': ["text paragraph 1", "text paragraph 2"]
         },
         ...

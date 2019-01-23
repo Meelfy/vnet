@@ -19,9 +19,9 @@
         "question_length_limit": 50
     },
     "train_data_path":"/data/nfsdata/meijie/data/dureader/raw/trainset/train.json.merge_passage",
-    "validation_data_path":"/data/nfsdata/meijie/data/dureader/raw/trainset/train.json.merge_passage",
+    // "validation_data_path":"/data/nfsdata/meijie/data/dureader/raw/trainset/train.json.merge_passage",
     // "validation_data_path":"/data/nfsdata/meijie/data/dureader/raw/trainset/test.json.merge_passage",
-    // "validation_data_path":"/data/nfsdata/meijie/data/dureader/raw/devset/dev.json.merge_passage",
+    "validation_data_path":"/data/nfsdata/meijie/data/dureader/raw/devset/dev.json.merge_passage",
     "model":{
         "type":"vnet",
         "text_field_embedder":{
@@ -117,7 +117,7 @@
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":1,
+        "cuda_device":0,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

@@ -297,7 +297,6 @@ class PointerNet(Seq2SeqEncoder):
                                           bidirectional)
         self._decoder = PointerNetDecoder(input_size, hidden_dim)
         self.decoder_input0 = Parameter(torch.FloatTensor(input_size), requires_grad=False)
-
         # Initialize decoder_input0
         nn.init.uniform_(self.decoder_input0, -1, 1)
 
@@ -316,7 +315,7 @@ class PointerNet(Seq2SeqEncoder):
         """
         batch_size = embedded_inputs.size(0)
         # uniform initialize
-        decoder_input0 = self.decoder_input0.unsqueeze(0).expand(batch_size, -1)
+        fake_inputs = self.decoder_input0.unsqueeze(0).expand(batch_size, -1)
 
         # zeros initialize
         encoder_hidden0 = self._encoder.init_hidden(batch_size)
@@ -333,5 +332,5 @@ class PointerNet(Seq2SeqEncoder):
         return self._decoder(embedded_inputs,
                              hidden0,            # hidden
                              encoder_outputs,    # context
-                             decoder_input0,     # decoder_input
+                             fake_inputs,     # decoder_input
                              passages_mask)

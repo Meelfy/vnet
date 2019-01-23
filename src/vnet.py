@@ -9,7 +9,6 @@
 
 这一行开始写关于本文件的说明与解释
 """
-import pdb
 import logging
 import numpy as np
 from typing import Any, Dict, List, Optional, Tuple
@@ -29,6 +28,7 @@ from allennlp.training.metrics.bleu import BLEU
 
 from .MsmarcoRouge import MsmarcoRouge
 from .modules.Pointer_Network import PointerNet
+from .modules.pointerNetwork import PointerNetDecoder
 # Allennlp will find where is the GlyphEmbeddingWrapper modules
 from .modules import GlyphEmbeddingWrapper
 from .modules import BasicWithLossTextFieldEmbedder
@@ -120,7 +120,6 @@ class VNet(Model):
                                                             modeling_dim, 1))
         self._naive_layer_1 = TimeDistributed(torch.nn.Linear(highway_embedding_size, 1))
         self._naive_layer_2 = TimeDistributed(torch.nn.Linear(highway_embedding_size, 1))
-        # self._ptr_layer_2 = TimeDistributed(torch.nn.Linear(ptr_dim, 1))
 
         self._content_layer_1 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
                                                                 modeling_dim, ptr_dim))
@@ -129,6 +128,9 @@ class VNet(Model):
         self._passages_matrix_attention = matrix_attention_layer
 
         self._pointer_net = pointer_net
+        self._pointer_net_decoder = PointerNetDecoder(encoding_dim * 4 +
+                                                      modeling_dim,
+                                                      ptr_dim)
 
         self._passage_predictor = TimeDistributed(torch.nn.Linear(self.max_num_passages, 1))
 
@@ -374,7 +376,9 @@ class VNet(Model):
             .to(match_passages_vector.device)))
 
         # PointerNet
-        span_start_logits, span_end_logits = self._pointer_net(match_passages_vector, passages_mask)
+        # span_start_logits, span_end_logits = self._pointer_net(match_passages_vector, passages_mask)
+        span_start_logits, span_end_logits = self._pointer_net_decoder(match_passages_vector,
+                                                                       encoded_questions)
         # span_start_logits = self._ptr_layer_1(match_passages_vector).squeeze()
         # span_end_logits = self._ptr_layer_2(match_passages_vector).squeeze()
         # self._ptr_layer_2._module.weight.register_hook(print)
@@ -488,16 +492,16 @@ class VNet(Model):
                 max(torch.sum(ground_truth_passages_verify), 1)
             loss = loss_Boundary + 0.5 * loss_Content + 0.5 * loss_Verification
             if 'glyph_loss_q' in locals():
-                logger.info('glyph_loss_q: %.5f' % glyph_loss_q)
+                logger.debug('glyph_loss_q: %.5f' % glyph_loss_q)
                 loss += glyph_loss_q
             if 'glyph_loss_p' in locals():
-                logger.info('glyph_loss_p: %.5f' % glyph_loss_p)
+                logger.debug('glyph_loss_p: %.5f' % glyph_loss_p)
                 loss += glyph_loss_p
             # loss = loss_Boundary + 0.5 * loss_Verification
             # loss = loss_Boundary
-            logger.info('loss_Boundary: %.5f' % loss_Boundary)
-            logger.info('loss_Content: %.5f' % loss_Content)
-            logger.info('loss_Verification: %.5f' % loss_Verification)
+            logger.debug('loss_Boundary: %.5f' % loss_Boundary)
+            logger.debug('loss_Content: %.5f' % loss_Content)
+            logger.debug('loss_Verification: %.5f' % loss_Verification)
             output_dict['loss'] = loss
 
         if metadata is not None:

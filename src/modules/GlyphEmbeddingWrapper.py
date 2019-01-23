@@ -33,10 +33,9 @@ class GlyphEmbeddingWrapper(TokenEmbedder):
         super(GlyphEmbeddingWrapper, self).__init__()
         self.glyph_config = glyph_config
         self.glyph_config.idx2char = vocab._index_to_token['token_characters']
-        # import pdb
-        # pdb.set_trace()
         self.glyph_embedding = CharGlyphEmbedding(self.glyph_config)
         self._encoder = TimeDistributed(encoder)
+        self.using_glyph = True
 
     def get_output_dim(self) -> int:
         return self._encoder._module.get_output_dim()
@@ -44,10 +43,7 @@ class GlyphEmbeddingWrapper(TokenEmbedder):
     def forward(self, token_characters: torch.Tensor) -> torch.Tensor:
         mask = (token_characters != 0).long()
         character_embedding, loss = self.glyph_embedding(token_characters)
-        return self._encoder(character_embedding, mask)
-        # word_embedding, loss = self.glyph_embedding(token_characters)
-        # # emb, loss = self._embedding(token_characters)
-        # return word_embedding
+        return self._encoder(character_embedding, mask), loss
 
     @classmethod
     def from_params(cls, vocab: Vocabulary, params: Params) -> 'GlyphEmbeddingWrapper':
@@ -57,7 +53,7 @@ class GlyphEmbeddingWrapper(TokenEmbedder):
         glyph_config.use_highway = True
         glyph_config.dropout = params.pop_float("dropout", 0.0)
         glyph_config.glyph_embsize = params.pop_int("glyph_embsize", 256)
-
+        glyph_config.use_batch_norm = params.pop_bool("use_batch_norm", False)
         encoder_params: Params = params.pop("encoder")
         encoder = Seq2VecEncoder.from_params(encoder_params)
         params.assert_empty(cls.__name__)

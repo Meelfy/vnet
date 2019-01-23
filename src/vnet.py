@@ -31,10 +31,11 @@ from .MsmarcoRouge import MsmarcoRouge
 from .modules.Pointer_Network import PointerNet
 # Allennlp will find where is the GlyphEmbeddingWrapper modules
 from .modules import GlyphEmbeddingWrapper
+from .modules import BasicWithLossTextFieldEmbedder
 from .modules.ElasticHighway import ElasticHighway
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+# logger.setLevel(logging.DEBUG)
 
 
 @Model.register('vnet')
@@ -232,11 +233,13 @@ class VNet(Model):
         # shape(batch_size*num_passages, passage_length)
         batch_passages['tokens'] = passages['tokens'].view(-1, passage_length)
         # shape(batch_size*num_passages, passage_length, embedding_dim)
-        try:
+        if "_token_embedders" in dir(self._text_field_embedder) \
+                and 'token_characters' in self._text_field_embedder._token_embedders.keys()\
+                and 'using_glyph' in dir(self._text_field_embedder._token_embedders['token_characters']):
+            embedded_passages, glyph_loss_p = self._text_field_embedder(batch_passages)
+            embedded_passages = self._highway_layer(embedded_passages)
+        else:
             embedded_passages = self._highway_layer(self._text_field_embedder(batch_passages))
-        except Exception as e:
-            pdb.set_trace()
-            raise e
         embedding_dim = embedded_passages.size(-1)
 
         # shape(batch_size, question_length, num_characters)
@@ -255,11 +258,14 @@ class VNet(Model):
                                                   'constant',
                                                   0.0)
         questions['tokens'] = question['tokens'].repeat(1, num_passages).view(-1, question_length)
-        try:
+
+        if "_token_embedders" in dir(self._text_field_embedder) \
+                and 'token_characters' in self._text_field_embedder._token_embedders.keys()\
+                and 'using_glyph' in dir(self._text_field_embedder._token_embedders['token_characters']):
+            embedded_question, glyph_loss_q = self._text_field_embedder(question)
+            embedded_question = self._highway_layer(embedded_question)
+        else:
             embedded_question = self._highway_layer(self._text_field_embedder(question))
-        except Exception as e:
-            pdb.set_trace()
-            raise e
         embedding_size = embedded_question.size(-1)
         # shape(num_passages*batch_size, question_length, embedding_size)
         embedded_questions = embedded_question.repeat(1, num_passages, 1)\
@@ -398,6 +404,7 @@ class VNet(Model):
         # prob_p = prob_p.clamp(0, 1)
         embedded_answers_candidates = embedded_passages *\
             prob_p.unsqueeze(-1).repeat(1, 1, embedding_dim)
+        # embedded_answers_candidates = embedded_passages
         # shape(num_passages*batch_size, embedding_dim)
         r = util.weighted_sum(embedded_answers_candidates, p)
 
@@ -470,19 +477,27 @@ class VNet(Model):
             ground_truth_passages_verify = F.pad(ground_truth_passages_verify,
                                                  (0, pad_size), 'constant', 0.0)
             # sigmoid passage loss
-            passages_verify = torch.sigmoid(passages_verify)
+            passages_verify = torch.softmax(passages_verify, dim=-1)
             passages_verify = passages_verify.clamp(eps, 1. - eps)
             loss_Verification = torch.log(passages_verify) * ground_truth_passages_verify
             # softmax passage loss
             # loss_Verification = torch.log_softmax(passages_verify, dim=-1) * ground_truth_passages_verify
+            # print(passages_verify)
+            # print(ground_truth_passages_verify)
             loss_Verification = -torch.sum(loss_Verification) /\
                 max(torch.sum(ground_truth_passages_verify), 1)
-            # loss = loss_Boundary + 0.5 * loss_Content + 0.5 * loss_Verification
+            loss = loss_Boundary + 0.5 * loss_Content + 0.5 * loss_Verification
+            if 'glyph_loss_q' in locals():
+                logger.info('glyph_loss_q: %.5f' % glyph_loss_q)
+                loss += glyph_loss_q
+            if 'glyph_loss_p' in locals():
+                logger.info('glyph_loss_p: %.5f' % glyph_loss_p)
+                loss += glyph_loss_p
             # loss = loss_Boundary + 0.5 * loss_Verification
-            loss = loss_Boundary
-            logger.debug('loss_Boundary: %.5f' % loss_Boundary)
-            logger.debug('loss_Content: %.5f' % loss_Content)
-            logger.debug('loss_Verification: %.5f' % loss_Verification)
+            # loss = loss_Boundary
+            logger.info('loss_Boundary: %.5f' % loss_Boundary)
+            logger.info('loss_Content: %.5f' % loss_Content)
+            logger.info('loss_Verification: %.5f' % loss_Verification)
             output_dict['loss'] = loss
 
         if metadata is not None:

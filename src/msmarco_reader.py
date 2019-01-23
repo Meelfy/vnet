@@ -200,12 +200,12 @@ class MsmarcoMultiPassageReader(DatasetReader):
                         continue
                 except Exception as e:
                     pass
-                try:
-                    if sum([a[0] == [-1, -1] for a in json_obj['token_spans']]) !=\
-                            len(json_obj['token_spans']) - 1:
-                        continue
-                except Exception as e:
-                    pass
+                # try:
+                #     if sum([a[0] == [-1, -1] for a in json_obj['token_spans']]) !=\
+                #             len(json_obj['token_spans']) - 1:
+                #         continue
+                # except Exception as e:
+                #     pass
             if 'dev' in file_path:
                 if not sum(json_obj['answer_texts'], []):
                     continue

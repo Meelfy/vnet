@@ -96,6 +96,7 @@ class VNet(Model):
                  initializer: InitializerApplicator = InitializerApplicator(),
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
         super().__init__(vocab, regularizer)
+        self._span_end_encoder = span_end_lstm
         self.language = language
         self.max_num_character = max_num_character
         self.relu = torch.nn.ReLU()
@@ -116,6 +117,8 @@ class VNet(Model):
                                                             modeling_dim, 1))
         self._ptr_layer_2 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
                                                             modeling_dim, 1))
+        self._naive_layer_1 = TimeDistributed(torch.nn.Linear(highway_embedding_size, 1))
+        self._naive_layer_2 = TimeDistributed(torch.nn.Linear(highway_embedding_size, 1))
         # self._ptr_layer_2 = TimeDistributed(torch.nn.Linear(ptr_dim, 1))
 
         self._content_layer_1 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
@@ -285,6 +288,7 @@ class VNet(Model):
         passages_questions_similarity = self._matrix_attention(encoded_passages, encoded_questions)
         # Shape: (num_passages*batch_size, passage_length, question_length)
         passages_questions_attention = util.masked_softmax(passages_questions_similarity, questions_mask)
+
         # Shape: (num_passages*batch_size, passage_length, phrase_layer_encoding_dim)
         passages_questions_vectors = util.weighted_sum(encoded_questions, passages_questions_attention)
 
@@ -313,7 +317,42 @@ class VNet(Model):
                                          dim=-1)
 
         modeled_passage = self._dropout(self._modeling_layer(final_merged_passage, passages_lstm_mask))
+
+        # # BiDAF
+        # # ------------------------------------------------------------------------------------------------
         # modeling_dim = modeled_passage.size(-1)
+        # # Shape: (batch_size, passage_length, encoding_dim * 4 + modeling_dim))
+        # span_start_input = self._dropout(torch.cat([final_merged_passage, modeled_passage], dim=-1))
+        # # Shape: (batch_size, passage_length)
+        # span_start_logits = self._ptr_layer_1(span_start_input).squeeze(-1)
+        # # Shape: (batch_size, passage_length)
+        # span_start_probs = util.masked_softmax(span_start_logits, passages_mask)
+
+        # # Shape: (batch_size, modeling_dim)
+        # span_start_representation = util.weighted_sum(modeled_passage, span_start_probs)
+        # # Shape: (batch_size, passage_length, modeling_dim)
+        # tiled_start_representation = span_start_representation.unsqueeze(1).expand(batch_size *
+        #                                                                            num_passages,
+        #                                                                            passage_length,
+        #                                                                            modeling_dim)
+
+        # # Shape: (batch_size, passage_length, encoding_dim * 4 + modeling_dim * 3)
+        # span_end_representation = torch.cat([final_merged_passage,
+        #                                      modeled_passage,
+        #                                      tiled_start_representation,
+        #                                      modeled_passage * tiled_start_representation],
+        #                                     dim=-1)
+        # # Shape: (batch_size, passage_length, encoding_dim)
+        # print(span_end_representation.size())
+        # encoded_span_end = self._dropout(self._span_end_encoder(span_end_representation,
+        #                                                         passages_lstm_mask))
+        # # Shape: (batch_size, passage_length, encoding_dim * 4 + span_end_encoding_dim)
+        # span_end_input = self._dropout(torch.cat([final_merged_passage, encoded_span_end], dim=-1))
+        # span_end_logits = self._ptr_layer_2(span_end_input).squeeze(-1)
+        # span_end_probs = util.masked_softmax(span_end_logits, passages_mask)
+        # span_start_logits = util.replace_masked_values(span_start_logits, passages_mask, -1e7)
+        # span_end_logits = util.replace_masked_values(span_end_logits, passages_mask, -1e7)
+        # # ------------------------------------------------------------------------------------------------
 
         # ------------------------------------
         # Part Two: Answer Boundary Prediction
@@ -324,13 +363,21 @@ class VNet(Model):
         # Shape: (batch_size * num_passages, passage_length, encoding_dim * 4 + modeling_dim))
         match_passages_vector = self._dropout(torch.cat([final_merged_passage, modeled_passage], dim=-1))
         # LSTM
-        # match_passages_vector = self._dropout(self._match_layer(
-        #     match_passages_vector, torch.ones(match_passages_vector.size()[:2])
-        #     .to(match_passages_vector.device)))
+        match_passages_vector = self._dropout(self._match_layer(
+            match_passages_vector, torch.ones(match_passages_vector.size()[:2])
+            .to(match_passages_vector.device)))
+
         # PointerNet
         span_start_logits, span_end_logits = self._pointer_net(match_passages_vector, passages_mask)
         # span_start_logits = self._ptr_layer_1(match_passages_vector).squeeze()
         # span_end_logits = self._ptr_layer_2(match_passages_vector).squeeze()
+        # self._ptr_layer_2._module.weight.register_hook(print)
+        # self._ptr_layer_2._module.bias.register_hook(print)
+
+        # print(embedded_questions.size())
+        # print(embedded_passages.size())
+        # span_start_logits = self._naive_layer_1(embedded_passages).squeeze()
+        # span_end_logits = self._naive_layer_2(embedded_passages).squeeze()
         # Shape: (num_passages*batch_size, passage_length)
         span_start_probs = util.masked_softmax(span_start_logits, passages_mask)
         span_end_probs = util.masked_softmax(span_end_logits, passages_mask)
@@ -390,16 +437,24 @@ class VNet(Model):
             # span_start_probs shape(num_passages*batch_size, passage_length)
             # spans_start shape(batch_size, num_passages, 1)
             # then shape(batch_size*num_passages, 1)
-            spans_start = spans_start.squeeze(-1).view(batch_size * num_passages, -1)
-            spans_end = spans_end.squeeze(-1).view(batch_size * num_passages, -1)
+            spans_start = spans_start.squeeze().view(batch_size * num_passages, 1)
+            spans_end = spans_end.squeeze().view(batch_size * num_passages, 1)
 
             spans_start.clamp_(-1, passage_length - 1)
             spans_end.clamp_(-1, passage_length - 1)
+            # loss_Boundary = nll_loss(torch.log_softmax(span_start_logits, dim=-1),
+            #                          spans_start.squeeze(-1), ignore_index=-1)
+            # loss_Boundary += nll_loss(torch.log_softmax(span_end_logits, dim=-1),
+            #                           spans_end.squeeze(-1), ignore_index=-1)
             loss_Boundary = nll_loss(util.masked_log_softmax(span_start_logits, passages_mask),
                                      spans_start.squeeze(-1), ignore_index=-1)
             loss_Boundary += nll_loss(util.masked_log_softmax(span_end_logits, passages_mask),
                                       spans_end.squeeze(-1), ignore_index=-1)
             loss_Boundary = loss_Boundary / 2
+            # print(util.masked_log_softmax(span_start_logits, passages_mask))
+            # print(loss_Boundary)
+            # match_passages_vector.register_hook(print)
+            # span_end_logits.register_hook(print)
             eps = 1e-7
             p = p.clamp(eps, 1. - eps)
             ground_truth_p = self.map_span_to_01(spans_end, p.size()) -\
@@ -420,16 +475,14 @@ class VNet(Model):
             loss_Verification = torch.log(passages_verify) * ground_truth_passages_verify
             # softmax passage loss
             # loss_Verification = torch.log_softmax(passages_verify, dim=-1) * ground_truth_passages_verify
-
             loss_Verification = -torch.sum(loss_Verification) /\
                 max(torch.sum(ground_truth_passages_verify), 1)
-            loss = loss_Boundary + 0.5 * loss_Content + 0.5 * loss_Verification
+            # loss = loss_Boundary + 0.5 * loss_Content + 0.5 * loss_Verification
             # loss = loss_Boundary + 0.5 * loss_Verification
-            # loss = loss_Boundary
+            loss = loss_Boundary
             logger.debug('loss_Boundary: %.5f' % loss_Boundary)
             logger.debug('loss_Content: %.5f' % loss_Content)
             logger.debug('loss_Verification: %.5f' % loss_Verification)
-            loss = loss.clamp(0.0, 100)
             output_dict['loss'] = loss
 
         if metadata is not None:
@@ -489,9 +542,16 @@ class VNet(Model):
                 self._span_start_accuracy(span_start_probs.view(batch_size, num_passages, -1),
                                           spans_start.view(batch_size, num_passages),
                                           (spans_start.view(batch_size, num_passages) != -1))
+                # print(span_end_probs.register_hook(print))
                 self._span_end_accuracy(span_end_probs.view(batch_size, num_passages, -1),
                                         spans_end.view(batch_size, num_passages),
                                         (spans_end.view(batch_size, num_passages) != -1))
+                # self._span_start_accuracy(span_start_probs.view(batch_size, num_passages, -1),
+                #                           spans_start.view(batch_size, num_passages),
+                #                           (spans_start.view(batch_size, num_passages) != -1))
+                # self._span_end_accuracy(span_end_probs.view(batch_size, num_passages, -1),
+                #                         spans_end.view(batch_size, num_passages),
+                #                         (spans_end.view(batch_size, num_passages) != -1))
             output_dict['question_tokens'] = question_tokens
             output_dict['passage_tokens'] = passage_tokens
         output_dict['qids'] = [data['qid'] for data in metadata]

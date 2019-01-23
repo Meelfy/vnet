@@ -254,11 +254,11 @@ def parallel_process_file(file_name):
 
 
 def main():
-    data_path = "/data/nfsdata/meijie/data/dureader/raw/testset"
-    file_name = os.path.join(data_path, 'zhidao.test.json.merge_passage')
+    data_path = "/data/nfsdata/meijie/data/dureader/raw/devset"
+    file_name = os.path.join(data_path, 'zhidao.dev.json.merge_passage')
     parallel_process_file(file_name)
-    data_path = "/data/nfsdata/meijie/data/dureader/raw/testset"
-    file_name = os.path.join(data_path, 'search.test.json.merge_passage')
+    data_path = "/data/nfsdata/meijie/data/dureader/raw/devset"
+    file_name = os.path.join(data_path, 'search.dev.json.merge_passage')
     parallel_process_file(file_name)
 
 

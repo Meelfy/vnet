@@ -68,8 +68,7 @@ class MsmarcoMultiPassageReader(DatasetReader):
 
     @overrides
     def _read(self, file_path: str) -> Iterable[Instance]:
-        is_test = 'test' in file_path or 'eval' in file_path
-        if os.path.isfile(file_path + '.instances'):
+        if os.path.isfile(file_path + '.instances') or os.path.isfile(file_path + '.char.instances'):
             if self.char_only:
                 logger.info("load from instances file %s", file_path + '.char.instances')
                 yield from self._read_instances_file(file_path + '.char.instances')
@@ -183,17 +182,6 @@ class MsmarcoMultiPassageReader(DatasetReader):
             idx += len(text)
         return result
 
-    @staticmethod
-    def check_max_character_num(json_obj):
-        max_num_characters = 30
-        question_tokens = json_obj['question_tokens']
-        passages_tokens = json_obj['passages_tokens']
-        if any([len(text) > max_num_characters for text, idx in question_tokens]):
-            return False
-        if any([len(text) > max_num_characters for sublist in passages_tokens for text, idx in sublist]):
-            return False
-        return True
-
     def _read_instances_file(self, file_path: str):
         f_preprocessed = open(file_path, 'r')
         for count, line in enumerate(f_preprocessed):
@@ -202,6 +190,25 @@ class MsmarcoMultiPassageReader(DatasetReader):
             if line.isspace():
                 continue
             json_obj = json.loads(line.strip())
+            if 'train' in file_path:
+                if not sum(json_obj['answer_texts'], []):
+                    continue
+                elif not json_obj['token_spans']:
+                    continue
+                try:
+                    if all([a[0] == [-1, -1] for a in json_obj['token_spans']]):
+                        continue
+                except Exception as e:
+                    pass
+                try:
+                    if sum([a[0] == [-1, -1] for a in json_obj['token_spans']]) !=\
+                            len(json_obj['token_spans']) - 1:
+                        continue
+                except Exception as e:
+                    pass
+            if 'dev' in file_path:
+                if not sum(json_obj['answer_texts'], []):
+                    continue
             yield self._json_blob_to_instance(json_obj)
         f_preprocessed.close()
 

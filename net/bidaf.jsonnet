@@ -1,4 +1,4 @@
-{
+ {
     "dataset_reader":{
         "type":"msmarco_multi_passage_limited",
         "token_indexers":{

@@ -92,11 +92,13 @@ class BiDAF_ZH(Model):
                  dropout: float = 0.2,
                  max_num_passages: int = 5,
                  max_num_character: int = 4,
+                 loss_ratio: float = 0.1,
                  mask_lstms: bool = True,
                  initializer: InitializerApplicator = InitializerApplicator(),
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
         super().__init__(vocab, regularizer)
         self._span_end_encoder = span_end_lstm
+        self.loss_ratio = loss_ratio
         self.language = language
         self.max_num_character = max_num_character
         self.relu = torch.nn.ReLU()
@@ -366,10 +368,10 @@ class BiDAF_ZH(Model):
             loss = loss_Boundary / 2
             if 'glyph_loss_q' in locals():
                 logger.debug('glyph_loss_q: %.5f' % glyph_loss_q)
-                loss += glyph_loss_q
+                loss += self.loss_ratio * glyph_loss_q
             if 'glyph_loss_p' in locals():
                 logger.debug('glyph_loss_p: %.5f' % glyph_loss_p)
-                loss += glyph_loss_p
+                loss += self.loss_ratio * glyph_loss_p
             logger.debug('loss_Boundary: %.5f' % loss_Boundary)
             output_dict['loss'] = loss
 

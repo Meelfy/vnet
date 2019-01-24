@@ -50,6 +50,7 @@
             }
         },
         "highway_embedding_size":300,
+        "loss_ratio": 0.01,
         "num_highway_layers":2,
         "phrase_layer":{
             "type":"lstm",
@@ -113,7 +114,7 @@
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":0,
+        "cuda_device":2,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

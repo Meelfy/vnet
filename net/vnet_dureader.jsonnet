@@ -13,7 +13,7 @@
         },
         "lazy": true,
         "char_only": true,
-        "max_samples": 1000,
+        "max_samples": -1,
         "language": "zh",
         "passage_length_limit": 500,
         "question_length_limit": 50
@@ -49,7 +49,7 @@
                             1
                         ]
                     },
-                    "dropout":0.25
+                    "dropout":0.20
                 }
             }
         },
@@ -61,7 +61,7 @@
             "input_size":300,
             "hidden_size":150,
             "num_layers":2,
-            "dropout":0.25
+            "dropout":0.20
         },
         "modeling_layer":{
             "type":"lstm",
@@ -69,7 +69,7 @@
             "input_size":1200,
             "hidden_size":150,
             "num_layers":2,
-            "dropout":0.25
+            "dropout":0.20
         },
         "match_layer":{
             "type":"lstm",
@@ -77,7 +77,7 @@
             "input_size":1500,
             "hidden_size":750,
             "num_layers":2,
-            "dropout":0.25
+            "dropout":0.20
         },
         "matrix_attention_layer": {
             "type": "linear",
@@ -90,7 +90,7 @@
             "input_size": 1500,
             "hidden_dim": 200,
             "lstm_layers": 2,
-            "dropout": 0.25
+            "dropout": 0.20
         },
         "span_end_lstm":{
             "type":"lstm",
@@ -98,19 +98,19 @@
             "input_size":2100,
             "hidden_size":300,
             "num_layers":2,
-            "dropout":0.25
+            "dropout":0.20
         },
         "ptr_dim":200,
         "max_num_passages": 5,
         "max_num_character": 4,
         "language": "zh",
-        "dropout":0.25
+        "dropout":0.20
     },
     "iterator":{
         "type":"bucket",
         "sorting_keys":[["question", "num_tokens"]],
         "biggest_batch_first":true,
-        "batch_size": 3
+        "batch_size": 2
     },
     "trainer":{
         "num_epochs":5,

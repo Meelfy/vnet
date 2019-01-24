@@ -47,13 +47,14 @@ class GlyphEmbeddingWrapper(TokenEmbedder):
 
     @classmethod
     def from_params(cls, vocab: Vocabulary, params: Params) -> 'GlyphEmbeddingWrapper':
-        # pylint: disable=arguments-differ
+        # glyph_config
         glyph_config = GlyphEmbeddingConfig()
         glyph_config.output_size = params.pop_int("output_size", 300)
         glyph_config.use_highway = True
         glyph_config.dropout = params.pop_float("dropout", 0.0)
         glyph_config.glyph_embsize = params.pop_int("glyph_embsize", 256)
         glyph_config.use_batch_norm = params.pop_bool("use_batch_norm", False)
+        # encoder_config
         encoder_params: Params = params.pop("encoder")
         encoder = Seq2VecEncoder.from_params(encoder_params)
         params.assert_empty(cls.__name__)

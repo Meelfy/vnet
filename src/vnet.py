@@ -35,7 +35,7 @@ from .modules import BasicWithLossTextFieldEmbedder
 from .modules.ElasticHighway import ElasticHighway
 
 logger = logging.getLogger(__name__)
-# logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG)
 
 
 @Model.register('vnet')
@@ -114,12 +114,12 @@ class VNet(Model):
         encoding_dim = phrase_layer.get_output_dim()
 
         self._match_layer = match_layer
-        self._ptr_layer_1 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
-                                                            modeling_dim, 1))
-        self._ptr_layer_2 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
-                                                            modeling_dim, 1))
-        self._naive_layer_1 = TimeDistributed(torch.nn.Linear(highway_embedding_size, 1))
-        self._naive_layer_2 = TimeDistributed(torch.nn.Linear(highway_embedding_size, 1))
+        # self._ptr_layer_1 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
+        #                                                     modeling_dim, 1))
+        # self._ptr_layer_2 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
+        #                                                     modeling_dim, 1))
+        # self._naive_layer_1 = TimeDistributed(torch.nn.Linear(highway_embedding_size, 1))
+        # self._naive_layer_2 = TimeDistributed(torch.nn.Linear(highway_embedding_size, 1))
 
         self._content_layer_1 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
                                                                 modeling_dim, ptr_dim))
@@ -371,9 +371,9 @@ class VNet(Model):
         # Shape: (batch_size * num_passages, passage_length, encoding_dim * 4 + modeling_dim))
         match_passages_vector = self._dropout(torch.cat([final_merged_passage, modeled_passage], dim=-1))
         # LSTM
-        match_passages_vector = self._dropout(self._match_layer(
-            match_passages_vector, torch.ones(match_passages_vector.size()[:2])
-            .to(match_passages_vector.device)))
+        # match_passages_vector = self._dropout(self._match_layer(
+        #     match_passages_vector, torch.ones(match_passages_vector.size()[:2])
+        #     .to(match_passages_vector.device)))
 
         # PointerNet
         # span_start_logits, span_end_logits = self._pointer_net(match_passages_vector, passages_mask)

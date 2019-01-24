@@ -6,14 +6,14 @@
                 "type":"single_id",
                 "lowercase_tokens":true
             }
-            // ,
-            // "token_characters":{
-            //     "type":"characters"
-            // }
+            ,
+            "token_characters":{
+                "type":"characters"
+            }
         },
         "lazy": true,
         "char_only": true,
-        // "max_samples": 100,
+        "max_samples": 100,
         "language": "zh",
         "passage_length_limit": 500,
         "question_length_limit": 50
@@ -31,26 +31,26 @@
                     "embedding_dim":300,
                     "trainable":true
                 }
-                // ,
-                // "token_characters":{
-                //     "type":"glyph_encoder",
-                //     "glyph_embsize": 128,
-                //     "output_size": 128,
-                //     "use_batch_norm": true,
-                //     "encoder":{
-                //         "type":"cnn",
-                //         "embedding_dim":128,
-                //         "num_filters":100,
-                //         "ngram_filter_sizes":[
-                //             1
-                //         ]
-                //     },
-                //     "dropout":0.2
-                // }
+                ,
+                "token_characters":{
+                    "type":"glyph_encoder",
+                    "glyph_embsize": 128,
+                    "output_size": 128,
+                    "use_batch_norm": true,
+                    "encoder":{
+                        "type":"cnn",
+                        "embedding_dim":128,
+                        "num_filters":100,
+                        "ngram_filter_sizes":[
+                            1
+                        ]
+                    },
+                    "dropout":0.2
+                }
             }
         },
         "highway_embedding_size":300,
-        "loss_ratio": 0.01,
+        "loss_ratio": 0.1,
         "num_highway_layers":2,
         "phrase_layer":{
             "type":"lstm",

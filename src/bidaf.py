@@ -34,7 +34,7 @@ from .modules import BasicWithLossTextFieldEmbedder
 from .modules.ElasticHighway import ElasticHighway
 
 logger = logging.getLogger(__name__)
-# logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG)
 
 
 @Model.register('bidaf_zh')
@@ -341,8 +341,8 @@ class BiDAF_ZH(Model):
         span_end_logits = util.replace_masked_values(span_end_logits, passages_mask, -1e7)
         # ------------------------------------------------------------------------------------------------
 
-        best_span = self.get_best_span(span_start_logits.view(batch_size, num_passages, -1),
-                                       span_end_logits.view(batch_size, num_passages, -1))
+        best_span = self.get_best_span(span_start_logits.view(batch_size, num_passages, passage_length),
+                                       span_end_logits.view(batch_size, num_passages, passage_length))
         output_dict = {'best_span': best_span,
                        'span_start_logits': span_start_logits.view(batch_size, num_passages, -1),
                        'span_start_probs': span_start_probs.view(batch_size, num_passages, -1),
@@ -356,8 +356,8 @@ class BiDAF_ZH(Model):
             spans_start = spans_start.squeeze().view(batch_size * num_passages, 1)
             spans_end = spans_end.squeeze().view(batch_size * num_passages, 1)
 
-            spans_start.clamp_(-1, passage_length - 1)
-            spans_end.clamp_(-1, passage_length - 1)
+            # spans_start.clamp_(-1, passage_length - 1)
+            # spans_end.clamp_(-1, passage_length - 1)
             # loss_Boundary = nll_loss(torch.log_softmax(span_start_logits, dim=-1),
             #                          spans_start.squeeze(-1), ignore_index=-1)
             # loss_Boundary += nll_loss(torch.log_softmax(span_end_logits, dim=-1),
@@ -372,8 +372,8 @@ class BiDAF_ZH(Model):
                 loss += self.loss_ratio * glyph_loss_q * self.decay
             if 'glyph_loss_p' in locals():
                 logger.debug('glyph_loss_p: %.5f' % glyph_loss_p)
-                loss += self.loss_ratio * glyph_loss_p *self.decay
-            self.decay = max(0.0, self.decay - 1.0/1000.0)# 1/steps 
+                loss += self.loss_ratio * glyph_loss_p * self.decay
+            self.decay = max(0.0, self.decay - 1.0 / 1000.0)  # 1/steps
             logger.debug('loss_Boundary: %.5f' % loss_Boundary)
             output_dict['loss'] = loss
 
@@ -436,24 +436,6 @@ class BiDAF_ZH(Model):
         return output_dict
 
     @staticmethod
-    def map_span_to_01(span_idx: torch.Tensor, shape: Tuple) -> torch.Tensor:
-        '''
-        This func is map span_idx=[[0], [1], [2]], shape = (3, 3) to
-        [[1, 0, 0],
-         [1, 1, 0],
-         [1, 1, 1]]
-        line i has (span_idx[i]+1)  zeors
-        Parameters
-        ----------
-        span_idx shape(batch_size * num_passages, 1)
-        '''
-        device = span_idx.device
-        span_idx = span_idx.squeeze().unsqueeze(-1)
-        x = (torch.arange(0, shape[-1]).view(1, -1).expand(shape[0], -1).float().to(device) -
-             span_idx.float().view(-1, 1).expand(-1, shape[-1]))
-        return torch.where(x > 0, torch.zeros(shape).to(device), torch.ones(shape).to(device))
-
-    @staticmethod
     def get_best_span(span_start_logits: torch.Tensor, span_end_logits: torch.Tensor) -> torch.Tensor:
         '''
         Parameters
@@ -468,8 +450,8 @@ class BiDAF_ZH(Model):
         if span_start_logits.dim() != 3 or span_end_logits.dim() != 3:
             raise ValueError("Input shapes must be (batch_size, num_passages, passage_length)")
         batch_size, num_passages, passage_length = span_start_logits.size()
-        max_span_log_prob = np.ones((batch_size, num_passages)) * -1e20
-        max_span_batch = np.ones((batch_size)) * -1e20
+        max_span_log_prob = np.ones((batch_size, num_passages)) * -1e7
+        max_span_batch = np.ones((batch_size)) * -1e7
         span_start_argmax = torch.zeros(batch_size, num_passages).long()
         best_word_span = span_start_logits.new_zeros((batch_size, 3), dtype=torch.long)
 
@@ -488,55 +470,12 @@ class BiDAF_ZH(Model):
 
                     if val1 + val2 > max_span_log_prob[b, p]:
                         max_span_log_prob[b, p] = val1 + val2
-                        # print(span_end_logits[b, p, j:])
                         if max_span_log_prob[b, p] > max_span_batch[b]:
                             best_word_span[b, 0] = p
                             best_word_span[b, 1] = span_start_argmax[b, p]
                             best_word_span[b, 2] = j
                             max_span_batch[b] = max_span_log_prob[b, p]
         return best_word_span
-
-    def get_prob_map(self, span_start_probs: torch.Tensor, span_end_probs: torch.Tensor) -> torch.Tensor:
-        '''
-        Parameters
-        ----------
-        span_start_logits: shape(batch_size * num_passages, passage_length)
-        span_end_logits: shape(batch_size * num_passages, passage_length)
-
-        Return
-        ------
-        prob_p_mask: shape(batch_size * num_passages, passage_length)
-        for one passage the return like [0, 0, 0, 1, 1, 1, 0, 0]
-        [span_start: span_end] is 1 and other is 0
-        '''
-        if span_start_probs.dim() != 2 or span_end_probs.dim() != 2:
-            raise ValueError("Input shapes must be (batch_size * num_passages, passage_length)")
-        batch_size, passage_length = span_start_probs.size()
-        max_span_prob = np.ones((batch_size)) * -1e20
-        span_start_argmax = torch.zeros(batch_size).long()
-        span_start_idx = span_start_probs.new_zeros((batch_size, 1), dtype=torch.long)
-        span_end_idx = span_start_probs.new_zeros((batch_size, 1), dtype=torch.long)
-        span_start_probs_clone = span_start_probs.clone().detach().cpu().numpy()
-        span_end_probs_clone = span_end_probs.clone().detach().cpu().numpy()
-
-        for b in range(batch_size):
-            for j in range(passage_length):
-                val1 = span_start_probs_clone[b, span_start_argmax[b]]
-                if val1 < span_start_probs_clone[b, j]:
-                    span_start_argmax[b] = j
-                    val1 = span_start_probs_clone[b, j]
-
-                val2 = span_end_probs_clone[b, j]
-                # pdb.set_trace()
-                value = val1 * val2
-
-                if value > max_span_prob[b]:
-                    max_span_prob[b] = value
-                    span_start_idx[b] = span_start_argmax[b]
-                    span_end_idx[b] = j
-        prob_p = self.map_span_to_01(span_end_idx, (batch_size, passage_length)) -\
-            self.map_span_to_01(span_start_idx - 1, (batch_size, passage_length))
-        return prob_p
 
     def get_metrics(self, reset: bool = False) -> Dict[str, float]:
         rouge_l = self._rouge_metrics.get_metric(reset)

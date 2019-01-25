@@ -9,6 +9,8 @@ from allennlp.modules.seq2vec_encoders.seq2vec_encoder import Seq2VecEncoder
 
 try:
     sys.path.append("/home/meijie/working/WordLanguageModel/")
+    sys.path.append("/home/meefly/working/WordLanguageModel/")
+    sys.path.append("/home/meelfy/working/WordLanguageModel/")
     from glyph_embedding.models.char_glyph_embedding import CharGlyphEmbedding
     from glyph_embedding.utils.default_config import GlyphEmbeddingConfig
 except ModuleNotFoundError as e:

@@ -12,11 +12,11 @@
             // }
         },
         "lazy": true,
-        "max_samples": 100
+        "max_samples": 10
     },
     "train_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/train.json",
-    // "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/train.json",
-    "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/devset/dev.json",
+    "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/train.json",
+    // "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/devset/dev.json",
     "model":{
         "type":"bidaf_zh",
         "text_field_embedder":{
@@ -41,7 +41,7 @@
                 //             1
                 //         ]
                 //     },
-                //     "dropout":0.15
+                //     "dropout":0.0
                 // }
             }
         },
@@ -54,7 +54,7 @@
             "input_size":300,
             "hidden_size":150,
             "num_layers":2,
-            "dropout":0.15
+            "dropout":0.0
         },
         "modeling_layer":{
             "type":"lstm",
@@ -62,7 +62,7 @@
             "input_size":1200,
             "hidden_size":150,
             "num_layers":2,
-            "dropout":0.15
+            "dropout":0.0
         },
         "match_layer":{
             "type":"lstm",
@@ -70,7 +70,7 @@
             "input_size":1500,
             "hidden_size":750,
             "num_layers":2,
-            "dropout":0.15
+            "dropout":0.0
         },
         "matrix_attention_layer": {
             "type": "linear",
@@ -83,7 +83,7 @@
             "input_size": 1500,
             "hidden_dim": 200,
             "lstm_layers": 2,
-            "dropout": 0.15
+            "dropout": 0.0
         },
         "span_end_lstm":{
             "type":"lstm",
@@ -91,13 +91,13 @@
             "input_size":2100,
             "hidden_size":300,
             "num_layers":2,
-            "dropout":0.15
+            "dropout":0.0
         },
         "ptr_dim":200,
         "max_num_passages": 5,
         "max_num_character": 4,
         "language": "zh",
-        "dropout":0.15
+        "dropout":0.0
     },
     "iterator":{
         "type":"bucket",
@@ -106,7 +106,7 @@
         "batch_size": 3
     },
     "trainer":{
-        "num_epochs":5,
+        "num_epochs":50,
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",

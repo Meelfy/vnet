@@ -1,26 +1,17 @@
 import json
 import logging
-import re
-import os.path
 import pickle
-import time
+from collections import Counter
 from typing import Dict, List, Tuple, Optional, Iterable, Any
 from overrides import overrides
 from tqdm import tqdm as tqdm
 
-from allennlp.common.file_utils import cached_path
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
 from allennlp.data.instance import Instance
-from allennlp.data.dataset_readers.reading_comprehension import util
 from allennlp.data.token_indexers import SingleIdTokenIndexer, TokenIndexer
 from allennlp.data.tokenizers import Token, Tokenizer, WordTokenizer
 from allennlp.data.fields import Field, TextField, IndexField, \
-    MetadataField, LabelField, ListField, SequenceLabelField
-
-from .scripts.dataset import load_data
-from .scripts.rouge import Rouge
-from .utils import get_answers_with_RougeL
-from .scripts.addRouge_L import add_rouge_read
+    MetadataField, ListField
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +74,7 @@ class DuReaderMultiPassageReader(DatasetReader):
             idx += len(text)
         return result
 
-    def _dureader_sample_to_json_obj(slef, sample)->Dict:
+    def _dureader_sample_to_json_obj(self, sample)->Dict:
         '''
         Input smaple
         ------------
@@ -93,24 +84,26 @@ class DuReaderMultiPassageReader(DatasetReader):
         '''
         json_obj = {}
         json_obj['question_tokens'] = self.segmented_text_to_tuples(sample['question_tokens'])
-        json_obj['passages_tokens'] = [segmented_text_to_tuples(sum(doc['passage_tokens'], []))
+        # import pdb
+        # pdb.set_trace()
+        json_obj['passages_tokens'] = [self.segmented_text_to_tuples(doc['passage_tokens'])
                                        for doc in sample['passages']]
         json_obj['passages_texts'] = [''.join(passage['passage_tokens']) for passage in sample['passages']]
         json_obj['qid'] = sample.pop('question_id')
         if 'answers' in sample:
-            json_obj['answer_texts'] = sample.pop('answers')
+            json_obj['answer_texts'] = [sample.pop('answers')] * len(json_obj['passages_texts'])
         else:
             json_obj['answer_texts'] = []
         token_spans = [[(-1, -1)]] * len(json_obj['passages_texts'])
         if 'answer_passages' in sample and len(sample['answer_passages']):
-            token_spans[sample['answer_docs'][0]] = sample['answer_spans'][0]
+            token_spans[sample['answer_docs'][0]] = sample['answer_spans']
         json_obj['token_spans'] = token_spans
         return json_obj
 
     def _json_blob_to_instance(self, json_obj) -> Instance:
-        question_tokens = [Token(text=text, idx=idx) for text, idx in json_obj['question_tokens']]
-        passages_tokens = [[Token(text=text, idx=idx) for text, idx in passage_tokens]
-                           for passage_tokens in json_obj['passages_tokens']]
+        question_tokens = [Token(text=text, idx=idx) for text, idx in json_obj['question_tokens']][:self.max_q_len]
+        passages_tokens = [[Token(text=text, idx=idx) for text, idx in passage_tokens][:self.max_p_len]
+                           for passage_tokens in json_obj['passages_tokens']][:self.max_p_num]
         passages_texts = json_obj['passages_texts']
         qid = json_obj['qid']
         answer_texts = json_obj['answer_texts']

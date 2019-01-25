@@ -37,13 +37,13 @@
                     "glyph_embsize": 128,
                     "output_size": 128,
                     "use_batch_norm": true,
-                    "font_channels": 4,
+                    "font_channels": 8,
                     "encoder":{
                         "type":"cnn",
                         "embedding_dim":128,
                         "num_filters":100,
                         "ngram_filter_sizes":[
-                            8
+                            1
                         ]
                     },
                     "dropout":0.15
@@ -115,7 +115,7 @@
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":6,
+        "cuda_device":2,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,
@@ -128,7 +128,7 @@
                 0.9,
                 0.9
             ],
-            "lr": 0.00003
+            "lr": 0.00001
         }
     }
 }

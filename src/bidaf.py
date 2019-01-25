@@ -104,6 +104,7 @@ class BiDAF_ZH(Model):
         self.relu = torch.nn.ReLU()
         self.max_num_passages = max_num_passages
         self.ptr_dim = ptr_dim
+        self.decay = 1.0
         self._text_field_embedder = text_field_embedder
         self._highway_layer = TimeDistributed(ElasticHighway(text_field_embedder.get_output_dim(),
                                                              highway_embedding_size,
@@ -368,10 +369,11 @@ class BiDAF_ZH(Model):
             loss = loss_Boundary / 2
             if 'glyph_loss_q' in locals():
                 logger.debug('glyph_loss_q: %.5f' % glyph_loss_q)
-                loss += self.loss_ratio * glyph_loss_q
+                loss += self.loss_ratio * glyph_loss_q * self.decay
             if 'glyph_loss_p' in locals():
                 logger.debug('glyph_loss_p: %.5f' % glyph_loss_p)
-                loss += self.loss_ratio * glyph_loss_p
+                loss += self.loss_ratio * glyph_loss_p *self.decay
+            self.decay = max(0.0, self.decay - 1.0/1000.0)# 1/steps 
             logger.debug('loss_Boundary: %.5f' % loss_Boundary)
             output_dict['loss'] = loss
 

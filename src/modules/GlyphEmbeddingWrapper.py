@@ -8,8 +8,7 @@ from allennlp.modules.token_embedders.token_embedder import TokenEmbedder
 from allennlp.modules.seq2vec_encoders.seq2vec_encoder import Seq2VecEncoder
 
 try:
-    sys.path.append("/home/meelfy/working/WordLanguageModel/")
-    sys.path.append("/home/meefly/working/WordLanguageModel")
+    sys.path.append("/home/meijie/working/WordLanguageModel/")
     from glyph_embedding.models.char_glyph_embedding import CharGlyphEmbedding
     from glyph_embedding.utils.default_config import GlyphEmbeddingConfig
 except ModuleNotFoundError as e:
@@ -33,6 +32,7 @@ class GlyphEmbeddingWrapper(TokenEmbedder):
                  encoder) -> None:
         super(GlyphEmbeddingWrapper, self).__init__()
         self.glyph_config = glyph_config
+        self.font_channels = 4
         self.glyph_config.idx2char = vocab._index_to_token['token_characters']
         self.glyph_embedding = CharGlyphEmbedding(self.glyph_config)
         self._encoder = TimeDistributed(encoder)

@@ -34,7 +34,7 @@ from .modules import BasicWithLossTextFieldEmbedder
 from .modules.ElasticHighway import ElasticHighway
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+# logger.setLevel(logging.DEBUG)
 
 
 @Model.register('bidaf_zh')

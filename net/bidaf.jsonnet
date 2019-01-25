@@ -14,6 +14,9 @@
         "lazy": true,
         // "max_samples": 10
     },
+    // "vocabulary":{
+    //     "directory_path":1
+    // },
     "train_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/train.json",
     // "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/train.json",
     "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/devset/dev.json",

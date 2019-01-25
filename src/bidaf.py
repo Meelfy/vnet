@@ -356,8 +356,8 @@ class BiDAF_ZH(Model):
             spans_start = spans_start.squeeze().view(batch_size * num_passages, 1)
             spans_end = spans_end.squeeze().view(batch_size * num_passages, 1)
 
-            # spans_start.clamp_(-1, passage_length - 1)
-            # spans_end.clamp_(-1, passage_length - 1)
+            spans_start.clamp_(-1, passage_length - 1)
+            spans_end.clamp_(-1, passage_length - 1)
             # loss_Boundary = nll_loss(torch.log_softmax(span_start_logits, dim=-1),
             #                          spans_start.squeeze(-1), ignore_index=-1)
             # loss_Boundary += nll_loss(torch.log_softmax(span_end_logits, dim=-1),

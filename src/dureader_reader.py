@@ -99,8 +99,7 @@ class DuReaderMultiPassageReader(DatasetReader):
             try:
                 token_spans[sample['answer_docs'][0]] = sample['answer_spans']
             except Exception as e:
-                import pdb
-                pdb.set_trace()
+                pass
         json_obj['token_spans'] = token_spans
         return json_obj
 

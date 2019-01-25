@@ -12,7 +12,7 @@
             // }
         },
         "lazy": true,
-        "max_samples": 100
+        "max_samples": 1000
     },
     // "vocabulary":{
     //     "directory_path":1
@@ -106,7 +106,7 @@
         "type":"bucket",
         "sorting_keys":[["question", "num_tokens"]],
         "biggest_batch_first":true,
-        "batch_size": 1
+        "batch_size": 3
     },
     "trainer":{
         "num_epochs":50,
@@ -126,7 +126,7 @@
                 0.9,
                 0.9
             ],
-            "lr": 0.0004
+            "lr": 0.0001
         }
     }
 }

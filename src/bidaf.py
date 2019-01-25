@@ -373,8 +373,12 @@ class BiDAF_ZH(Model):
             if 'glyph_loss_p' in locals():
                 logger.debug('glyph_loss_p: %.5f' % glyph_loss_p)
                 loss += self.loss_ratio * glyph_loss_p * self.decay
-            self.decay = max(0.0, self.decay - 1.0 / 1000.0)  # 1/steps
-            logger.debug('loss_Boundary: %.5f' % loss_Boundary)
+            # self.decay = max(0.0, self.decay - 1.0 / 1000.0)  # 1/steps
+            try:
+                logger.debug('loss_Boundary: %.5f' % loss_Boundary)
+            except Exception as e:
+                import pdb
+                pdb.set_trace()
             output_dict['loss'] = loss
 
         if metadata is not None:

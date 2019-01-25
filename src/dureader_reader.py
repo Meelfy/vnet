@@ -96,7 +96,11 @@ class DuReaderMultiPassageReader(DatasetReader):
             json_obj['answer_texts'] = []
         token_spans = [[(-1, -1)]] * len(json_obj['passages_texts'])
         if 'answer_passages' in sample and len(sample['answer_passages']):
-            token_spans[sample['answer_docs'][0]] = sample['answer_spans']
+            try:
+                token_spans[sample['answer_docs'][0]] = sample['answer_spans']
+            except Exception as e:
+                import pdb
+                pdb.set_trace()
         json_obj['token_spans'] = token_spans
         return json_obj
 

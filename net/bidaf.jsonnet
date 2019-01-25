@@ -12,7 +12,7 @@
             // }
         },
         "lazy": true,
-        // "max_samples": 10
+        "max_samples": 100
     },
     // "vocabulary":{
     //     "directory_path":1
@@ -106,14 +106,14 @@
         "type":"bucket",
         "sorting_keys":[["question", "num_tokens"]],
         "biggest_batch_first":true,
-        "batch_size": 3
+        "batch_size": 1
     },
     "trainer":{
         "num_epochs":50,
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":2,
+        "cuda_device":0,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

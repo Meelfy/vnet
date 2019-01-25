@@ -13,14 +13,13 @@
         },
         "lazy": true,
         "char_only": true,
-        "max_samples": 100,
+        //"max_samples": 100,
         "language": "zh",
         "passage_length_limit": 500,
         "question_length_limit": 50
     },
-    "train_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/train.json",
-    // "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/train.json",
-    "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/devset/dev.json",
+    "train_data_path":"/home/meijie/data/train.json",
+    "validation_data_path":"/home/meijie/data/dev.json",
     "model":{
         "type":"bidaf_zh",
         "text_field_embedder":{
@@ -114,7 +113,7 @@
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":2,
+        "cuda_device":6,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

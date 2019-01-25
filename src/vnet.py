@@ -35,7 +35,7 @@ from .modules import BasicWithLossTextFieldEmbedder
 from .modules.ElasticHighway import ElasticHighway
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+# logger.setLevel(logging.DEBUG)
 
 
 @Model.register('vnet')
@@ -91,6 +91,7 @@ class VNet(Model):
                  language: str = 'en',
                  ptr_dim: int = 200,
                  dropout: float = 0.2,
+                 loss_ratio: float = 0.1,
                  max_num_passages: int = 5,
                  max_num_character: int = 4,
                  mask_lstms: bool = True,
@@ -99,6 +100,7 @@ class VNet(Model):
         super().__init__(vocab, regularizer)
         self._span_end_encoder = span_end_lstm
         self.language = language
+        self.loss_ratio = loss_ratio
         self.max_num_character = max_num_character
         self.relu = torch.nn.ReLU()
         self.max_num_passages = max_num_passages
@@ -376,9 +378,9 @@ class VNet(Model):
         #     .to(match_passages_vector.device)))
 
         # PointerNet
-        # span_start_logits, span_end_logits = self._pointer_net(match_passages_vector, passages_mask)
-        span_start_logits, span_end_logits = self._pointer_net_decoder(match_passages_vector,
-                                                                       encoded_questions)
+        span_start_logits, span_end_logits = self._pointer_net(match_passages_vector, passages_mask)
+        # span_start_logits, span_end_logits = self._pointer_net_decoder(match_passages_vector,
+        #                                                                encoded_questions)
         # span_start_logits = self._ptr_layer_1(match_passages_vector).squeeze()
         # span_end_logits = self._ptr_layer_2(match_passages_vector).squeeze()
         # self._ptr_layer_2._module.weight.register_hook(print)
@@ -493,10 +495,10 @@ class VNet(Model):
             loss = loss_Boundary + 0.5 * loss_Content + 0.5 * loss_Verification
             if 'glyph_loss_q' in locals():
                 logger.debug('glyph_loss_q: %.5f' % glyph_loss_q)
-                loss += glyph_loss_q
+                loss += glyph_loss_q * self.loss_ratio
             if 'glyph_loss_p' in locals():
                 logger.debug('glyph_loss_p: %.5f' % glyph_loss_p)
-                loss += glyph_loss_p
+                loss += glyph_loss_p * self.loss_ratio
             # loss = loss_Boundary + 0.5 * loss_Verification
             # loss = loss_Boundary
             logger.debug('loss_Boundary: %.5f' % loss_Boundary)

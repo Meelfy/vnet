@@ -34,7 +34,6 @@ class GlyphEmbeddingWrapper(TokenEmbedder):
                  encoder) -> None:
         super(GlyphEmbeddingWrapper, self).__init__()
         self.glyph_config = glyph_config
-        self.font_channels = 4
         self.glyph_config.idx2char = vocab._index_to_token['token_characters']
         self.glyph_embedding = CharGlyphEmbedding(self.glyph_config)
         self._encoder = TimeDistributed(encoder)
@@ -55,6 +54,7 @@ class GlyphEmbeddingWrapper(TokenEmbedder):
         glyph_config.output_size = params.pop_int("output_size", 300)
         glyph_config.use_highway = True
         glyph_config.dropout = params.pop_float("dropout", 0.0)
+        glyph_config.font_channels = params.pop_int("font_channels", 8)
         glyph_config.glyph_embsize = params.pop_int("glyph_embsize", 256)
         glyph_config.use_batch_norm = params.pop_bool("use_batch_norm", False)
         # encoder_config

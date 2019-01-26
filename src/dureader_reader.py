@@ -102,6 +102,7 @@ class DuReaderMultiPassageReader(DatasetReader):
                 logger.info('Query: {} is droped'.format(json_obj['qid']))
                 pass
         json_obj['token_spans'] = token_spans
+        del sample
         return json_obj
 
     def _json_blob_to_instance(self, json_obj) -> Instance:

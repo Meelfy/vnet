@@ -94,6 +94,7 @@ class VNet(Model):
                  loss_ratio: float = 0.1,
                  max_num_passages: int = 5,
                  max_num_character: int = 4,
+                 max_passage_len: int = 4,
                  mask_lstms: bool = True,
                  initializer: InitializerApplicator = InitializerApplicator(),
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
@@ -104,6 +105,7 @@ class VNet(Model):
         self.max_num_character = max_num_character
         self.relu = torch.nn.ReLU()
         self.max_num_passages = max_num_passages
+        self.max_passage_len = max_passage_len
         self.ptr_dim = ptr_dim
         self._text_field_embedder = text_field_embedder
         self._highway_layer = TimeDistributed(ElasticHighway(text_field_embedder.get_output_dim(),
@@ -220,6 +222,7 @@ class VNet(Model):
         #   torch.Size([batch_size, num_passages, passage_length])
         # shape(passages_batch_size=num_passages*batch_size, question_length, question_embedding_size )
         batch_size, num_passages, passage_length = passages['tokens'].size()
+        pad_size_p_length = self.max_paself.max_passage_lenssage_len - passage_length
         # shape(batch_size*num_passages, passage_length, num_characters)
         batch_passages = {}
         if 'token_characters' in passages:
@@ -229,13 +232,21 @@ class VNet(Model):
                                                                                    num_characters)
             batch_passages['token_characters'] = batch_passages['token_characters'][:, :,
                                                                                     :self.max_num_character]
-            pad_size = self.max_num_character - batch_passages['token_characters'].size(-1)
+            # pad for glyph
+            pad_size_char = self.max_num_character - batch_passages['token_characters'].size(-1)
+            # pad for ptr-net
             batch_passages['token_characters'] = F.pad(batch_passages['token_characters'],
-                                                       (0, pad_size),
+                                                       (0, pad_size_p_length, 0, pad_size_char),
                                                        'constant',
-                                                       0.0)
+                                                       0)
         # shape(batch_size*num_passages, passage_length)
+        passage_length = self.max_passage_len
+        batch_passages['tokens'] = F.pad(batch_passages['tokens'],
+                                         (0, pad_size_p_length),
+                                         'constant',
+                                         0)
         batch_passages['tokens'] = passages['tokens'].view(-1, passage_length)
+
         # shape(batch_size*num_passages, passage_length, embedding_dim)
         if "_token_embedders" in dir(self._text_field_embedder) \
                 and 'token_characters' in self._text_field_embedder._token_embedders.keys()\
@@ -256,9 +267,9 @@ class VNet(Model):
                                                                               question_length,
                                                                               num_characters)
             questions['token_characters'] = questions['token_characters'][:, :, :self.max_num_character]
-            pad_size = self.max_num_character - questions['token_characters'].size(-1)
+            pad_size_char = self.max_num_character - questions['token_characters'].size(-1)
             questions['token_characters'] = F.pad(questions['token_characters'],
-                                                  (0, pad_size),
+                                                  (0, pad_size_char),
                                                   'constant',
                                                   0.0)
         questions['tokens'] = question['tokens'].repeat(1, num_passages).view(-1, question_length)
@@ -328,42 +339,6 @@ class VNet(Model):
 
         modeled_passage = self._dropout(self._modeling_layer(final_merged_passage, passages_lstm_mask))
 
-        # # BiDAF
-        # # ------------------------------------------------------------------------------------------------
-        # modeling_dim = modeled_passage.size(-1)
-        # # Shape: (batch_size, passage_length, encoding_dim * 4 + modeling_dim))
-        # span_start_input = self._dropout(torch.cat([final_merged_passage, modeled_passage], dim=-1))
-        # # Shape: (batch_size, passage_length)
-        # span_start_logits = self._ptr_layer_1(span_start_input).squeeze(-1)
-        # # Shape: (batch_size, passage_length)
-        # span_start_probs = util.masked_softmax(span_start_logits, passages_mask)
-
-        # # Shape: (batch_size, modeling_dim)
-        # span_start_representation = util.weighted_sum(modeled_passage, span_start_probs)
-        # # Shape: (batch_size, passage_length, modeling_dim)
-        # tiled_start_representation = span_start_representation.unsqueeze(1).expand(batch_size *
-        #                                                                            num_passages,
-        #                                                                            passage_length,
-        #                                                                            modeling_dim)
-
-        # # Shape: (batch_size, passage_length, encoding_dim * 4 + modeling_dim * 3)
-        # span_end_representation = torch.cat([final_merged_passage,
-        #                                      modeled_passage,
-        #                                      tiled_start_representation,
-        #                                      modeled_passage * tiled_start_representation],
-        #                                     dim=-1)
-        # # Shape: (batch_size, passage_length, encoding_dim)
-        # print(span_end_representation.size())
-        # encoded_span_end = self._dropout(self._span_end_encoder(span_end_representation,
-        #                                                         passages_lstm_mask))
-        # # Shape: (batch_size, passage_length, encoding_dim * 4 + span_end_encoding_dim)
-        # span_end_input = self._dropout(torch.cat([final_merged_passage, encoded_span_end], dim=-1))
-        # span_end_logits = self._ptr_layer_2(span_end_input).squeeze(-1)
-        # span_end_probs = util.masked_softmax(span_end_logits, passages_mask)
-        # span_start_logits = util.replace_masked_values(span_start_logits, passages_mask, -1e7)
-        # span_end_logits = util.replace_masked_values(span_end_logits, passages_mask, -1e7)
-        # # ------------------------------------------------------------------------------------------------
-
         # ------------------------------------
         # Part Two: Answer Boundary Prediction
         # ------------------------------------
@@ -372,13 +347,17 @@ class VNet(Model):
         #                                                         passages_lstm_mask))
         # Shape: (batch_size * num_passages, passage_length, encoding_dim * 4 + modeling_dim))
         match_passages_vector = self._dropout(torch.cat([final_merged_passage, modeled_passage], dim=-1))
+        match_size = match_passages_vector.size(-1)
         # LSTM
         # match_passages_vector = self._dropout(self._match_layer(
         #     match_passages_vector, torch.ones(match_passages_vector.size()[:2])
         #     .to(match_passages_vector.device)))
 
         # PointerNet
+        match_passages_vector = match_passages_vector.view(batch_size, -1, match_size)
         span_start_logits, span_end_logits = self._pointer_net(match_passages_vector, passages_mask)
+        span_start_logits = span_start_logits.view(batch_size * num_passages, passage_length)
+        span_end_logits = span_end_logits.view(batch_size * num_passages, passage_length)
         # span_start_logits, span_end_logits = self._pointer_net_decoder(match_passages_vector,
         #                                                                encoded_questions)
         # span_start_logits = self._ptr_layer_1(match_passages_vector).squeeze()

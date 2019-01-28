@@ -10,28 +10,27 @@
 这一行开始写关于本文件的说明与解释
 """
 import logging
-import numpy as np
 from typing import Any, Dict, List, Optional, Tuple
 
+import numpy as np
 import torch
-from torch.nn.functional import nll_loss
 import torch.nn.functional as F
-
+from torch.nn.functional import nll_loss
 from allennlp.data import Vocabulary
 from allennlp.models.model import Model
-from allennlp.modules import Seq2SeqEncoder, TimeDistributed, TextFieldEmbedder
-from allennlp.modules.matrix_attention.dot_product_matrix_attention import DotProductMatrixAttention
+from allennlp.modules import Seq2SeqEncoder, TextFieldEmbedder, TimeDistributed
+from allennlp.modules.matrix_attention.dot_product_matrix_attention import \
+    DotProductMatrixAttention
 from allennlp.modules.matrix_attention.matrix_attention import MatrixAttention
-from allennlp.nn import util, InitializerApplicator, RegularizerApplicator
+from allennlp.nn import InitializerApplicator, RegularizerApplicator, util
 from allennlp.training.metrics import BooleanAccuracy, CategoricalAccuracy
 from allennlp.training.metrics.bleu import BLEU
 
-from .MsmarcoRouge import MsmarcoRouge
-from .modules.Pointer_Network import PointerNet
 # Allennlp will find where is the GlyphEmbeddingWrapper modules
-from .modules import GlyphEmbeddingWrapper
-from .modules import BasicWithLossTextFieldEmbedder
+from .modules import BasicWithLossTextFieldEmbedder, GlyphEmbeddingWrapper
 from .modules.ElasticHighway import ElasticHighway
+from .modules.Pointer_Network import PointerNet
+from .MsmarcoRouge import MsmarcoRouge
 
 logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
@@ -82,10 +81,7 @@ class BiDAF_ZH(Model):
                  highway_embedding_size: int,
                  num_highway_layers: int,
                  phrase_layer: Seq2SeqEncoder,
-                 match_layer: Seq2SeqEncoder,
-                 matrix_attention_layer: MatrixAttention,
                  modeling_layer: Seq2SeqEncoder,
-                 pointer_net: PointerNet,
                  span_end_lstm: Seq2SeqEncoder,
                  language: str = 'en',
                  ptr_dim: int = 200,
@@ -223,7 +219,6 @@ class BiDAF_ZH(Model):
             embedded_passages = self._highway_layer(embedded_passages)
         else:
             embedded_passages = self._highway_layer(self._text_field_embedder(batch_passages))
-
         # shape(batch_size, question_length, num_characters)
         questions = {}
         batch_size, question_length = question['tokens'].size()
@@ -358,27 +353,24 @@ class BiDAF_ZH(Model):
 
             spans_start.clamp_(-1, passage_length - 1)
             spans_end.clamp_(-1, passage_length - 1)
-            # loss_Boundary = nll_loss(torch.log_softmax(span_start_logits, dim=-1),
+            # loss_boundary = nll_loss(torch.log_softmax(span_start_logits, dim=-1),
             #                          spans_start.squeeze(-1), ignore_index=-1)
-            # loss_Boundary += nll_loss(torch.log_softmax(span_end_logits, dim=-1),
+            # loss_boundary += nll_loss(torch.log_softmax(span_end_logits, dim=-1),
             #                           spans_end.squeeze(-1), ignore_index=-1)
-            loss_Boundary = nll_loss(util.masked_log_softmax(span_start_logits, passages_mask),
+            loss_boundary = nll_loss(util.masked_log_softmax(span_start_logits, passages_mask),
                                      spans_start.squeeze(-1), ignore_index=-1)
-            loss_Boundary += nll_loss(util.masked_log_softmax(span_end_logits, passages_mask),
+            loss_boundary += nll_loss(util.masked_log_softmax(span_end_logits, passages_mask),
                                       spans_end.squeeze(-1), ignore_index=-1)
-            loss = loss_Boundary / 2
+            loss = loss_boundary / 2
             if 'glyph_loss_q' in locals():
                 logger.debug('glyph_loss_q: %.5f' % glyph_loss_q)
                 loss += self.loss_ratio * glyph_loss_q * self.decay
             if 'glyph_loss_p' in locals():
                 logger.debug('glyph_loss_p: %.5f' % glyph_loss_p)
-                logger.debug('loss_ratio: %.5f' % self.loss_ratio)
-                logger.debug('decay: %.5f' % self.decay)
                 loss += self.loss_ratio * glyph_loss_p * self.decay
             # self.decay = max(0.0, self.decay - 1.0 / 1000.0)  # 1/steps
             try:
-                logger.debug('loss_Boundary: %.5f' % loss_Boundary)
-                logger.debug('loss_Boundary: %.5f' % loss)
+                logger.debug('loss_boundary: %.5f' % loss_boundary)
             except Exception as e:
                 import pdb
                 pdb.set_trace()
@@ -443,7 +435,8 @@ class BiDAF_ZH(Model):
         return output_dict
 
     @staticmethod
-    def get_best_span(span_start_logits: torch.Tensor, span_end_logits: torch.Tensor) -> torch.Tensor:
+    def get_best_span(span_start_logits: torch.Tensor,
+                      span_end_logits: torch.Tensor) -> torch.Tensor:
         '''
         Parameters
         ----------
@@ -464,7 +457,7 @@ class BiDAF_ZH(Model):
 
         span_start_logits = span_start_logits.detach().cpu().numpy()
         span_end_logits = span_end_logits.detach().cpu().numpy()
-
+        
         for b in range(batch_size):
             for p in range(num_passages):
                 for j in range(passage_length):

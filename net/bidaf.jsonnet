@@ -14,9 +14,9 @@
         "lazy": true,
         "max_samples": 1000
     },
-    // "vocabulary":{
-    //     "directory_path":"/home/meijie/data/dureader/vocabulary",
-    // },
+    "vocabulary":{
+        "directory_path":"/data/nfsdata/meijie/data/dureader/vocabulary/",
+    },
     "train_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/train.json",
     // "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/train.json",
     "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/devset/dev.json",
@@ -69,27 +69,6 @@
             "num_layers":2,
             "dropout":0.15
         },
-        "match_layer":{
-            "type":"lstm",
-            "bidirectional":true,
-            "input_size":1500,
-            "hidden_size":750,
-            "num_layers":2,
-            "dropout":0.15
-        },
-        "matrix_attention_layer": {
-            "type": "linear",
-            "tensor_1_dim": 300,
-            "tensor_2_dim": 300,
-            "combination": "x,y,x*y"
-        },
-        "pointer_net": {
-            "bidirectional": false,
-            "input_size": 1500,
-            "hidden_dim": 200,
-            "lstm_layers": 2,
-            "dropout": 0.15
-        },
         "span_end_lstm":{
             "type":"lstm",
             "bidirectional":false,
@@ -104,23 +83,28 @@
         "language": "zh",
         "dropout":0.15
     },
-    // "iterator":{
-    //     "type":"bucket",
-    //     "sorting_keys":[["question", "num_tokens"]],
-    //     "biggest_batch_first":true,
-    //     "batch_size": 32
-    // },
     "iterator":{
-        "type":"multiprocess",
-        "num_workers": 2,
-        "batch_size": 2
+        "type":"bucket",
+        "sorting_keys":[["question", "num_tokens"]],
+        "biggest_batch_first":true,
+        "batch_size": 32
     },
+    // "iterator":{
+    //     "type":"multiprocess",
+    //     "base_iterator":{
+    //         "type":"bucket",
+    //         "sorting_keys":[["question", "num_tokens"]],
+    //         "biggest_batch_first":true,
+    //         "batch_size": 2
+    //     },
+    //     "num_workers": 2
+    // },
     "trainer":{
         "num_epochs":8,
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":[2, 3],
+        "cuda_device":3,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

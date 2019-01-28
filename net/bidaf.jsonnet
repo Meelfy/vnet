@@ -15,12 +15,13 @@
         "max_samples": 1000
     },
     // "vocabulary":{
-    //     "directory_path":1
+    //     "directory_path":"/home/meijie/data/dureader/vocabulary",
     // },
     "train_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/train.json",
     // "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/train.json",
     "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/devset/dev.json",
     "model":{
+        // "type":"vnet",
         "type":"bidaf_zh",
         "text_field_embedder":{
             "type": "basic_with_loss",
@@ -30,12 +31,13 @@
                     "embedding_dim":300,
                     "trainable":true
                 }
-                // ,
+                ,
                 // "token_characters":{
                 //     "type":"glyph_encoder",
                 //     "glyph_embsize": 128,
                 //     "output_size": 128,
                 //     "use_batch_norm": true,
+                //     "font_channels": 8,
                 //     "encoder":{
                 //         "type":"cnn",
                 //         "embedding_dim":128,
@@ -102,18 +104,23 @@
         "language": "zh",
         "dropout":0.15
     },
+    // "iterator":{
+    //     "type":"bucket",
+    //     "sorting_keys":[["question", "num_tokens"]],
+    //     "biggest_batch_first":true,
+    //     "batch_size": 32
+    // },
     "iterator":{
-        "type":"bucket",
-        "sorting_keys":[["question", "num_tokens"]],
-        "biggest_batch_first":true,
-        "batch_size": 3
+        "type":"multiprocess",
+        "num_workers": 2,
+        "batch_size": 2
     },
     "trainer":{
-        "num_epochs":50,
+        "num_epochs":8,
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":0,
+        "cuda_device":[2, 3],
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

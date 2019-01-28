@@ -99,8 +99,10 @@ class DuReaderMultiPassageReader(DatasetReader):
             try:
                 token_spans[sample['answer_docs'][0]] = sample['answer_spans']
             except Exception as e:
+                logger.info('Query: {} is droped'.format(json_obj['qid']))
                 pass
         json_obj['token_spans'] = token_spans
+        del sample
         return json_obj
 
     def _json_blob_to_instance(self, json_obj) -> Instance:

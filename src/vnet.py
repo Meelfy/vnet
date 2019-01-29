@@ -29,9 +29,6 @@ from allennlp.training.metrics.bleu import BLEU
 from .MsmarcoRouge import MsmarcoRouge
 from .modules.Pointer_Network import PointerNet
 from .modules.pointerNetwork import PointerNetDecoder
-# Allennlp will find where is the GlyphEmbeddingWrapper modules
-from .modules import GlyphEmbeddingWrapper
-from .modules import BasicWithLossTextFieldEmbedder
 from .modules.ElasticHighway import ElasticHighway
 
 logger = logging.getLogger(__name__)
@@ -83,7 +80,7 @@ class VNet(Model):
                  highway_embedding_size: int,
                  num_highway_layers: int,
                  phrase_layer: Seq2SeqEncoder,
-                 match_layer: Seq2SeqEncoder,
+                 # match_layer: Seq2SeqEncoder,
                  matrix_attention_layer: MatrixAttention,
                  modeling_layer: Seq2SeqEncoder,
                  pointer_net: PointerNet,
@@ -91,7 +88,7 @@ class VNet(Model):
                  language: str = 'en',
                  ptr_dim: int = 200,
                  dropout: float = 0.2,
-                 loss_ratio: float = 0.1,
+                 loss_ratio: float = 0.3,
                  max_num_passages: int = 5,
                  max_num_character: int = 4,
                  max_passage_len: int = 4,
@@ -99,7 +96,7 @@ class VNet(Model):
                  initializer: InitializerApplicator = InitializerApplicator(),
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
         super().__init__(vocab, regularizer)
-        self._span_end_encoder = span_end_lstm
+        # self._span_end_encoder = span_end_lstm
         self.language = language
         self.loss_ratio = loss_ratio
         self.max_num_character = max_num_character
@@ -117,7 +114,7 @@ class VNet(Model):
         modeling_dim = modeling_layer.get_output_dim()
         encoding_dim = phrase_layer.get_output_dim()
 
-        self._match_layer = match_layer
+        # self._match_layer = match_layer
         # self._ptr_layer_1 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
         #                                                     modeling_dim, 1))
         # self._ptr_layer_2 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
@@ -132,9 +129,9 @@ class VNet(Model):
         self._passages_matrix_attention = matrix_attention_layer
 
         self._pointer_net = pointer_net
-        self._pointer_net_decoder = PointerNetDecoder(encoding_dim * 4 +
-                                                      modeling_dim,
-                                                      ptr_dim)
+        # self._pointer_net_decoder = PointerNetDecoder(encoding_dim * 4 +
+        #                                               modeling_dim,
+        #                                               ptr_dim)
 
         self._passage_predictor = TimeDistributed(torch.nn.Linear(self.max_num_passages, 1))
 
@@ -222,7 +219,8 @@ class VNet(Model):
         #   torch.Size([batch_size, num_passages, passage_length])
         # shape(passages_batch_size=num_passages*batch_size, question_length, question_embedding_size )
         batch_size, num_passages, passage_length = passages['tokens'].size()
-        pad_size_p_length = self.max_paself.max_passage_lenssage_len - passage_length
+        pad_size_p_length = self.max_passage_len - passage_length
+        pad_size_p_length = max(pad_size_p_length, 0)
         # shape(batch_size*num_passages, passage_length, num_characters)
         batch_passages = {}
         if 'token_characters' in passages:
@@ -234,19 +232,19 @@ class VNet(Model):
                                                                                     :self.max_num_character]
             # pad for glyph
             pad_size_char = self.max_num_character - batch_passages['token_characters'].size(-1)
+            pad_size_char = max(pad_size_char, 0)
             # pad for ptr-net
             batch_passages['token_characters'] = F.pad(batch_passages['token_characters'],
-                                                       (0, pad_size_p_length, 0, pad_size_char),
+                                                       (0, pad_size_char, 0, pad_size_p_length),
                                                        'constant',
-                                                       0)
+                                                       0.0)
         # shape(batch_size*num_passages, passage_length)
         passage_length = self.max_passage_len
-        batch_passages['tokens'] = F.pad(batch_passages['tokens'],
+        batch_passages['tokens'] = F.pad(passages['tokens'],
                                          (0, pad_size_p_length),
                                          'constant',
-                                         0)
-        batch_passages['tokens'] = passages['tokens'].view(-1, passage_length)
-
+                                         0.0)
+        batch_passages['tokens'] = batch_passages['tokens'].view(-1, passage_length)
         # shape(batch_size*num_passages, passage_length, embedding_dim)
         if "_token_embedders" in dir(self._text_field_embedder) \
                 and 'token_characters' in self._text_field_embedder._token_embedders.keys()\
@@ -358,6 +356,9 @@ class VNet(Model):
         span_start_logits, span_end_logits = self._pointer_net(match_passages_vector, passages_mask)
         span_start_logits = span_start_logits.view(batch_size * num_passages, passage_length)
         span_end_logits = span_end_logits.view(batch_size * num_passages, passage_length)
+        match_passages_vector = match_passages_vector.view(batch_size * num_passages,
+                                                           passage_length,
+                                                           match_size)
         # span_start_logits, span_end_logits = self._pointer_net_decoder(match_passages_vector,
         #                                                                encoded_questions)
         # span_start_logits = self._ptr_layer_1(match_passages_vector).squeeze()

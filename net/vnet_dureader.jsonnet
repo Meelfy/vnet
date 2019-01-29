@@ -1,6 +1,6 @@
 {
     "dataset_reader":{
-        "type":"msmarco_multi_passage_limited",
+        "type":"dureader_multi_passage_limited",
         "token_indexers":{
             "tokens":{
                 "type":"single_id",
@@ -12,16 +12,16 @@
             }
         },
         "lazy": true,
-        "char_only": true,
-        "max_samples": -1,
-        "language": "zh",
-        "passage_length_limit": 500,
-        "question_length_limit": 50
+        "max_p_num": 5,
+        "max_p_len": 400,
+        "max_q_len": 60,
     },
-    "train_data_path":"/data/nfsdata/meijie/data/dureader/raw/trainset/train.json.merge_passage",
-    // "validation_data_path":"/data/nfsdata/meijie/data/dureader/raw/trainset/train.json.merge_passage",
-    // "validation_data_path":"/data/nfsdata/meijie/data/dureader/raw/trainset/test.json.merge_passage",
-    "validation_data_path":"/data/nfsdata/meijie/data/dureader/raw/devset/dev.json.merge_passage",
+    "vocabulary":{
+        "directory_path":"/data/nfsdata/meijie/data/dureader/vocabulary/",
+    },
+    "train_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/zhidao.train.json",
+    // "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/zhidao.train.json",
+    "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/devset/zhidao.dev.json",
     "model":{
         "type":"vnet",
         "text_field_embedder":{
@@ -32,92 +32,106 @@
                     // "pretrained_file":"/data/nfsdata/nlp/embeddings/chinese/word_embedding300.data",
                     // "embedding_dim":300,
                     // "pretrained_file":"/data/nfsdata/nlp/embeddings/chinese/Tencent_AILab_ChineseEmbedding.txt",
-                    "embedding_dim":300,
+                    "embedding_dim":150,
                     "trainable":true
-                }
-                ,
+                },
                 "token_characters":{
-                    "type":"glyph_encoder",
-                    "glyph_embsize": 128,
-                    "output_size": 128,
-                    "use_batch_norm": true,
+                    "type":"character_encoding",
+                    "embedding":{
+                        "num_embeddings":3100,
+                        "embedding_dim":32
+                    },
                     "encoder":{
                         "type":"cnn",
-                        "embedding_dim":128,
-                        "num_filters":100,
+                        "embedding_dim":32,
+                        "num_filters":32,
                         "ngram_filter_sizes":[
                             1
                         ]
                     },
-                    "dropout":0.20
+                    "dropout":0.5
                 }
+                // ,
+                // "token_characters":{
+                //     "type":"glyph_encoder",
+                //     "glyph_embsize": 128,
+                //     "output_size": 128,
+                //     "use_batch_norm": true,
+                //     "encoder":{
+                //         "type":"cnn",
+                //         "embedding_dim":128,
+                //         "num_filters":100,
+                //         "ngram_filter_sizes":[
+                //             1
+                //         ]
+                //     },
+                //     "dropout":0.5
+                // }
             }
         },
-        "highway_embedding_size":300,
-        "num_highway_layers":2,
+        "max_passage_len": 500,
+        "highway_embedding_size":182,
+        "num_highway_layers":1,
         "phrase_layer":{
             "type":"lstm",
             "bidirectional":true,
-            "input_size":300,
-            "hidden_size":150,
-            "num_layers":2,
-            "dropout":0.20
+            "input_size":182,
+            "hidden_size":64,
+            "num_layers":1,
+            "dropout":0.5
         },
         "modeling_layer":{
             "type":"lstm",
             "bidirectional":true,
-            "input_size":1200,
-            "hidden_size":150,
+            "input_size":512,
+            "hidden_size":64,
             "num_layers":2,
-            "dropout":0.20
-        },
-        "match_layer":{
-            "type":"lstm",
-            "bidirectional":true,
-            "input_size":1500,
-            "hidden_size":750,
-            "num_layers":2,
-            "dropout":0.20
+            "dropout":0.5
         },
         "matrix_attention_layer": {
             "type": "linear",
-            "tensor_1_dim": 300,
-            "tensor_2_dim": 300,
+            "tensor_1_dim": 182,
+            "tensor_2_dim": 182,
             "combination": "x,y,x*y"
         },
         "pointer_net": {
             "bidirectional": false,
-            "input_size": 1500,
-            "hidden_dim": 200,
+            "input_size": 640,
+            "hidden_dim": 64,
             "lstm_layers": 2,
-            "dropout": 0.20
+            "dropout": 0.5
         },
         "span_end_lstm":{
             "type":"lstm",
             "bidirectional":false,
-            "input_size":2100,
-            "hidden_size":300,
+            "input_size":640,
+            "hidden_size":64,
             "num_layers":2,
-            "dropout":0.20
+            "dropout":0.5
         },
-        "ptr_dim":200,
-        "max_num_passages": 5,
-        "max_num_character": 4,
+        "ptr_dim":64,
+        // "max_num_passages": 10,
+        "max_num_character": 20,
         "language": "zh",
-        "dropout":0.20
+        "dropout":0.5
     },
     "iterator":{
         "type":"bucket",
         "sorting_keys":[["question", "num_tokens"]],
         "biggest_batch_first":true,
-        "batch_size": 2
+        "batch_size": 32
     },
     "trainer":{
-        "num_epochs":5,
+        "moving_average": {
+            "type":"moving_average",
+            "decay": 0.99999
+        },
+        "num_epochs":10,
+        "grad_clipping":true,
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":0,
+        "cuda_device":2,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,
@@ -126,11 +140,7 @@
         },
         "optimizer":{
             "type":"adam",
-            "betas":[
-                0.9,
-                0.9
-            ],
-            "lr": 0.001
+            "lr": 0.0001
         }
     }
 }

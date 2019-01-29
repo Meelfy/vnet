@@ -21,8 +21,8 @@
     // "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/train.json",
     "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/devset/dev.json",
     "model":{
-        // "type":"vnet",
-        "type":"bidaf_zh",
+        "type":"vnet",
+        // "type":"bidaf_zh",
         "text_field_embedder":{
             "type": "basic_with_loss",
             "token_embedders":{

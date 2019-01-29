@@ -251,6 +251,7 @@ class PointerNetDecoder(nn.Module):
         # linear with bias
         span_start_logits = self._ptr_layer_3(F).squeeze()
         logger.debug("span_start_logits.size %s" % str(span_start_logits.size()))
+        passages_mask = passages_mask.view(span_start_logits.size(0), -1)
         span_start_probs = util.masked_softmax(span_start_logits, passages_mask)
         decoder_input = util.weighted_sum(embedded_inputs, span_start_probs)
         logger.debug("decoder_input.size %s" % str(decoder_input.size()))

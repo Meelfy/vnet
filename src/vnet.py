@@ -352,13 +352,13 @@ class VNet(Model):
         #     .to(match_passages_vector.device)))
 
         # PointerNet
-        match_passages_vector = match_passages_vector.view(batch_size, -1, match_size)
+        # match_passages_vector = match_passages_vector.view(batch_size, -1, match_size)
         span_start_logits, span_end_logits = self._pointer_net(match_passages_vector, passages_mask)
-        span_start_logits = span_start_logits.view(batch_size * num_passages, passage_length)
-        span_end_logits = span_end_logits.view(batch_size * num_passages, passage_length)
-        match_passages_vector = match_passages_vector.view(batch_size * num_passages,
-                                                           passage_length,
-                                                           match_size)
+        # span_start_logits = span_start_logits.view(batch_size * num_passages, passage_length)
+        # span_end_logits = span_end_logits.view(batch_size * num_passages, passage_length)
+        # match_passages_vector = match_passages_vector.view(batch_size * num_passages,
+        #                                                    passage_length,
+        #                                                    match_size)
         # span_start_logits, span_end_logits = self._pointer_net_decoder(match_passages_vector,
         #                                                                encoded_questions)
         # span_start_logits = self._ptr_layer_1(match_passages_vector).squeeze()

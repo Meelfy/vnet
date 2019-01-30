@@ -631,20 +631,13 @@ class VNet(Model):
         for one passage the return like [0, 0, 0, 1, 1, 1, 0, 0]
         [span_start: span_end] is 1 and other is 0
         '''
-        device = span_start_probs.device
         if span_start_probs.dim() != 2 or span_end_probs.dim() != 2:
             raise ValueError("Input shapes must be (batch_size * num_passages, passage_length)")
         batch_size, passage_length = span_start_probs.size()
-        span_start_idx = torch.zeros((batch_size, 1), dtype=torch.long, device=device)
-        span_end_idx = torch.zeros((batch_size, 1), dtype=torch.long, device=device)
-        for b in range(batch_size):
-            v1 = span_start_probs[b, :]
-            v2 = span_end_probs[b, :]
-            idx = torch.tril(torch.ger(v1, v2)).view(-1).argmax()
-            span_start_idx[b] = idx % passage_length
-            span_end_idx[b] = idx // passage_length
-        span_start_idx = span_start_idx.contiguous()
-        span_end_idx = span_end_idx.contiguous()
+        res = torch.bmm(span_start_probs.unsqueeze(2),
+                        span_end_probs.unsqueeze(1)).view(batch_size, -1).argmax(dim=-1)
+        span_start_idx = res % passage_length
+        span_end_idx = res // passage_length
         prob_p = self.map_span_to_01(span_end_idx, (batch_size, passage_length)) -\
             self.map_span_to_01(span_start_idx - 1, (batch_size, passage_length))
         return prob_p

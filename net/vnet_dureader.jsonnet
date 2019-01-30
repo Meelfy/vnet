@@ -132,7 +132,7 @@
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":2,
+        "cuda_device":1,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

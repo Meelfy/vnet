@@ -24,12 +24,12 @@ from allennlp.modules import Seq2SeqEncoder, TimeDistributed, TextFieldEmbedder
 from allennlp.modules.matrix_attention.dot_product_matrix_attention import DotProductMatrixAttention
 from allennlp.modules.matrix_attention.matrix_attention import MatrixAttention
 from allennlp.nn import util, InitializerApplicator, RegularizerApplicator
-from allennlp.training.metrics import BooleanAccuracy, CategoricalAccuracy
-from allennlp.training.metrics.bleu import BLEU
+from allennlp.training.metrics import CategoricalAccuracy
 
 from .MsmarcoRouge import MsmarcoRouge
+from .DureaderBleu import DureaderBleu
 from .modules.Pointer_Network import PointerNet
-from .modules.pointerNetwork import PointerNetDecoder
+# from .modules.pointerNetwork import PointerNetDecoder
 from .modules.ElasticHighway import ElasticHighway
 logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
@@ -140,9 +140,8 @@ class VNet(Model):
 
         self._span_start_accuracy = CategoricalAccuracy()
         self._span_end_accuracy = CategoricalAccuracy()
-        self._span_accuracy = BooleanAccuracy()
         self._rouge_metrics = MsmarcoRouge()
-        self._bleu_metrics = BLEU()
+        self._bleu_metrics = DureaderBleu()
         if dropout > 0:
             self._dropout = torch.nn.Dropout(p=dropout)
         else:
@@ -517,8 +516,10 @@ class VNet(Model):
                 if answer_texts:
                     if self.language == 'zh':
                         self._rouge_metrics(' '.join(best_span_string), answer_texts)
+                        self._bleu_metrics(' '.join(best_span_string), answer_texts)
                     elif self.language == 'en':
                         self._rouge_metrics(best_span_string, answer_texts)
+                        self._bleu_metrics(best_span_string, answer_texts)
                 if spans_start is not None and loss < 9:
                     logger.debug('passage_id:%d, start_idx:%d, end_idx:%d' %
                                  (passage_id, start_idx, end_idx))
@@ -650,9 +651,8 @@ class VNet(Model):
 
     def get_metrics(self, reset: bool = False) -> Dict[str, float]:
         rouge_l = self._rouge_metrics.get_metric(reset)
-        # bleu_1 = self._bleu_metrics.get_metric(reset)
+        bleu_4 = self._bleu_metrics.get_metric(reset)
         return {'start_acc': self._span_start_accuracy.get_metric(reset),
                 'end_acc': self._span_end_accuracy.get_metric(reset),
-                # 'span_acc': self._span_accuracy.get_metric(reset),
+                'bleu_4': bleu_4,
                 'rouge_L': rouge_l}
-        # 'bleu_1': bleu_1}

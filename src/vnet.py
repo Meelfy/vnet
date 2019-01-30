@@ -550,10 +550,10 @@ class VNet(Model):
     @staticmethod
     def map_span_to_01(span_idx: torch.Tensor, shape: Tuple) -> torch.Tensor:
         '''
-        This func is map span_idx=[[0], [1], [2]], shape = (3, 3) to
+        This func is map span_idx=[[0], [2], [1]], shape = (3, 3) to
         [[1, 0, 0],
-         [1, 1, 0],
-         [1, 1, 1]]
+         [1, 1, 1],
+         [1, 1, 0]]
         line i has (span_idx[i]+1)  zeors
         Parameters
         ----------
@@ -634,10 +634,13 @@ class VNet(Model):
         if span_start_probs.dim() != 2 or span_end_probs.dim() != 2:
             raise ValueError("Input shapes must be (batch_size * num_passages, passage_length)")
         batch_size, passage_length = span_start_probs.size()
-        res = torch.bmm(span_start_probs.unsqueeze(2),
-                        span_end_probs.unsqueeze(1)).view(batch_size, -1).argmax(dim=-1)
-        span_start_idx = res % passage_length
-        span_end_idx = res // passage_length
+        device = span_start_probs.device
+        probs_product = torch.bmm(span_start_probs.unsqueeze(2), span_end_probs.unsqueeze(1))
+        probs_product_triu = probs_product * torch.triu(torch.ones((passage_length, passage_length),
+                                                                   device=device)).unsqueeze(0)
+        res = probs_product_triu.view(batch_size, -1).argmax(-1)
+        span_start_idx = res // passage_length
+        span_end_idx = res % passage_length
         prob_p = self.map_span_to_01(span_end_idx, (batch_size, passage_length)) -\
             self.map_span_to_01(span_start_idx - 1, (batch_size, passage_length))
         return prob_p

@@ -15,7 +15,7 @@
         "max_p_num": 5,
         "max_p_len": 400,
         "max_q_len": 60,
-        "max_samples": 1000,
+        // "max_samples": 100,
     },
     "vocabulary":{
         "directory_path":"/data/nfsdata/meijie/data/dureader/vocabulary/",
@@ -79,7 +79,7 @@
             "input_size":182,
             "hidden_size":64,
             "num_layers":1,
-            "dropout":0.5
+            // "dropout":0.5
         },
         "modeling_layer":{
             "type":"lstm",
@@ -132,7 +132,7 @@
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":3,
+        "cuda_device":2,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

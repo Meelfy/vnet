@@ -71,9 +71,11 @@ class PointerNetEncoder(nn.Module):
 
         embedded_inputs = embedded_inputs.permute(1, 0, 2)
 
+        self.lstm.flatten_parameters()
         outputs, hidden = self.lstm(embedded_inputs, hidden)
+        self.lstm.flatten_parameters()
 
-        return outputs.permute(1, 0, 2), hidden
+        return outputs.permute(1, 0, 2).contiguous(), hidden
 
     def init_hidden(self, batch_size):
         """

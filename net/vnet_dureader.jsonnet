@@ -15,6 +15,7 @@
         "max_p_num": 5,
         "max_p_len": 400,
         "max_q_len": 60,
+        "max_samples": 1000,
     },
     "vocabulary":{
         "directory_path":"/data/nfsdata/meijie/data/dureader/vocabulary/",
@@ -38,7 +39,7 @@
                 "token_characters":{
                     "type":"character_encoding",
                     "embedding":{
-                        "num_embeddings":3100,
+                        "num_embeddings":4100,
                         "embedding_dim":32
                     },
                     "encoder":{
@@ -46,7 +47,7 @@
                         "embedding_dim":32,
                         "num_filters":32,
                         "ngram_filter_sizes":[
-                            1
+                            1  
                         ]
                     },
                     "dropout":0.5
@@ -123,7 +124,7 @@
     },
     "trainer":{
         "moving_average": {
-            "type":"moving_average",
+            "type":"exponential",
             "decay": 0.99999
         },
         "num_epochs":10,
@@ -131,7 +132,7 @@
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":2,
+        "cuda_device":3,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

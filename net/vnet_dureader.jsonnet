@@ -8,8 +8,8 @@
             }
             ,
             "token_characters":{
-                "min_padding_length":5,
-                "type":"characters"
+                "type":"characters",
+                "min_padding_length":5
             }
         },
         "lazy": true,
@@ -22,7 +22,6 @@
         "directory_path":"/data/nfsdata/meijie/data/dureader/vocabulary/",
     },
     "train_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/train.json",
-    // "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/train.json",
     "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/devset/dev.json",
     "model":{
         "type":"vnet",
@@ -31,11 +30,9 @@
             "token_embedders":{
                 "tokens":{
                     "type":"embedding",
-                    // "pretrained_file":"/data/nfsdata/nlp/embeddings/chinese/word_embedding300.data",
-                    // "embedding_dim":300,
-                    // "pretrained_file":"/data/nfsdata/nlp/embeddings/chinese/tencent/Tencent_AILab_ChineseEmbedding.txt",
+                    "pretrained_file":"/data/nfsdata/nlp/embeddings/chinese/tencent/Tencent_AILab_ChineseEmbedding.txt",
                     "embedding_dim":200,
-                    "trainable":true
+                    "trainable":false
                 },
                 "token_characters":{
                     "type":"character_encoding",
@@ -133,7 +130,7 @@
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":2,
+        "cuda_device":1,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

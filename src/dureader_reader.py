@@ -32,9 +32,9 @@ class DuReaderMultiPassageReader(DatasetReader):
     lazy : ``bool``, optional (default=False)
         If this is true, ``instances()`` will return an object whose ``__iter__`` method
         reloads the dataset each time it's called. Otherwise, ``instances()`` returns a list.
-    passage_length_limit : ``int``, optional (default=None)
+    max_p_len : ``int``, optional (default=500)
         if specified, we will cut the passage if the length of passage exceeds this limit.
-    question_length_limit : ``int``, optional (default=None)
+    max_q_len : ``int``, optional (default=50)
         if specified, we will cut the question if the length of passage exceeds this limit.
     """
 
@@ -179,7 +179,6 @@ class DuReaderMultiPassageReader(DatasetReader):
                                            answer_texts: List[str] = None,
                                            token_spans: List[List[Tuple[int, int]]] = None,
                                            additional_metadata: Dict[str, Any] = None) -> Instance:
-
         fields: Dict[str, Field] = {}
         additional_metadata = additional_metadata or {}
         passages_offsets = [[(token.idx, token.idx + len(token.text)) for token in passage_tokens]

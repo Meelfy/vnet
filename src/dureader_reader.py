@@ -102,11 +102,11 @@ class DuReaderMultiPassageReader(DatasetReader):
                 logger.info('Query: {} is droped'.format(json_obj['qid']))
                 pass
         json_obj['token_spans'] = token_spans
-        del sample
         return json_obj
 
     def _json_blob_to_instance(self, json_obj) -> Instance:
-        question_tokens = [Token(text=text, idx=idx) for text, idx in json_obj['question_tokens']][:self.max_q_len]
+        question_tokens = [Token(text=text, idx=idx) for text, idx
+                           in json_obj['question_tokens']][:self.max_q_len]
         passages_tokens = [[Token(text=text, idx=idx) for text, idx in passage_tokens][:self.max_p_len]
                            for passage_tokens in json_obj['passages_tokens']][:self.max_p_num]
         passages_texts = json_obj['passages_texts']
@@ -127,49 +127,48 @@ class DuReaderMultiPassageReader(DatasetReader):
         Args:
             data_path: the data file to load
         """
-        with open(data_path) as fin:
-            data_set = []
-            for lidx, line in tqdm(enumerate(fin)):
-                if self.max_samples >= 0 and lidx > self.max_samples:
-                    break
-                sample = json.loads(line.strip())
+        fin = open(data_path)
+        for lidx, line in tqdm(enumerate(fin)):
+            if self.max_samples >= 0 and lidx > self.max_samples:
+                break
+            sample = json.loads(line.strip())
+            if train:
+                if len(sample['answer_spans']) == 0:
+                    continue
+                if sample['answer_spans'][0][1] >= self.max_p_len:
+                    continue
+
+            if 'answer_docs' in sample:
+                sample['answer_passages'] = sample['answer_docs']
+
+            sample['question_tokens'] = sample['segmented_question']
+
+            sample['passages'] = []
+            for d_idx, doc in enumerate(sample['documents']):
                 if train:
-                    if len(sample['answer_spans']) == 0:
-                        continue
-                    if sample['answer_spans'][0][1] >= self.max_p_len:
-                        continue
-
-                if 'answer_docs' in sample:
-                    sample['answer_passages'] = sample['answer_docs']
-
-                sample['question_tokens'] = sample['segmented_question']
-
-                sample['passages'] = []
-                for d_idx, doc in enumerate(sample['documents']):
-                    if train:
-                        most_related_para = doc['most_related_para']
-                        sample['passages'].append(
-                            {'passage_tokens': doc['segmented_paragraphs'][most_related_para],
-                             'is_selected': doc['is_selected']}
-                        )
-                    else:
-                        para_infos = []
-                        for para_tokens in doc['segmented_paragraphs']:
-                            question_tokens = sample['segmented_question']
-                            common_with_question = Counter(para_tokens) & Counter(question_tokens)
-                            correct_preds = sum(common_with_question.values())
-                            if correct_preds == 0:
-                                recall_wrt_question = 0
-                            else:
-                                recall_wrt_question = float(correct_preds) / len(question_tokens)
-                            para_infos.append((para_tokens, recall_wrt_question, len(para_tokens)))
-                        para_infos.sort(key=lambda x: (-x[1], x[2]))
-                        fake_passage_tokens = []
-                        for para_info in para_infos[:1]:
-                            fake_passage_tokens += para_info[0]
-                        sample['passages'].append({'passage_tokens': fake_passage_tokens})
-                data_set.append(sample)
-        return data_set
+                    most_related_para = doc['most_related_para']
+                    sample['passages'].append(
+                        {'passage_tokens': doc['segmented_paragraphs'][most_related_para],
+                         'is_selected': doc['is_selected']}
+                    )
+                else:
+                    para_infos = []
+                    for para_tokens in doc['segmented_paragraphs']:
+                        question_tokens = sample['segmented_question']
+                        common_with_question = Counter(para_tokens) & Counter(question_tokens)
+                        correct_preds = sum(common_with_question.values())
+                        if correct_preds == 0:
+                            recall_wrt_question = 0
+                        else:
+                            recall_wrt_question = float(correct_preds) / len(question_tokens)
+                        para_infos.append((para_tokens, recall_wrt_question, len(para_tokens)))
+                    para_infos.sort(key=lambda x: (-x[1], x[2]))
+                    fake_passage_tokens = []
+                    for para_info in para_infos[:1]:
+                        fake_passage_tokens += para_info[0]
+                    sample['passages'].append({'passage_tokens': fake_passage_tokens})
+            yield sample
+        fin.close()
 
     def make_MSMARCO_MultiPassage_instance(self,
                                            question_tokens: List[Token],

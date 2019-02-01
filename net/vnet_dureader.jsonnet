@@ -33,7 +33,7 @@
                     "type":"embedding",
                     // "pretrained_file":"/data/nfsdata/nlp/embeddings/chinese/word_embedding300.data",
                     // "embedding_dim":300,
-                    "pretrained_file":"/data/nfsdata/nlp/embeddings/chinese/tencent/Tencent_AILab_ChineseEmbedding.txt",
+                    // "pretrained_file":"/data/nfsdata/nlp/embeddings/chinese/tencent/Tencent_AILab_ChineseEmbedding.txt",
                     "embedding_dim":200,
                     "trainable":true
                 },

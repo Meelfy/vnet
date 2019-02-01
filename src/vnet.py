@@ -360,11 +360,7 @@ class VNet(Model):
         #                                                                encoded_questions)
         # span_start_logits = self._ptr_layer_1(match_passages_vector).squeeze()
         # span_end_logits = self._ptr_layer_2(match_passages_vector).squeeze()
-        # self._ptr_layer_2._module.weight.register_hook(print)
-        # self._ptr_layer_2._module.bias.register_hook(print)
 
-        # print(embedded_questions.size())
-        # print(embedded_passages.size())
         # span_start_logits = self._naive_layer_1(embedded_passages).squeeze()
         # span_end_logits = self._naive_layer_2(embedded_passages).squeeze()
         # Shape: (num_passages*batch_size, passage_length)
@@ -394,11 +390,9 @@ class VNet(Model):
         # ---------------------------------------------
         # shape(batch_size, num_passages, embedding_dim)
         batch_r = r.view(batch_size, num_passages, embedding_dim)
-        set_diagonal_zero = (1 - torch.eye(num_passages, device=device)).unsqueeze(0).repeat(
-            batch_size, 1, 1)
-        # set_diagonal_zero = set_diagonal_zero.to(device)
+        mask_diagonal_zero = (1 - torch.eye(num_passages, device=device))
         # shape(batch_size, num_passages, num_passages)
-        passages_self_similarity = self._matrix_attention(batch_r, batch_r) * set_diagonal_zero
+        passages_self_similarity = self._matrix_attention(batch_r, batch_r) * mask_diagonal_zero
         # shape(batch_size, num_passages, num_passages)
         passages_self_attention = torch.softmax(passages_self_similarity, dim=-1)
         # shape(batch_size, num_passages, embedding_dim)
@@ -429,8 +423,8 @@ class VNet(Model):
             # span_start_probs shape(num_passages*batch_size, passage_length)
             # spans_start shape(batch_size, num_passages, 1)
             # then shape(batch_size*num_passages, 1)
-            spans_start = spans_start.squeeze().view(batch_size * num_passages, 1)
-            spans_end = spans_end.squeeze().view(batch_size * num_passages, 1)
+            spans_start = spans_start.view(batch_size * num_passages, 1)
+            spans_end = spans_end.view(batch_size * num_passages, 1)
 
             spans_start.clamp_(-1, passage_length - 1)
             spans_end.clamp_(-1, passage_length - 1)
@@ -449,7 +443,7 @@ class VNet(Model):
             # span_end_logits.register_hook(print)
             eps = 1e-7
             p = p.clamp(eps, 1. - eps)
-            ground_truth_p = self.span_idx_to_01_mask(spans_start, spans_end, p.size()[-1])
+            ground_truth_p = self.span_idx_to_01_mask(spans_start, spans_end, p.size(-1))
             loss_Content = torch.sum(torch.log(p) * ground_truth_p)
             loss_Content += torch.sum(torch.log(1 - p) * (1 - ground_truth_p))
             loss_Content = -loss_Content / max(passage_length * batch_size, 1)

@@ -1,5 +1,4 @@
 import json
-import sys
 import os
 from multiprocessing import Pool
 from collections import namedtuple
@@ -33,6 +32,7 @@ def get_rouge_l(lcs, token_as, lo, hi):
     rec_max = max(rec)
 
     if(prec_max != 0 and rec_max != 0):
+        # F_{1.2}
         score = ((1 + beta ** 2) * prec_max * rec_max) / float(rec_max + beta ** 2 * prec_max)
     else:
         score = 0.0

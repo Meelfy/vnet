@@ -8,6 +8,7 @@
             }
             ,
             "token_characters":{
+                "min_padding_length":5,
                 "type":"characters"
             }
         },
@@ -15,14 +16,14 @@
         "max_p_num": 5,
         "max_p_len": 400,
         "max_q_len": 60,
-        // "max_samples": 10000,
+        // "max_samples": 1000,
     },
     "vocabulary":{
         "directory_path":"/data/nfsdata/meijie/data/dureader/vocabulary/",
     },
-    "train_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/zhidao.train.json",
-    // "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/zhidao.train.json",
-    "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/devset/zhidao.dev.json",
+    "train_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/train.json",
+    // "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/trainset/train.json",
+    "validation_data_path":"/data/nfsdata/meijie/data/dureader/preprocessed/devset/dev.json",
     "model":{
         "type":"vnet",
         "text_field_embedder":{
@@ -32,8 +33,8 @@
                     "type":"embedding",
                     // "pretrained_file":"/data/nfsdata/nlp/embeddings/chinese/word_embedding300.data",
                     // "embedding_dim":300,
-                    // "pretrained_file":"/data/nfsdata/nlp/embeddings/chinese/Tencent_AILab_ChineseEmbedding.txt",
-                    "embedding_dim":150,
+                    "pretrained_file":"/data/nfsdata/nlp/embeddings/chinese/tencent/Tencent_AILab_ChineseEmbedding.txt",
+                    "embedding_dim":200,
                     "trainable":true
                 },
                 "token_characters":{
@@ -47,10 +48,10 @@
                         "embedding_dim":32,
                         "num_filters":32,
                         "ngram_filter_sizes":[
-                            1  
+                            5
                         ]
                     },
-                    "dropout":0.5
+                    "dropout":0.0
                 }
                 // ,
                 // "token_characters":{
@@ -66,11 +67,10 @@
                 //             1
                 //         ]
                 //     },
-                //     "dropout":0.5
+                //     "dropout":0.0
                 // }
             }
         },
-        "max_passage_len": 500,
         "highway_embedding_size":182,
         "num_highway_layers":1,
         "phrase_layer":{
@@ -79,7 +79,7 @@
             "input_size":182,
             "hidden_size":64,
             "num_layers":1,
-            // "dropout":0.5
+            // "dropout":0.0
         },
         "modeling_layer":{
             "type":"lstm",
@@ -87,7 +87,7 @@
             "input_size":512,
             "hidden_size":64,
             "num_layers":2,
-            "dropout":0.5
+            "dropout":0.0
         },
         "matrix_attention_layer": {
             "type": "linear",
@@ -100,7 +100,7 @@
             "input_size": 640,
             "hidden_dim": 64,
             "lstm_layers": 2,
-            "dropout": 0.5
+            "dropout": 0.0
         },
         "span_end_lstm":{
             "type":"lstm",
@@ -108,13 +108,14 @@
             "input_size":640,
             "hidden_size":64,
             "num_layers":2,
-            "dropout":0.5
+            "dropout":0.0
         },
+        "max_passage_len": 400,
         "ptr_dim":64,
-        // "max_num_passages": 10,
-        "max_num_character": 20,
+        "max_num_passages": 5,
+        "max_num_character": 15,
         "language": "zh",
-        "dropout":0.5
+        "dropout":0.0
     },
     "iterator":{
         "type":"bucket",
@@ -132,7 +133,7 @@
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":1,
+        "cuda_device":2,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,
@@ -141,7 +142,11 @@
         },
         "optimizer":{
             "type":"adam",
-            "lr": 0.0001
+            "betas":[
+                0.8,
+                0.9999
+            ],
+            "lr": 0.001
         }
     }
 }

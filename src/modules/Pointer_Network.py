@@ -335,5 +335,5 @@ class PointerNet(Seq2SeqEncoder):
         return self._decoder(embedded_inputs,
                              hidden0,            # hidden
                              encoder_outputs,    # context
-                             fake_inputs,     # decoder_input
+                             fake_inputs,        # decoder_input
                              passages_mask)

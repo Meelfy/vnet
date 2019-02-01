@@ -442,6 +442,7 @@ class BiDAF_ZH(Model):
         ----------
         span_start_logits: shape(batch_size, num_passages, passage_length)
         span_end_logits: shape(batch_size, num_passages, passage_length)
+
         Return
         ------
         best_word_span: shape(batch_size, 3)
@@ -450,32 +451,21 @@ class BiDAF_ZH(Model):
         if span_start_logits.dim() != 3 or span_end_logits.dim() != 3:
             raise ValueError("Input shapes must be (batch_size, num_passages, passage_length)")
         batch_size, num_passages, passage_length = span_start_logits.size()
-        max_span_log_prob = np.ones((batch_size, num_passages)) * -1e7
-        max_span_batch = np.ones((batch_size)) * -1e7
-        span_start_argmax = torch.zeros(batch_size, num_passages).long()
-        best_word_span = span_start_logits.new_zeros((batch_size, 3), dtype=torch.long)
+        device = span_start_logits.device
 
-        span_start_logits = span_start_logits.detach().cpu().numpy()
-        span_end_logits = span_end_logits.detach().cpu().numpy()
-        
-        for b in range(batch_size):
-            for p in range(num_passages):
-                for j in range(passage_length):
-                    val1 = span_start_logits[b, p, span_start_argmax[b, p]]
-                    if val1 < span_start_logits[b, p, j]:
-                        span_start_argmax[b, p] = j
-                        val1 = span_start_logits[b, p, j]
+        span_start_logits = span_start_logits.view(batch_size * num_passages, passage_length)
+        span_end_logits = span_end_logits.view(batch_size * num_passages, passage_length)
+        logits_addition = torch.bmm(span_start_logits.unsqueeze(2), span_end_logits.unsqueeze(1))
+        logits_addition_triu = logits_addition * torch.triu(torch.ones((passage_length, passage_length),
+                                                                       device=device))
+        best_spans = logits_addition_triu.view(batch_size, num_passages * (passage_length ** 2)).argmax(-1)
 
-                    val2 = span_end_logits[b, p, j]
-
-                    if val1 + val2 > max_span_log_prob[b, p]:
-                        max_span_log_prob[b, p] = val1 + val2
-                        if max_span_log_prob[b, p] > max_span_batch[b]:
-                            best_word_span[b, 0] = p
-                            best_word_span[b, 1] = span_start_argmax[b, p]
-                            best_word_span[b, 2] = j
-                            max_span_batch[b] = max_span_log_prob[b, p]
-        return best_word_span
+        passage_idx = best_spans // (passage_length ** 2)
+        span_start_idx = best_spans % (passage_length ** 2) // passage_length
+        span_end_idx = best_spans % (passage_length ** 2) % passage_length
+        span_start_logits = span_start_logits.view(batch_size, num_passages, passage_length)
+        span_end_logits = span_end_logits.view(batch_size, num_passages, passage_length)
+        return torch.stack([passage_idx, span_start_idx, span_end_idx], dim=-1)
 
     def get_metrics(self, reset: bool = False) -> Dict[str, float]:
         rouge_l = self._rouge_metrics.get_metric(reset)

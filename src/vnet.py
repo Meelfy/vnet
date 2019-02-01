@@ -10,8 +10,7 @@
 这一行开始写关于本文件的说明与解释
 """
 import logging
-import numpy as np
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 import random
 
 import torch
@@ -383,7 +382,6 @@ class VNet(Model):
         # get answers candidates
         # shape(num_passages*batch_size, passage_length)
         prob_p = self.get_prob_map(span_start_probs, span_end_probs)
-        prob_p = prob_p.to(device)
         # prob_p = prob_p.clamp(0, 1)
         embedded_answers_candidates = embedded_passages *\
             prob_p.unsqueeze(-1).repeat(1, 1, embedding_dim)
@@ -451,8 +449,7 @@ class VNet(Model):
             # span_end_logits.register_hook(print)
             eps = 1e-7
             p = p.clamp(eps, 1. - eps)
-            ground_truth_p = self.map_span_to_01(spans_end, p.size()) -\
-                self.map_span_to_01(spans_start - 1, p.size())
+            ground_truth_p = self.span_idx_to_01_mask(spans_start, spans_end, p.size()[-1])
             loss_Content = torch.sum(torch.log(p) * ground_truth_p)
             loss_Content += torch.sum(torch.log(1 - p) * (1 - ground_truth_p))
             loss_Content = -loss_Content / max(passage_length * batch_size, 1)
@@ -548,24 +545,6 @@ class VNet(Model):
         return output_dict
 
     @staticmethod
-    def map_span_to_01(span_idx: torch.Tensor, shape: Tuple) -> torch.Tensor:
-        '''
-        This func is map span_idx=[[0], [2], [1]], shape = (3, 3) to
-        [[1, 0, 0],
-         [1, 1, 1],
-         [1, 1, 0]]
-        line i has (span_idx[i]+1)  zeors
-        Parameters
-        ----------
-        span_idx shape(batch_size * num_passages, 1)
-        '''
-        device = span_idx.device
-        span_idx = span_idx.squeeze().unsqueeze(-1)
-        x = (torch.arange(0, shape[-1], device=device).view(1, -1).expand(shape[0], -1).float() -
-             span_idx.float().view(-1, 1).expand(-1, shape[-1]))
-        return torch.where(x > 0, torch.zeros(shape, device=device), torch.ones(shape, device=device))
-
-    @staticmethod
     def get_best_span(span_start_probs: torch.Tensor,
                       span_end_probs: torch.Tensor,
                       content: torch.Tensor,
@@ -581,44 +560,90 @@ class VNet(Model):
         ------
         best_word_span: shape(batch_size, 3)
             3 for [best_passage_id, start, end]
+        speedup
+        -------
+        old version
+            CPU 4.49 s ± 58.4 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+            GPU 4.47 s ± 63.4 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+        new version
+            CPU 5.75 s ± 14.6 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+            GPU 61.9 ms ± 37.3 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+        4.47 / 61.9 * 1000 = 72.2
+        new version is a little hard to understand
         '''
         if span_start_probs.dim() != 3 or span_end_probs.dim() != 3:
             raise ValueError("Input shapes must be (batch_size, num_passages, passage_length)")
         batch_size, num_passages, passage_length = span_start_probs.size()
-        max_span_prob = np.ones((batch_size, num_passages)) * -1e20
-        max_span_batch = np.ones((batch_size)) * -1e20
-        span_start_argmax = torch.zeros(batch_size, num_passages).long()
-        best_word_span = np.zeros((batch_size, 3), dtype=int)
-        span_start_probs_clone = span_start_probs.clone().detach().cpu().numpy()
-        span_end_probs_clone = span_end_probs.clone().detach().cpu().numpy()
-        content_clone = content.clone().detach().cpu().numpy()
-        passages_verify_clone = passages_verify.clone().detach().cpu().numpy()
-        for b in range(batch_size):
-            for p in range(num_passages):
-                for j in range(passage_length):
-                    val1 = span_start_probs_clone[b, p, span_start_argmax[b, p]]
-                    if val1 < span_start_probs_clone[b, p, j]:
-                        span_start_argmax[b, p] = j
-                        val1 = span_start_probs_clone[b, p, j]
+        device = span_start_probs.device
+        content = content.view(batch_size * num_passages, passage_length)
 
-                    val2 = span_end_probs_clone[b, p, j]
-                    # pdb.set_trace()
-                    value = (val1 * val2) *\
-                        np.mean(content_clone[b, p, span_start_argmax[b, p]:j + 1]) *\
-                        passages_verify_clone[b, p]
-                    # value = val1 * val2
+        span_start_probs = span_start_probs.view(batch_size * num_passages, passage_length)
+        span_end_probs = span_end_probs.view(batch_size * num_passages, passage_length)
+        span_probs = torch.bmm(span_start_probs.unsqueeze(2), span_end_probs.unsqueeze(1))
+        span_probs_mask = torch.triu(torch.ones((passage_length, passage_length),
+                                                device=device))
+        valid_span_probs = span_probs * span_probs_mask
 
-                    if value > max_span_prob[b, p]:
-                        max_span_prob[b, p] = value
-                        # print(span_end_probs_clone[b, p, j:])
-                        if max_span_prob[b, p] > max_span_batch[b]:
-                            best_word_span[b, 0] = p
-                            best_word_span[b, 1] = span_start_argmax[b, p]
-                            best_word_span[b, 2] = j
-                            max_span_batch[b] = max_span_prob[b, p]
-        return best_word_span
+        cumsum_content = content.unsqueeze(1).repeat(1, passage_length, 1) *\
+            torch.triu(torch.ones((passage_length, passage_length), device=device))
+        cumsum_content = torch.cumsum(cumsum_content, dim=-1) /\
+            torch.cumsum(torch.triu(torch.ones((passage_length, passage_length), device=device)), dim=-1)
+        cumsum_content[cumsum_content != cumsum_content] = 0.0
 
-    def get_prob_map(self, span_start_probs: torch.Tensor, span_end_probs: torch.Tensor) -> torch.Tensor:
+        best_spans = valid_span_probs * cumsum_content
+        best_spans = best_spans.view(batch_size, num_passages, passage_length, passage_length) *\
+            passages_verify.view((batch_size, num_passages, 1, 1))
+        best_spans = best_spans.view(batch_size, num_passages * (passage_length ** 2)).argmax(-1)
+
+        passage_idx = best_spans // (passage_length ** 2)
+        span_start_idx = best_spans % (passage_length ** 2) // passage_length
+        span_end_idx = best_spans % (passage_length ** 2) % passage_length
+        span_start_probs = span_start_probs.view(batch_size, num_passages, passage_length)
+        span_end_probs = span_end_probs.view(batch_size, num_passages, passage_length)
+        content = content.view(batch_size, num_passages, passage_length)
+        return torch.stack([passage_idx, span_start_idx, span_end_idx], dim=-1)
+
+    @staticmethod
+    def map_span_to_01(span_idx: torch.Tensor, shape: int) -> torch.Tensor:
+        '''
+        This func is map span_idx=[[0], [2], [1]], shape = 3 to
+        [[1, 0, 0],
+         [1, 1, 1],
+         [1, 1, 0]]
+        line i has (span_idx[i]+1)  zeors
+        Parameters
+        ----------
+        span_idx shape(batch_size * num_passages, 1)
+        '''
+        device = span_idx.device
+        if len(span_idx.size()) == 1:
+            span_idx = span_idx.unsqueeze(1)
+        return 1 - torch.cumsum(torch.eye(shape + 1, device=device)[span_idx][:, :shape, :shape],
+                                dim=-1).squeeze(1)
+
+    def span_idx_to_01_mask(self, span_start_idx, span_end_idx, shape):
+        '''
+        Example
+        -------
+        span_start_idx = tensor([1, -1, 3, 0, 2, 2])
+        span_end_idx   = tensor([2, -1, 3, 0, 2, 2])
+        shape = 4
+
+        Return
+        ------
+        return tensor([[0., 1., 1., 0.],
+                       [0., 0., 0., 0.],
+                       [0., 0., 0., 1.],
+                       [1., 0., 0., 0.],
+                       [0., 0., 1., 0.],
+                       [0., 0., 1., 0.]])
+        '''
+        res = self.map_span_to_01(span_end_idx + 1, shape) -\
+            self.map_span_to_01(span_start_idx, shape)
+        return res.clamp(0, 1)
+
+    def get_prob_map(self, span_start_probs: torch.Tensor,
+                     span_end_probs: torch.Tensor) -> torch.Tensor:
         '''
         Parameters
         ----------
@@ -641,8 +666,7 @@ class VNet(Model):
         res = probs_product_triu.view(batch_size, -1).argmax(-1)
         span_start_idx = res // passage_length
         span_end_idx = res % passage_length
-        prob_p = self.map_span_to_01(span_end_idx, (batch_size, passage_length)) -\
-            self.map_span_to_01(span_start_idx - 1, (batch_size, passage_length))
+        prob_p = self.span_idx_to_01_mask(span_start_idx, span_end_idx, passage_length)
         return prob_p
 
     def get_metrics(self, reset: bool = False) -> Dict[str, float]:

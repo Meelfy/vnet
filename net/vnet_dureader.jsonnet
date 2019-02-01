@@ -15,7 +15,7 @@
         "max_p_num": 5,
         "max_p_len": 400,
         "max_q_len": 60,
-        "max_samples": 100,
+        // "max_samples": 10000,
     },
     "vocabulary":{
         "directory_path":"/data/nfsdata/meijie/data/dureader/vocabulary/",

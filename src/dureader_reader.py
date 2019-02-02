@@ -39,7 +39,6 @@ class DuReaderMultiPassageReader(DatasetReader):
     """
 
     def __init__(self,
-                 embed_size: int = 300,
                  max_p_num: int = 5,
                  max_p_len: int = 500,
                  max_q_len: int = 50,

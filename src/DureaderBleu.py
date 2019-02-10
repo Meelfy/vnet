@@ -26,7 +26,7 @@ class DureaderBleu(Metric):
         best_span_string : ``str``
         answer_strings: List[str]
         """
-        bleu = Bleu().calc_score(best_span_string, answer_strings)
+        bleu = Bleu(4).calc_score(best_span_string, answer_strings)
 
         self._total_bleu += bleu
         self._count += 1

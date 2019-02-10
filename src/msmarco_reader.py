@@ -2,7 +2,7 @@ import json
 import logging
 import pickle
 from collections import Counter
-from typing import Dict, List, Tuple, Optional, Iterable, Any
+from typing import Dict, List, Tuple, Iterable, Any
 from overrides import overrides
 from tqdm import tqdm as tqdm
 

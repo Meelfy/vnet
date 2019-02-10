@@ -39,7 +39,6 @@ def data_to_json_obj(data):
     json_obj['qid'] = json_obj.pop('query_id')
     if json_obj['answer_texts'] != '' and \
             'No Answer Present.' not in json_obj['answer_texts']:
-        json_obj['passages_tokens'] = []
         token_spans = []
         for passage_text in json_obj['passages_texts']:
             span, _, passage_tokens, ans = label_generator.gen_gold_span(
@@ -61,10 +60,9 @@ def data_to_json_obj(data):
         [token.text for token in label_generator.split_passage(json_obj.pop('query'))]
     )
     json_obj['question_tokens'] = question_tokens
-    if 'passages_tokens' not in json_obj:
-        json_obj['passages_tokens'] = [segmented_text_to_tuples(
-            [token.text for token in label_generator.split_passage(passage)]
-        ) for passage in json_obj['passages_texts']]
+    json_obj['passages_tokens'] = [segmented_text_to_tuples(
+        [token.text for token in label_generator.split_passage(passage)]
+    ) for passage in json_obj['passages_texts']]
     json_obj.pop('query_type', '')
     json_obj.pop('wellFormedAnswers', '')
     return json_obj
@@ -85,15 +83,15 @@ def parallel_process_file(file_name):
 
 
 def main():
-    # data_path = "/data/nfsdata/meijie/data/msmarco"
-    # file_name = os.path.join(data_path, 'train.jsonl')
-    # parallel_process_file(file_name)
+    data_path = "/data/nfsdata/meijie/data/msmarco"
+    file_name = os.path.join(data_path, 'train.jsonl')
+    parallel_process_file(file_name)
     data_path = "/data/nfsdata/meijie/data/msmarco"
     file_name = os.path.join(data_path, 'dev.jsonl')
     parallel_process_file(file_name)
-    # data_path = "/data/nfsdata/meijie/data/msmarco"
-    # file_name = os.path.join(data_path, 'eval.jsonl')
-    # parallel_process_file(file_name)
+    data_path = "/data/nfsdata/meijie/data/msmarco"
+    file_name = os.path.join(data_path, 'eval.jsonl')
+    parallel_process_file(file_name)
 
 
 if __name__ == '__main__':

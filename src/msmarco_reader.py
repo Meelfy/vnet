@@ -14,6 +14,7 @@ from allennlp.data.fields import Field, TextField, IndexField, \
     MetadataField, ListField
 
 logger = logging.getLogger(__name__)
+# logger.setLevel(logging.DEBUG)
 
 
 @DatasetReader.register("msmarco_multi_passage_limited")
@@ -61,14 +62,20 @@ class MsmarcoMultiPassageReader(DatasetReader):
         for lidx, line in enumerate(fin):
             if self.max_samples >= 0 and lidx > self.max_samples:
                 break
-            json_obj = json.load(line)
-            if 'token_spans' not in json_obj:
+            json_obj = json.loads(line)
+            if json_obj['token_spans'] is None:
                 if is_train:
                     continue
                 else:
                     json_obj['token_spans'] = [[(-1, -1)]] *\
                         len(json_obj['passages_texts'])
             yield self._json_blob_to_instance(json_obj)
+            if lidx < 5:
+                logger.debug('answer_texts: ' + '; '.join(json_obj['answer_texts']))
+                instance = self._json_blob_to_instance(json_obj)
+                print(instance)
+                # print(instance['metadata'].metadata)
+                print(instance['metadata'])
         fin.close()
 
     def _json_blob_to_instance(self, json_obj) -> Instance:

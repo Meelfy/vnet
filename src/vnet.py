@@ -114,10 +114,10 @@ class VNet(Model):
         encoding_dim = phrase_layer.get_output_dim()
 
         # self._match_layer = match_layer
-        # self._ptr_layer_1 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
-        #                                                     modeling_dim, 1))
-        # self._ptr_layer_2 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
-        #                                                     modeling_dim, 1))
+        self._ptr_layer_1 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
+                                                            modeling_dim, 1))
+        self._ptr_layer_2 = TimeDistributed(torch.nn.Linear(encoding_dim * 4 +
+                                                            modeling_dim, 1))
         # self._naive_layer_1 = TimeDistributed(torch.nn.Linear(highway_embedding_size, 1))
         # self._naive_layer_2 = TimeDistributed(torch.nn.Linear(highway_embedding_size, 1))
 
@@ -377,13 +377,13 @@ class VNet(Model):
         # embedded_passages shape(batch_size*num_passages, passage_length, embedding_dim)
         # get answers candidates
         # shape(num_passages*batch_size, passage_length)
-        prob_p = self.get_prob_map(span_start_probs, span_end_probs)
-        # prob_p = prob_p.clamp(0, 1)
-        embedded_answers_candidates = embedded_passages *\
-            prob_p.unsqueeze(-1).repeat(1, 1, embedding_dim)
+        # prob_p = self.get_prob_map(span_start_probs, span_end_probs)
+        # # prob_p = prob_p.clamp(0, 1)
+        # embedded_answers_candidates = embedded_passages *\
+        #     prob_p.unsqueeze(-1).repeat(1, 1, embedding_dim)
         # embedded_answers_candidates = embedded_passages
         # shape(num_passages*batch_size, embedding_dim)
-        r = util.weighted_sum(embedded_answers_candidates, p)
+        r = util.weighted_sum(embedded_passages, p)
 
         # ---------------------------------------------
         # Part Four:  Cross-Passage Answer Verification
@@ -404,7 +404,8 @@ class VNet(Model):
         g = F.pad(g, (0, pad_size, 0, pad_size), 'constant', 0.0)
         # shape(batch_size, num_passages)
         passages_verify = self._passage_predictor(g).squeeze(-1)
-        if self.training and random.randint(1, 100) != 1:
+        passages_verify = passages_verify[:, :num_passages]
+        if self.training and random.randint(1, 10) != 1:
             best_span = None
         else:
             best_span = self.get_best_span(span_start_probs.view(batch_size, num_passages, -1),
@@ -451,9 +452,6 @@ class VNet(Model):
             # shape(batch_size, num_passages)
             ground_truth_passages_verify = (spans_end != -1).float().to(device).view(batch_size,
                                                                                      num_passages)
-            pad_size = self.max_num_passages - ground_truth_passages_verify.size(-1)
-            ground_truth_passages_verify = F.pad(ground_truth_passages_verify,
-                                                 (0, pad_size), 'constant', 0.0)
             # sigmoid passage loss
             passages_verify = torch.softmax(passages_verify, dim=-1)
             passages_verify = passages_verify.clamp(eps, 1. - eps)
@@ -503,7 +501,7 @@ class VNet(Model):
                     answer_texts = list(set([' '.join(item)
                                              for sublist in answer_texts for item in sublist]))
                 elif self.language == 'en':
-                    answer_texts = list(set([item for sublist in answer_texts for item in sublist]))
+                    answer_texts = list(set(answer_texts))
                 if answer_texts:
                     if self.language == 'zh':
                         self._rouge_metrics(' '.join(best_span_string), answer_texts)
@@ -511,7 +509,7 @@ class VNet(Model):
                     elif self.language == 'en':
                         self._rouge_metrics(best_span_string, answer_texts)
                         self._bleu_metrics(best_span_string, answer_texts)
-                if spans_start is not None and loss < 9:
+                if spans_start is not None:
                     logger.debug('passage_id:%d, start_idx:%d, end_idx:%d' %
                                  (passage_id, start_idx, end_idx))
                     logger.debug("spans_start: {}".format(
@@ -588,7 +586,6 @@ class VNet(Model):
         best_spans = best_spans.view(batch_size, num_passages, passage_length, passage_length) *\
             passages_verify.view((batch_size, num_passages, 1, 1))
         best_spans = best_spans.view(batch_size, num_passages * (passage_length ** 2)).argmax(-1)
-
         passage_idx = best_spans // (passage_length ** 2)
         span_start_idx = best_spans % (passage_length ** 2) // passage_length
         span_end_idx = best_spans % (passage_length ** 2) % passage_length

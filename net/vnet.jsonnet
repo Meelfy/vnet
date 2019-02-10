@@ -7,22 +7,22 @@
                 "lowercase_tokens":true
             },
             "token_characters":{
-                "type":"characters"
+                "type":"characters",
+                "min_padding_length":5
             }
         },
         "lazy": true,
-        "char_only": false,
-        "language": "en",
-        // "max_samples": 1000,
-        "passage_length_limit": 400,
-        "question_length_limit": 50
+        "max_p_num": 5,
+        "max_p_len": 500,
+        "max_q_len": 50,
+        "max_samples": 10000,
     },
     "vocabulary":{
         "directory_path":"/data/nfsdata/meijie/data/msmarco/vocabulary/",
     },
-    "train_data_path":"/data/nfsdata/meijie/data/msmarco/train_v2.1.json",
+    "train_data_path":"/data/nfsdata/meijie/data/msmarco/train.jsonl.instances",
     // "validation_data_path":"/data/nfsdata/meijie/data/msmarco/train_v2.1.json",
-    "validation_data_path":"/data/nfsdata/meijie/data/msmarco/dev_v2.1.json",
+    "validation_data_path":"/data/nfsdata/meijie/data/msmarco/train.jsonl.instances",
     "model":{
         "type":"vnet",
         "text_field_embedder":{
@@ -44,7 +44,7 @@
                         "embedding_dim":16,
                         "num_filters":100,
                         "ngram_filter_sizes":[
-                            4
+                            5
                         ]
                     },
                     "dropout":0.2
@@ -60,7 +60,7 @@
             "input_size":300,
             "hidden_size":100,
             "num_layers":1,
-            "dropout":0.2
+            // "dropout":0.2
         },
         // "match_layer":{
         //     "type":"lstm",

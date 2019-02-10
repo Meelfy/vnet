@@ -8,4 +8,4 @@ parser.add_argument("-s", default='/home/meefly/data/results/multi_passage', typ
                     help="")
 args = parser.parse_args()
 import_submodules('src')
-train_model_from_file("./net/vnet_dureader.jsonnet", args.s, force=True)
+train_model_from_file("./net/vnet.jsonnet", args.s, force=True)

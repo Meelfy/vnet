@@ -12,17 +12,16 @@
             }
         },
         "lazy": true,
-        "max_p_num": 5,
-        "max_p_len": 500,
+        "max_p_num": 10,
+        "max_p_len": 400,
         "max_q_len": 50,
-        "max_samples": 10000,
+        // "max_samples": 1000,
     },
     "vocabulary":{
         "directory_path":"/data/nfsdata/meijie/data/msmarco/vocabulary/",
     },
     "train_data_path":"/data/nfsdata/meijie/data/msmarco/train.jsonl.instances",
-    // "validation_data_path":"/data/nfsdata/meijie/data/msmarco/train_v2.1.json",
-    "validation_data_path":"/data/nfsdata/meijie/data/msmarco/train.jsonl.instances",
+    "validation_data_path":"/data/nfsdata/meijie/data/msmarco/dev.jsonl.instances",
     "model":{
         "type":"vnet",
         "text_field_embedder":{
@@ -52,6 +51,8 @@
             }
         },
         "max_passage_len": 400,
+        "max_num_passages": 10,
+        "max_num_character": 5,
         "highway_embedding_size":300,
         "num_highway_layers":1,
         "phrase_layer":{
@@ -62,14 +63,6 @@
             "num_layers":1,
             // "dropout":0.2
         },
-        // "match_layer":{
-        //     "type":"lstm",
-        //     "bidirectional":true,
-        //     "input_size":1000,
-        //     "hidden_size":500,
-        //     "num_layers":2,
-        //     "dropout":0.2
-        // },
         "modeling_layer":{
             "type":"lstm",
             "bidirectional":true,
@@ -100,8 +93,6 @@
             "dropout":0.2
         },
         "ptr_dim":200,
-        "max_num_passages": 10,
-        "max_num_character": 10,
         "language": "en",
         "dropout":0.2
     },
@@ -115,7 +106,7 @@
         "grad_norm":5,
         "patience":10,
         "validation_metric":"+rouge_L",
-        "cuda_device":0,
+        "cuda_device":3,
         "learning_rate_scheduler":{
             "type":"reduce_on_plateau",
             "factor":0.5,

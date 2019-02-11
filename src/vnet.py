@@ -405,15 +405,15 @@ class VNet(Model):
         # shape(batch_size, num_passages)
         passages_verify = self._passage_predictor(g).squeeze(-1)
         passages_verify = passages_verify[:, :num_passages]
-        if self.training and random.randint(1, 10) != 1:
-            best_span = None
-        else:
-            best_span = self.get_best_span(span_start_probs.view(batch_size, num_passages, -1),
-                                           span_end_probs.view(batch_size, num_passages, -1),
-                                           util.masked_softmax(p, passages_mask).view(batch_size,
-                                                                                      num_passages,
-                                                                                      -1),
-                                           torch.softmax(passages_verify, dim=-1))
+        # if self.training and random.randint(1, 10) != 1.1:
+        #     best_span = None
+        # else:
+        best_span = self.get_best_span(span_start_probs.view(batch_size, num_passages, -1),
+                                       span_end_probs.view(batch_size, num_passages, -1),
+                                       util.masked_softmax(p, passages_mask).view(batch_size,
+                                                                                  num_passages,
+                                                                                  -1),
+                                       torch.softmax(passages_verify, dim=-1))
         output_dict = {'best_span': best_span,
                        'span_start_logits': span_start_logits.view(batch_size, num_passages, -1),
                        'span_start_probs': span_start_probs.view(batch_size, num_passages, -1),
@@ -438,10 +438,6 @@ class VNet(Model):
             loss_Boundary += nll_loss(util.masked_log_softmax(span_end_logits, passages_mask),
                                       spans_end.squeeze(-1), ignore_index=-1)
             loss_Boundary = loss_Boundary / 2
-            # print(util.masked_log_softmax(span_start_logits, passages_mask))
-            # print(loss_Boundary)
-            # match_passages_vector.register_hook(print)
-            # span_end_logits.register_hook(print)
             eps = 1e-7
             p = p.clamp(eps, 1. - eps)
             ground_truth_p = self.span_idx_to_01_mask(spans_start, spans_end, p.size(-1))
@@ -458,8 +454,6 @@ class VNet(Model):
             loss_Verification = torch.log(passages_verify) * ground_truth_passages_verify
             # softmax passage loss
             # loss_Verification = torch.log_softmax(passages_verify, dim=-1) * ground_truth_passages_verify
-            # print(passages_verify)
-            # print(ground_truth_passages_verify)
             loss_Verification = -torch.sum(loss_Verification) /\
                 max(torch.sum(ground_truth_passages_verify), 1)
             loss = loss_Boundary + 0.5 * loss_Content + 0.5 * loss_Verification

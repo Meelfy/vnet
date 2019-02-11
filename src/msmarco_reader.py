@@ -59,23 +59,25 @@ class MsmarcoMultiPassageReader(DatasetReader):
     def _read(self, file_path: str) -> Iterable[Instance]:
         is_train = 'train' in file_path
         fin = open(file_path)
+        show_count = 0
         for lidx, line in enumerate(fin):
             if self.max_samples >= 0 and lidx > self.max_samples:
                 break
             json_obj = json.loads(line)
-            if json_obj['token_spans'] is None:
+            if json_obj['token_spans'] is None or\
+                    all([item == [[-1, -1]] for item in json_obj['token_spans']]):
                 if is_train:
                     continue
                 else:
                     json_obj['token_spans'] = [[(-1, -1)]] *\
                         len(json_obj['passages_texts'])
+            logger.debug(str(json_obj['token_spans']))
             yield self._json_blob_to_instance(json_obj)
-            if lidx < 5:
-                logger.debug('answer_texts: ' + '; '.join(json_obj['answer_texts']))
+            if show_count < 2:
                 instance = self._json_blob_to_instance(json_obj)
-                print(instance)
-                # print(instance['metadata'].metadata)
-                print(instance['metadata'])
+                logger.info(str(instance))
+                logger.info(str(instance['metadata'].metadata))
+                show_count += 1
         fin.close()
 
     def _json_blob_to_instance(self, json_obj) -> Instance:
